@@ -100,38 +100,88 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
   const [month, setMonth] = useState(new Date().getMonth());
   const year = new Date().getFullYear();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    startsAt: "",
-    endsAt: "",
-    location: "",
-    category: "gathering" as (typeof CATEGORIES)[number],
-  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [shareEvent, setShareEvent] = useState<FamilyEvent | null>(null);
+  const [shareEmail, setShareEmail] = useState("");
+  const [shareKind, setShareKind] = useState<"invitation" | "reminder">("invitation");
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["events", familyId] });
 
-  const createMutation = useMutation({
-    mutationFn: () =>
-      create({
-        data: {
-          familyId,
-          title: form.title.trim(),
-          startsAt: form.startsAt,
-          category: form.category,
-          ...(form.description.trim() ? { description: form.description.trim() } : {}),
-          ...(form.endsAt ? { endsAt: form.endsAt } : {}),
-          ...(form.location.trim() ? { location: form.location.trim() } : {}),
-        },
-      }),
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setOpen(true);
+  };
+
+  const openEdit = (event: FamilyEvent) => {
+    setEditingId(event.id);
+    setForm({
+      title: event.title,
+      description: event.description ?? "",
+      startsAt: toLocalInput(event.startsAt),
+      endsAt: toLocalInput(event.endsAt),
+      location: event.location ?? "",
+      category: (CATEGORIES as readonly string[]).includes(event.category)
+        ? (event.category as (typeof CATEGORIES)[number])
+        : "other",
+    });
+    setOpen(true);
+  };
+
+  const saveMutation = useMutation({
+    mutationFn: () => {
+      const payload = {
+        title: form.title.trim(),
+        startsAt: form.startsAt,
+        category: form.category,
+        ...(form.description.trim() ? { description: form.description.trim() } : {}),
+        ...(form.endsAt ? { endsAt: form.endsAt } : {}),
+        ...(form.location.trim() ? { location: form.location.trim() } : {}),
+      };
+      return editingId
+        ? update({ data: { eventId: editingId, ...payload } })
+        : create({ data: { familyId, ...payload } });
+    },
     onSuccess: () => {
+      const edited = !!editingId;
       setOpen(false);
-      setForm({ title: "", description: "", startsAt: "", endsAt: "", location: "", category: "gathering" });
+      setEditingId(null);
+      setForm(EMPTY_FORM);
       void invalidate();
-      toast.success("Event added to your family calendar.");
+      toast.success(edited ? "Event updated for everyone." : "Event added to your family calendar.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (eventId: string) => remove({ data: { eventId } }),
+    onSuccess: () => {
+      void invalidate();
+      toast.success("Event removed from the calendar.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const emailMutation = useMutation({
+    mutationFn: () =>
+      sendEmail({
+        data: { eventId: shareEvent!.id, email: shareEmail.trim(), kind: shareKind },
+      }),
+    onSuccess: (result) => {
+      if (result.sent) {
+        toast.success(
+          shareKind === "reminder" ? "Reminder sent." : `Invitation sent to ${shareEmail.trim()}.`,
+        );
+        setShareEmail("");
+        setShareEvent(null);
+      } else {
+        toast.error("That address has unsubscribed from our emails, so nothing was sent.");
+      }
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const rsvpMutation = useMutation({
     mutationFn: (vars: { eventId: string; response: "going" | "maybe" | "no" }) =>
