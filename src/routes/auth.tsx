@@ -47,6 +47,21 @@ function AuthPage() {
     await navigate({ to: "/onboarding" });
   };
 
+  const signInWithGoogle = async () => {
+    setBusy(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setBusy(false);
+      toast.error("Google sign-in failed. Please try again or use your email.");
+      return;
+    }
+    if (result.redirected) return;
+    await afterAuth();
+  };
+
+
   const signIn = async () => {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
