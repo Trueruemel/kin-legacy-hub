@@ -122,5 +122,39 @@ export const acceptInvite = createServerFn({ method: "POST" })
       _token: data.token,
     });
     if (error) throw new Error(error.message);
+
+    // Welcome the new member. Never let email trouble break joining.
+    try {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const origin = new URL(getRequest()!.url).origin;
+
+      const [{ data: family }, { data: profile }] = await Promise.all([
+        context.supabase.from("families").select("name").eq("id", familyId as string).maybeSingle(),
+        context.supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("id", context.userId)
+          .maybeSingle(),
+      ]);
+
+      const recipient = (context.claims as { email?: string } | undefined)?.email;
+      if (recipient) {
+        const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+        await sendTemplateEmail("family-welcome", recipient, {
+          idempotencyKey: `family-welcome:${familyId}:${context.userId}`,
+          templateData: {
+            familyName: family?.name ?? "your family archive",
+            memberName: profile?.display_name ?? undefined,
+            siteUrl: origin,
+            treeUrl: `${origin}/tree`,
+            calendarUrl: `${origin}/calendar`,
+          },
+        });
+      }
+    } catch (emailError) {
+      console.error("family welcome email failed", emailError);
+    }
+
     return { familyId: familyId as string };
   });
+

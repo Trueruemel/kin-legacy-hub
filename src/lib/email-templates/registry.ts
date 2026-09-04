@@ -1,5 +1,8 @@
 import type { ComponentType } from 'react'
 
+import { template as familyWelcomeTemplate } from './family-welcome'
+
+
 export interface TemplateEntry {
   component: ComponentType<any>
   subject: string | ((data: Record<string, any>) => string)
@@ -19,5 +22,6 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   // Add templates here as they are created, e.g.:
-  // 'welcome': welcomeTemplate,
+  'family-welcome': familyWelcomeTemplate,
 }
+
