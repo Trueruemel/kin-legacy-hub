@@ -95,6 +95,22 @@ export const createChat = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Only people who actually belong to this family may join the chat.
+    const requested = [...new Set([userId, ...(data.memberIds ?? [])])];
+    const { data: familyMembers, error: membershipError } = await supabase
+      .from("family_members")
+      .select("user_id")
+      .eq("family_id", data.familyId)
+      .in("user_id", requested);
+    if (membershipError) throw new Error(membershipError.message);
+
+    const allowed = new Set((familyMembers ?? []).map((m) => m.user_id));
+    if (!allowed.has(userId)) throw new Error("You are not a member of this family.");
+    if (requested.some((id) => !allowed.has(id))) {
+      throw new Error("Everyone in a chat must be a member of this family.");
+    }
+
     const chatId = crypto.randomUUID();
     const { error } = await supabase.from("chats").insert({
       id: chatId,
@@ -105,9 +121,8 @@ export const createChat = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
 
-    const ids = [...new Set([userId, ...(data.memberIds ?? [])])];
     const { error: memberError } = await supabase.from("chat_members").insert(
-      ids.map((id) => ({ chat_id: chatId, family_id: data.familyId, user_id: id })),
+      requested.map((id) => ({ chat_id: chatId, family_id: data.familyId, user_id: id })),
     );
     if (memberError) throw new Error(memberError.message);
     return { id: chatId };
