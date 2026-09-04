@@ -136,7 +136,7 @@ export function RealForums({ familyId }: { familyId: string }) {
                     started by {thread.authorName ?? "a family member"} · {relative(thread.createdAt)}
                   </span>
                 </div>
-                <h3 className="mt-2 truncate font-display text-lg font-semibold">{thread.title}</h3>
+                <h2 className="mt-2 truncate font-display text-lg font-semibold">{thread.title}</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {thread.replies} {thread.replies === 1 ? "reply" : "replies"} · last activity{" "}
                   {relative(thread.updatedAt)}

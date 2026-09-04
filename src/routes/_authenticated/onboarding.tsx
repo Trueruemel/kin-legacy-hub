@@ -61,7 +61,7 @@ function Onboarding() {
   });
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-6 py-16">
+    <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center px-6 py-16">
       <h1 className="font-display text-3xl font-semibold">Create your family archive</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Everything you add lives inside this family and is visible only to the relatives you invite.

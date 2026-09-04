@@ -95,7 +95,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-6 py-16">
       <div className="w-full max-w-sm">
         <Link to="/" className="inline-block">
           <Wordmark className="text-primary dark:text-gold" />

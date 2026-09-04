@@ -248,7 +248,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
                   {daysFromToday(new Date(event.startsAt))} days
                 </span>
               </div>
-              <h3 className="mt-2 font-display text-xl font-semibold">{event.title}</h3>
+              <h2 className="mt-2 font-display text-xl font-semibold">{event.title}</h2>
               {event.location && (
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                   <MapPin className="size-3.5" /> {event.location}
@@ -301,7 +301,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               <Button variant="outline" size="sm" onClick={() => setMonth((m) => (m + 11) % 12)}>
                 Previous
               </Button>
-              <h3 className="font-display text-xl font-semibold">
+              <h2 className="font-display text-xl font-semibold">
                 {new Date(year, month).toLocaleString(undefined, { month: "long" })} {year}
               </h3>
               <Button variant="outline" size="sm" onClick={() => setMonth((m) => (m + 1) % 12)}>

@@ -454,7 +454,7 @@ export function AppLayout({ children, wide = false }: { children: ReactNode; wid
   const switching = useAppStore((s) => s.switching);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4">
           <Link to="/feed" className="shrink-0 text-primary dark:text-gold">
