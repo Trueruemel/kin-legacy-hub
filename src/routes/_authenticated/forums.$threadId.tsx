@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/forums/$threadId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Thread not found — Eternal Memories" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Thread not found — Eternal — Memories" }, { name: "robots", content: "noindex" }] };
     }
     const { thread } = loaderData;
     return {

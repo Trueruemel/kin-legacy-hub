@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import wordmark from "@/assets/wordmark.png";
 
 export function TreeMark({ className }: { className?: string }) {
   return (
@@ -27,9 +28,12 @@ export function TreeMark({ className }: { className?: string }) {
 
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("flex items-center gap-2", className)}>
-      <TreeMark className="text-gold" />
-      <span className="font-display text-lg font-semibold tracking-tight">Eternal Memories</span>
-    </span>
+    <img
+      src={wordmark}
+      alt="Eternal — Memories"
+      className={cn("h-8 w-auto object-contain", className)}
+      width={1920}
+      height={512}
+    />
   );
 }

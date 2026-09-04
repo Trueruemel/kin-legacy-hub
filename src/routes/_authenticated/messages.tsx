@@ -18,9 +18,9 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({
     meta: [
-      { title: "Messages — Eternal Memories" },
+      { title: "Messages — Eternal — Memories" },
       { name: "description", content: "Private family group chats and one-to-one conversations." },
-      { property: "og:title", content: "Messages — Eternal Memories" },
+      { property: "og:title", content: "Messages — Eternal — Memories" },
       { property: "og:description", content: "Keep the everyday conversation in the same place as the memories." },
     ],
   }),

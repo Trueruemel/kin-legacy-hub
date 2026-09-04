@@ -28,7 +28,7 @@ npm run dev
 - React
 - Tailwind CSS
 
-## Eternal Memories
+## Eternal — Memories
 
 Private Familien- und Nachlass-Plattform. Registrierte Familien arbeiten auf echter Datenbank,
 privatem Object Storage und authentifizierten Server-Funktionen; ohne eigene Familie zeigt die App

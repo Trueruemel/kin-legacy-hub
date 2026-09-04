@@ -406,7 +406,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-10 border-t border-border py-6 text-xs text-muted-foreground">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 Eternal Memories</p>
+        <p>© 2026 Eternal — Memories</p>
         <nav aria-label="Footer" className="flex flex-wrap gap-3">
           {["About", "Privacy", "Terms", "Help", "Contact"].map((l) => (
             <span key={l} className="cursor-default transition-colors hover:text-foreground">

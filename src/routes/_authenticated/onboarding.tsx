@@ -14,7 +14,7 @@ import { createFamily, ensureProfile, listMyFamilies } from "@/lib/family.functi
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
-      { title: "Create your family archive — Eternal Memories" },
+      { title: "Create your family archive — Eternal — Memories" },
       {
         name: "description",
         content:

@@ -245,7 +245,7 @@ export const users: User[] = [
       { id: "le28", year: 2006, title: "Married Emily Carter" },
       { id: "le29", year: 2010, title: "Daughter Olivia born" },
       { id: "le30", year: 2013, title: "Son Noah born" },
-      { id: "le31", year: 2018, title: "Founded the Eternal Memories family archive" },
+      { id: "le31", year: 2018, title: "Founded the Eternal — Memories family archive" },
     ],
     stats: { memoriesShared: 132, photosUploaded: 508, vaultItems: 6, children: 2 },
   },

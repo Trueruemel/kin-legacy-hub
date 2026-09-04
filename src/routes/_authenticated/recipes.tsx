@@ -16,9 +16,9 @@ import type { Recipe } from "@/lib/types";
 export const Route = createFileRoute("/_authenticated/recipes")({
   head: () => ({
     meta: [
-      { title: "Family Recipes — Eternal Memories" },
+      { title: "Family Recipes — Eternal — Memories" },
       { name: "description", content: "Handwritten family recipes with the stories behind each one." },
-      { property: "og:title", content: "Family Recipes — Eternal Memories" },
+      { property: "og:title", content: "Family Recipes — Eternal — Memories" },
       { property: "og:description", content: "The dishes that make your family a family, written down at last." },
     ],
   }),

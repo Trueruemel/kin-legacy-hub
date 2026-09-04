@@ -18,9 +18,9 @@ import { useAppStore } from "@/lib/store";
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Eternal Memories" },
+      { title: "Settings — Eternal — Memories" },
       { name: "description", content: "Manage your profile, family plan, privacy and notification preferences." },
-      { property: "og:title", content: "Settings — Eternal Memories" },
+      { property: "og:title", content: "Settings — Eternal — Memories" },
       { property: "og:description", content: "Profile, plan, storage and privacy controls for your family archive." },
     ],
   }),

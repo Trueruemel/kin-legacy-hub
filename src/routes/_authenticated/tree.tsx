@@ -17,9 +17,9 @@ import { useActiveFamily } from "@/hooks/use-active-family";
 export const Route = createFileRoute("/_authenticated/tree")({
   head: () => ({
     meta: [
-      { title: "Family Tree — Eternal Memories" },
+      { title: "Family Tree — Eternal — Memories" },
       { name: "description", content: "An interactive four-generation family tree with every branch and story connected." },
-      { property: "og:title", content: "Family Tree — Eternal Memories" },
+      { property: "og:title", content: "Family Tree — Eternal — Memories" },
       { property: "og:description", content: "Explore four generations of your family on one living canvas." },
     ],
   }),

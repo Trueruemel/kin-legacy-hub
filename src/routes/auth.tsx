@@ -14,13 +14,13 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign in — Eternal Memories" },
+      { title: "Sign in — Eternal — Memories" },
       {
         name: "description",
         content:
           "Sign in or create your account to open your family's private archive of photos, stories and time-locked legacy messages.",
       },
-      { property: "og:title", content: "Sign in — Eternal Memories" },
+      { property: "og:title", content: "Sign in — Eternal — Memories" },
       {
         property: "og:description",
         content: "Private, invite-only access to your family's living archive.",

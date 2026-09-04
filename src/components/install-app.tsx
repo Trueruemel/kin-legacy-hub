@@ -83,7 +83,7 @@ export function InstallAppButton({
       <Dialog open={howTo} onOpenChange={setHowTo}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="font-display text-xl">Add Eternal Memories to your device</DialogTitle>
+            <DialogTitle className="font-display text-xl">Add Eternal — Memories to your device</DialogTitle>
             <DialogDescription>
               No download, no ZIP — the app installs straight from this page.
             </DialogDescription>
@@ -103,7 +103,7 @@ export function InstallAppButton({
               <p className="font-medium">Laptop (Chrome / Edge)</p>
               <p className="mt-1 text-muted-foreground">
                 Click the install icon at the right end of the address bar, or menu → “Install
-                Eternal Memories”.
+                Eternal — Memories”.
               </p>
             </div>
           </div>

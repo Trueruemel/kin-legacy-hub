@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/profile/$userId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Member not found — Eternal Memories" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Member not found — Eternal — Memories" }, { name: "robots", content: "noindex" }] };
     }
     const { person } = loaderData;
     const description = person.bio.slice(0, 150);
