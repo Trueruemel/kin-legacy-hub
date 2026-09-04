@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { lovable } from "@/integrations/lovable/index";
+import { isBetaAllowed } from "@/lib/access";
+
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -19,10 +21,12 @@ function sanitizeNext(value: unknown): string | null {
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>): { next?: string } => {
+  validateSearch: (search: Record<string, unknown>): { next?: string; denied?: boolean } => {
     const next = sanitizeNext(search['next']);
-    return next ? { next } : {};
+    const denied = search['denied'] === true || search['denied'] === "true";
+    return { ...(next ? { next } : {}), ...(denied ? { denied: true } : {}) };
   },
+
   head: () => ({
     meta: [
       { title: "Sign in — Eternal — Memories" },
@@ -43,19 +47,27 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { next } = Route.useSearch();
+  const { next, denied } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
 
   const afterAuth = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data.user && !isBetaAllowed(data.user.email)) {
+      await supabase.auth.signOut();
+      toast.error("This is a closed preview — please use one of the accounts we prepared for you.");
+      await navigate({ to: "/auth", search: { denied: true } });
+      return;
+    }
     if (next) {
       window.location.href = next;
       return;
     }
     await navigate({ to: "/onboarding" });
   };
+
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -123,6 +135,17 @@ function AuthPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Your family's private archive of memories, stories and heirlooms.
         </p>
+
+        {denied && (
+          <p
+            role="alert"
+            className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-3 text-sm text-foreground"
+          >
+            This is a closed preview. Only the accounts we prepared for you can open the archive right
+            now — please sign in with one of those.
+          </p>
+        )}
+
 
         <Card className="mt-8 p-6">
           <Button

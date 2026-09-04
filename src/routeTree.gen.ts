@@ -29,6 +29,7 @@ import { Route as AuthenticatedTreeRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
+import { Route as AuthenticatedFamilyFamilyIdRouteImport } from './routes/_authenticated/family.$familyId'
 import { Route as AuthenticatedForumsIndexRouteImport } from './routes/_authenticated/forums.index'
 import { Route as AuthenticatedForumsThreadIdRouteImport } from './routes/_authenticated/forums.$threadId'
 import { Route as AuthenticatedInviteTokenRouteImport } from './routes/_authenticated/invite.$token'
@@ -138,6 +139,12 @@ const AuthenticatedEventsEventIdRoute =
     path: '/events/$eventId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFamilyFamilyIdRoute =
+  AuthenticatedFamilyFamilyIdRouteImport.update({
+    id: '/family/$familyId',
+    path: '/family/$familyId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedForumsIndexRoute =
   AuthenticatedForumsIndexRouteImport.update({
     id: '/forums/',
@@ -199,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/vault': typeof AuthenticatedVaultRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
+  '/family/$familyId': typeof AuthenticatedFamilyFamilyIdRoute
   '/forums/$threadId': typeof AuthenticatedForumsThreadIdRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/profile/$userId': typeof AuthenticatedProfileUserIdRoute
@@ -227,6 +235,7 @@ export interface FileRoutesByTo {
   '/vault': typeof AuthenticatedVaultRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
+  '/family/$familyId': typeof AuthenticatedFamilyFamilyIdRoute
   '/forums/$threadId': typeof AuthenticatedForumsThreadIdRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/profile/$userId': typeof AuthenticatedProfileUserIdRoute
@@ -257,6 +266,7 @@ export interface FileRoutesById {
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
+  '/_authenticated/family/$familyId': typeof AuthenticatedFamilyFamilyIdRoute
   '/_authenticated/forums/$threadId': typeof AuthenticatedForumsThreadIdRoute
   '/_authenticated/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/_authenticated/profile/$userId': typeof AuthenticatedProfileUserIdRoute
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/.lovable/oauth/consent'
     | '/events/$eventId'
+    | '/family/$familyId'
     | '/forums/$threadId'
     | '/invite/$token'
     | '/profile/$userId'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/.lovable/oauth/consent'
     | '/events/$eventId'
+    | '/family/$familyId'
     | '/forums/$threadId'
     | '/invite/$token'
     | '/profile/$userId'
@@ -344,6 +356,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vault'
     | '/.lovable/oauth/consent'
     | '/_authenticated/events/$eventId'
+    | '/_authenticated/family/$familyId'
     | '/_authenticated/forums/$threadId'
     | '/_authenticated/invite/$token'
     | '/_authenticated/profile/$userId'
@@ -508,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEventsEventIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/family/$familyId': {
+      id: '/_authenticated/family/$familyId'
+      path: '/family/$familyId'
+      fullPath: '/family/$familyId'
+      preLoaderRoute: typeof AuthenticatedFamilyFamilyIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/forums/': {
       id: '/_authenticated/forums/'
       path: '/forums'
@@ -574,6 +594,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTreeRoute: typeof AuthenticatedTreeRoute
   AuthenticatedVaultRoute: typeof AuthenticatedVaultRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
+  AuthenticatedFamilyFamilyIdRoute: typeof AuthenticatedFamilyFamilyIdRoute
   AuthenticatedForumsThreadIdRoute: typeof AuthenticatedForumsThreadIdRoute
   AuthenticatedInviteTokenRoute: typeof AuthenticatedInviteTokenRoute
   AuthenticatedProfileUserIdRoute: typeof AuthenticatedProfileUserIdRoute
@@ -594,6 +615,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTreeRoute: AuthenticatedTreeRoute,
   AuthenticatedVaultRoute: AuthenticatedVaultRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
+  AuthenticatedFamilyFamilyIdRoute: AuthenticatedFamilyFamilyIdRoute,
   AuthenticatedForumsThreadIdRoute: AuthenticatedForumsThreadIdRoute,
   AuthenticatedInviteTokenRoute: AuthenticatedInviteTokenRoute,
   AuthenticatedProfileUserIdRoute: AuthenticatedProfileUserIdRoute,

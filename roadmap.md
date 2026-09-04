@@ -20,12 +20,16 @@ Jede Woche endet mit einem **sichtbaren Meilenstein** — etwas, das man im Brow
 
 ## Phase A — Beta-Start (P0) · Woche 1–2
 
-### Woche 1 — „Die App ist live und schickt echte E-Mails"
-- [ ] Veröffentlichung der App (Freigabe aktivieren) → echte URL
+### Woche 1 — „Die App ist live, mit Familienprofil und eigener Familien-URL"
+- [x] Familienprofil in der Seitenleiste (Name, Rolle, Familien-ID, Direktlink)
+- [x] Familien-ID in der URL: `/family/<familien-id>` als teilbare Adresse
+- [x] Eigenständige Familienprofil-Seite mit Mitgliedern, Fotos und Terminen
+- [x] Geschlossene Vorschau: nur die vorbereiteten Entwickler-/Demo-Konten kommen hinein
 - [ ] DNS für `notify.eternalmemorys.com` setzen und verifizieren (TXT + 2× NS)
 - [ ] Zustellung aller 8 Templates an echte Postfächer prüfen (Signup, Invite, Welcome, Termin …)
 - [ ] 13 Security-Linter-Warnungen bewerten und auflösen (1× extension in public, 12× SECURITY DEFINER)
-- **Meilenstein:** Kunde öffnet die öffentliche URL, registriert sich, bekommt die Bestätigungsmail.
+- **Meilenstein:** Kunde öffnet die öffentliche URL, meldet sich mit dev1 an und sieht das Familienprofil.
+
 
 ### Woche 2 — „Eine echte Familie kann komplett starten"
 - [ ] Demo-Familien Johnson/Chen strikt nur lesend; echte Familien starten leer
