@@ -84,6 +84,13 @@ function AuthPage() {
           <Wordmark className="text-primary dark:text-gold" />
         </Link>
 
+        <h1 className="mt-6 font-display text-2xl font-semibold">
+          Sign in to Eternal — Memories
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Your family's private archive of memories, stories and heirlooms.
+        </p>
+
         <Card className="mt-8 p-6">
           <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">
@@ -92,7 +99,8 @@ function AuthPage() {
             </TabsList>
 
             <TabsContent value="signin" className="mt-6 space-y-4">
-              <h1 className="font-display text-2xl font-semibold">Welcome back</h1>
+              <h2 className="font-display text-xl font-semibold">Welcome back</h2>
+
               <form
                 className="space-y-4"
                 onSubmit={(e) => {
