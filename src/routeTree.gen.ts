@@ -22,6 +22,7 @@ import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as AuthenticatedTreeRouteImport } from './routes/_authenticated/tree'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
@@ -97,6 +98,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTreeRoute = AuthenticatedTreeRouteImport.update({
   id: '/tree',
   path: '/tree',
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/_authenticated/tree': typeof AuthenticatedTreeRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/recipes'
     | '/settings'
+    | '/setup'
     | '/tree'
     | '/vault'
     | '/events/$eventId'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/recipes'
     | '/settings'
+    | '/setup'
     | '/tree'
     | '/vault'
     | '/events/$eventId'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/recipes'
     | '/_authenticated/settings'
+    | '/_authenticated/setup'
     | '/_authenticated/tree'
     | '/_authenticated/vault'
     | '/_authenticated/events/$eventId'
@@ -407,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/setup': {
+      id: '/_authenticated/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof AuthenticatedSetupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tree': {
       id: '/_authenticated/tree'
       path: '/tree'
@@ -490,6 +509,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSetupRoute: typeof AuthenticatedSetupRoute
   AuthenticatedTreeRoute: typeof AuthenticatedTreeRoute
   AuthenticatedVaultRoute: typeof AuthenticatedVaultRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
@@ -509,6 +529,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSetupRoute: AuthenticatedSetupRoute,
   AuthenticatedTreeRoute: AuthenticatedTreeRoute,
   AuthenticatedVaultRoute: AuthenticatedVaultRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
