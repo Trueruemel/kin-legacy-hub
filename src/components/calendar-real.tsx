@@ -215,7 +215,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
         }
         action={
           canEdit ? (
-            <Button onClick={() => setOpen(true)}>
+            <Button onClick={openCreate}>
               <Plus className="size-4" /> Create event
             </Button>
           ) : undefined
