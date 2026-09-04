@@ -1218,6 +1218,7 @@ export type Database = {
           _release_on: string
           _released: boolean
           _rule: Database["public"]["Enums"]["vault_release"]
+          _unlock_age: number
         }
         Returns: boolean
       }
