@@ -19,6 +19,7 @@ export interface FamilyWelcomeEmailProps {
   familyName: string
   memberName?: string
   siteUrl: string
+  familyUrl?: string
   treeUrl: string
   calendarUrl: string
 }
@@ -27,6 +28,7 @@ export const FamilyWelcomeEmail = ({
   familyName,
   memberName,
   siteUrl,
+  familyUrl,
   treeUrl,
   calendarUrl,
 }: FamilyWelcomeEmailProps) => (
@@ -42,19 +44,24 @@ export const FamilyWelcomeEmail = ({
           <strong>{familyName}</strong> archive — a private place for your
           family's stories, photos, recipes and milestones.
         </Text>
-        <Text style={text}>Two good places to start:</Text>
+        <Text style={text}>Here is where to start:</Text>
         <Section style={{ margin: '0 0 24px' }}>
-          <Button className="dm-btn" style={button} href={treeUrl}>
-            Explore the family tree
+          <Button className="dm-btn" style={button} href={familyUrl ?? treeUrl}>
+            Open your family page
           </Button>
           <Text style={{ ...text, margin: '14px 0 0' }}>
-            Or open the{' '}
+            From there you can open the{' '}
+            <Link href={treeUrl} style={link}>
+              family tree
+            </Link>{' '}
+            and the{' '}
             <Link href={calendarUrl} style={link}>
               family calendar
             </Link>{' '}
-            to see upcoming birthdays, gatherings and anniversaries.
+            with photos, birthdays and gatherings.
           </Text>
         </Section>
+
         <Text style={footer}>
           You received this email because you joined a family archive at{' '}
           <Link href={siteUrl} style={link}>
