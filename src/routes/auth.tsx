@@ -126,6 +126,17 @@ function AuthPage() {
           Your family's private archive of memories, stories and heirlooms.
         </p>
 
+        {denied && (
+          <p
+            role="alert"
+            className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-3 text-sm text-foreground"
+          >
+            This is a closed preview. Only the accounts we prepared for you can open the archive right
+            now — please sign in with one of those.
+          </p>
+        )}
+
+
         <Card className="mt-8 p-6">
           <Button
             type="button"
