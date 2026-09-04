@@ -43,7 +43,7 @@ export const Route = createFileRoute("/_authenticated/setup")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SetupWizard;
+  component: SetupWizard,
 });
 
 const STEPS = ["Your family", "People & invites", "First photos"] as const;
