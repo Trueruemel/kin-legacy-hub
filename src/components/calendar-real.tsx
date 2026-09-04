@@ -303,7 +303,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               </Button>
               <h2 className="font-display text-xl font-semibold">
                 {new Date(year, month).toLocaleString(undefined, { month: "long" })} {year}
-              </h3>
+              </h2>
               <Button variant="outline" size="sm" onClick={() => setMonth((m) => (m + 1) % 12)}>
                 Next
               </Button>
