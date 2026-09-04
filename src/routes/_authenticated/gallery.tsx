@@ -29,9 +29,9 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/_authenticated/gallery")({
   head: () => ({
     meta: [
-      { title: "Media Gallery — Eternal Memories" },
+      { title: "Media Gallery — Eternal — Memories" },
       { name: "description", content: "Albums of family photos, scanned archives and everyday moments in one place." },
-      { property: "og:title", content: "Media Gallery — Eternal Memories" },
+      { property: "og:title", content: "Media Gallery — Eternal — Memories" },
       { property: "og:description", content: "Browse the family photo archive by album, year and storyteller." },
     ],
   }),

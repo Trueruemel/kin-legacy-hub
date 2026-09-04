@@ -1,4 +1,4 @@
-# Eternal Memories — Roadmap zum Beta (100 Familien)
+# Eternal — Memories — Roadmap zum Beta (100 Familien)
 
 ## Phase 0 — Fundament (in Arbeit)
 - [x] Schema für Feed, Events, Chats, Forum, Rezepte, Benachrichtigungen inkl. RLS + Grants

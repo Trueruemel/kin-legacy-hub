@@ -31,9 +31,9 @@ import type { VaultItem } from "@/lib/types";
 export const Route = createFileRoute("/_authenticated/vault")({
   head: () => ({
     meta: [
-      { title: "Legacy Vault — Eternal Memories" },
+      { title: "Legacy Vault — Eternal — Memories" },
       { name: "description", content: "Time-locked letters, videos and recordings sealed for the people who come next." },
-      { property: "og:title", content: "Legacy Vault — Eternal Memories" },
+      { property: "og:title", content: "Legacy Vault — Eternal — Memories" },
       { property: "og:description", content: "Seal a message today; it opens on the date, birthday or moment you choose." },
     ],
   }),

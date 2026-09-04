@@ -11,13 +11,13 @@ import { useAppStore } from "@/lib/store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Eternal Memories — Your family's story, preserved forever" },
+      { title: "Eternal — Memories — Your family's story, preserved forever" },
       {
         name: "description",
         content:
           "A private, invite-only home for your family's photos, stories, recipes and time-locked legacy messages across generations.",
       },
-      { property: "og:title", content: "Eternal Memories — Your family's story, preserved forever" },
+      { property: "og:title", content: "Eternal — Memories — Your family's story, preserved forever" },
       {
         property: "og:description",
         content: "Private family feed, living family tree, media archive and legacy vault in one secure place.",
@@ -53,7 +53,7 @@ function LandingPage() {
           className="absolute inset-0 size-full object-cover opacity-35"
         />
         <div className="relative flex h-full flex-col justify-between p-12 text-white">
-          <Wordmark className="text-gold" />
+          <Wordmark variant="dark" />
           <div className="max-w-lg">
             <h1 className="font-display text-5xl leading-tight font-semibold">
               Your family's story, preserved forever.
@@ -94,7 +94,7 @@ function LandingPage() {
           <Card className="mt-8 p-6 lg:mt-0">
             <h2 className="font-display text-2xl font-semibold">Welcome back</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sign in to the Johnson family archive.
+              Sign in to your family archive.
             </p>
             <div className="mt-6 space-y-3">
               <Button className="w-full" onClick={() => void navigate({ to: "/auth" })}>

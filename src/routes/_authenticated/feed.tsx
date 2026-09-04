@@ -28,9 +28,9 @@ import { useActiveFamily } from "@/hooks/use-active-family";
 export const Route = createFileRoute("/_authenticated/feed")({
   head: () => ({
     meta: [
-      { title: "Family Feed — Eternal Memories" },
+      { title: "Family Feed — Eternal — Memories" },
       { name: "description", content: "The living feed of your family's memories, photos and milestones." },
-      { property: "og:title", content: "Family Feed — Eternal Memories" },
+      { property: "og:title", content: "Family Feed — Eternal — Memories" },
       { property: "og:description", content: "Every story your family shares, in one warm private place." },
     ],
   }),

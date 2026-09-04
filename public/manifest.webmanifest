@@ -1,5 +1,5 @@
 {
-  "name": "Eternal Memories",
+  "name": "Eternal — Memories",
   "short_name": "Memories",
   "description": "Your family's private archive: feed, family tree, gallery and the Legacy Vault.",
   "start_url": "/feed",
@@ -22,9 +22,9 @@
       "purpose": "maskable"
     },
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
     }
   ]
 }

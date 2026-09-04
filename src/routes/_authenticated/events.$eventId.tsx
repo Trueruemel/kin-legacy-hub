@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/events/$eventId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Event not found — Eternal Memories" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Event not found — Eternal — Memories" }, { name: "robots", content: "noindex" }] };
     }
     const { event } = loaderData;
     return {

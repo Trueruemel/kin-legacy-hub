@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import wordmarkDark from "@/assets/wordmark.png";
+import wordmarkLight from "@/assets/wordmark-light.png";
 
 export function TreeMark({ className }: { className?: string }) {
   return (
@@ -25,11 +27,52 @@ export function TreeMark({ className }: { className?: string }) {
   );
 }
 
-export function Wordmark({ className }: { className?: string }) {
+export function Wordmark({
+  className,
+  variant = "auto",
+}: {
+  className?: string;
+  variant?: "auto" | "dark" | "light";
+}) {
+  const base = "h-8 w-auto object-contain";
+  if (variant === "dark") {
+    return (
+      <img
+        src={wordmarkLight}
+        alt="Eternal — Memories"
+        className={cn(base, className)}
+        width={1920}
+        height={512}
+      />
+    );
+  }
+  if (variant === "light") {
+    return (
+      <img
+        src={wordmarkDark}
+        alt="Eternal — Memories"
+        className={cn(base, className)}
+        width={1920}
+        height={512}
+      />
+    );
+  }
   return (
-    <span className={cn("flex items-center gap-2", className)}>
-      <TreeMark className="text-gold" />
-      <span className="font-display text-lg font-semibold tracking-tight">Eternal Memories</span>
-    </span>
+    <>
+      <img
+        src={wordmarkDark}
+        alt="Eternal — Memories"
+        className={cn(base, "dark:hidden", className)}
+        width={1920}
+        height={512}
+      />
+      <img
+        src={wordmarkLight}
+        alt="Eternal — Memories"
+        className={cn(base, "hidden dark:block", className)}
+        width={1920}
+        height={512}
+      />
+    </>
   );
 }

@@ -59,7 +59,7 @@ export function FamilyInvites({
     const body = [
       `Hi,`,
       ``,
-      `I would like you to join our private family archive "${familyName}" on Eternal Memories.`,
+      `I would like you to join our private family archive "${familyName}" on Eternal — Memories.`,
       ``,
       `Open this personal link, create your account and you are in:`,
       inviteLink(token),

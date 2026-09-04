@@ -1,8 +1,8 @@
-# Eternal Memories — Projektdokumentation
+# Eternal — Memories — Projektdokumentation
 
 Stand: aktueller Beta-Stand (echte Familien + Investor-Demo parallel)
 
-Eternal Memories ist eine private Familien- und Nachlass-Plattform. Die App läuft in **zwei Modi**:
+Eternal — Memories ist eine private Familien- und Nachlass-Plattform. Die App läuft in **zwei Modi**:
 
 1. **Investor-Demo** — wer keine echte Familie hat, sieht die vollständig ausgestalteten Seed-Familien (Johnson / Chen) aus dem Browser-Store. Nichts wird gespeichert.
 2. **Echter Beta-Betrieb** — wer sich registriert und eine Familie anlegt, arbeitet auf echter Datenbank, echtem privaten Object Storage und echten, authentifizierten Server-Funktionen.

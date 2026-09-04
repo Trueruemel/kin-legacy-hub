@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Eternal Memories — Heritage design system.
+ * Eternal — Memories — Heritage design system.
  * Warm archive tones, serif display type, ink-on-paper contrast.
  * All colors are oklch tokens; never hardcode colors in components.
  */

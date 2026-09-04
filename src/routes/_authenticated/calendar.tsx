@@ -15,9 +15,9 @@ import { useAppStore } from "@/lib/store";
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
     meta: [
-      { title: "Family Calendar — Eternal Memories" },
+      { title: "Family Calendar — Eternal — Memories" },
       { name: "description", content: "Reunions, birthdays and anniversaries — everything your family gathers around." },
-      { property: "og:title", content: "Family Calendar — Eternal Memories" },
+      { property: "og:title", content: "Family Calendar — Eternal — Memories" },
       { property: "og:description", content: "Never miss a birthday, reunion or anniversary again." },
     ],
   }),

@@ -11,9 +11,9 @@ import { useAppStore } from "@/lib/store";
 export const Route = createFileRoute("/_authenticated/forums/")({
   head: () => ({
     meta: [
-      { title: "Family Forums — Eternal Memories" },
+      { title: "Family Forums — Eternal — Memories" },
       { name: "description", content: "Recipes, traditions, genealogy research and advice from the elders." },
-      { property: "og:title", content: "Family Forums — Eternal Memories" },
+      { property: "og:title", content: "Family Forums — Eternal — Memories" },
       { property: "og:description", content: "The family knowledge base: recipes, traditions, research and advice." },
     ],
   }),

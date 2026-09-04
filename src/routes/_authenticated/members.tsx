@@ -26,9 +26,9 @@ const generationLabels: Record<number, string> = {
 export const Route = createFileRoute("/_authenticated/members")({
   head: () => ({
     meta: [
-      { title: "Family Members — Eternal Memories" },
+      { title: "Family Members — Eternal — Memories" },
       { name: "description", content: "Everyone in the family, grouped by generation, with roles and life dates." },
-      { property: "og:title", content: "Family Members — Eternal Memories" },
+      { property: "og:title", content: "Family Members — Eternal — Memories" },
       { property: "og:description", content: "Browse the whole family, generation by generation." },
     ],
   }),
