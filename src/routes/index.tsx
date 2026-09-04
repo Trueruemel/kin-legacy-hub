@@ -53,7 +53,7 @@ function LandingPage() {
           className="absolute inset-0 size-full object-cover opacity-35"
         />
         <div className="relative flex h-full flex-col justify-between p-12 text-white">
-          <Wordmark className="text-gold" />
+          <Wordmark variant="dark" />
           <div className="max-w-lg">
             <h1 className="font-display text-5xl leading-tight font-semibold">
               Your family's story, preserved forever.
