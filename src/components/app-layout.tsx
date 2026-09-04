@@ -330,7 +330,20 @@ function FamilySwitcher() {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <div className="flex items-center justify-between gap-2 border-t border-sidebar-border pt-2">
+          <Link
+            to="/family/$familyId"
+            params={{ familyId: realFamily.id }}
+            className="text-xs font-medium text-primary underline-offset-4 hover:underline dark:text-gold"
+          >
+            Family profile
+          </Link>
+          <span className="truncate text-[10px] text-muted-foreground" title={realFamily.id}>
+            ID {realFamily.id.slice(0, 8)}
+          </span>
+        </div>
       </div>
+
     );
   }
 
