@@ -27,7 +27,16 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { createEvent, listEvents, setEventRsvp } from "@/lib/events.functions";
+import {
+  createEvent,
+  deleteEvent,
+  listEvents,
+  sendEventEmail,
+  setEventRsvp,
+  updateEvent,
+  type FamilyEvent,
+} from "@/lib/events.functions";
+
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const CATEGORIES = ["gathering", "birthday", "anniversary", "memorial", "trip", "other"] as const;
