@@ -65,6 +65,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ensureProfile } from "@/lib/family.functions";
 
 const navItems = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/feed", label: "Feed", icon: Home },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/tree", label: "Family Tree", icon: Users2 },
