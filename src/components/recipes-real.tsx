@@ -110,6 +110,9 @@ export function RealRecipes({ familyId }: { familyId: string }) {
           </Button>
         }
       />
+      <p role="status" aria-live="polite" className="sr-only">
+        {createMutation.isPending ? "Saving recipe" : deleteMutation.isPending ? "Deleting recipe" : ""}
+      </p>
 
       {recipes.isLoading && (
         <Card className="p-8 text-center text-sm text-muted-foreground">Loading recipes…</Card>

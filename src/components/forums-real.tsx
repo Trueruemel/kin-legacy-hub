@@ -89,6 +89,9 @@ export function RealForums({ familyId }: { familyId: string }) {
           </Button>
         }
       />
+      <p role="status" aria-live="polite" className="sr-only">
+        {createMutation.isPending ? "Posting conversation" : ""}
+      </p>
 
       <div className="mb-6 flex flex-wrap gap-2">
         <Button
