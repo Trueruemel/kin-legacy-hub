@@ -18,7 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { addPerson, addRelationship, listTree, type TreePerson } from "@/lib/tree.functions";
+import { addPerson, addRelationship, listTree, setPersonPhoto, type TreePerson } from "@/lib/tree.functions";
+import { PhotoCropper } from "@/components/photo-cropper";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
 import { lifeDates } from "@/lib/format";
 
 function fullName(p: TreePerson) {
@@ -30,6 +33,26 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
   const list = useServerFn(listTree);
   const create = useServerFn(addPerson);
   const link = useServerFn(addRelationship);
+  const savePhoto = useServerFn(setPersonPhoto);
+  const [photoTarget, setPhotoTarget] = useState<TreePerson | null>(null);
+  const [pendingPortrait, setPendingPortrait] = useState<File | null>(null);
+  const portraitInput = useRef<HTMLInputElement | null>(null);
+
+  const portraitMutation = useMutation({
+    mutationFn: async ({ person, file }: { person: TreePerson; file: File }) => {
+      const path = `${familyId}/portraits/${person.id}-${crypto.randomUUID()}.jpg`;
+      const { error } = await supabase.storage
+        .from("memories")
+        .upload(path, file, { contentType: "image/jpeg", upsert: false });
+      if (error) throw new Error(error.message);
+      return savePhoto({ data: { personId: person.id, storagePath: path, mime: "image/jpeg" } });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tree", familyId] });
+      toast.success("Portrait updated.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const tree = useQuery({ queryKey: ["tree", familyId], queryFn: () => list({ data: { familyId } }) });
   const persons = tree.data?.persons ?? [];
@@ -107,6 +130,10 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
       <li key={person.id} className="space-y-2">
         <Card className="card-lift p-4">
           <div className="flex flex-wrap items-center gap-2">
+            <Avatar className="size-10 border border-gold/30">
+              {person.photoUrl && <AvatarImage src={person.photoUrl} alt={fullName(person)} />}
+              <AvatarFallback>{fullName(person).slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
             <p className="font-display text-lg font-semibold">{fullName(person)}</p>
             <Badge variant="secondary">{lifeDates(person.birthDate ?? "", person.deathDate ?? undefined)}</Badge>
             {partnersOf(person.id).map((partner) => (
@@ -119,6 +146,20 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
             <p className="mt-1 text-xs text-muted-foreground">Born in {person.birthPlace}</p>
           )}
           {person.bio && <p className="mt-2 text-sm text-muted-foreground">{person.bio}</p>}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2 px-0"
+              disabled={portraitMutation.isPending}
+              onClick={() => {
+                setPhotoTarget(person);
+                portraitInput.current?.click();
+              }}
+            >
+              {person.photoUrl ? "Replace portrait" : "Add portrait"}
+            </Button>
+          )}
         </Card>
         {kids.length > 0 && (
           <ul className="ml-6 space-y-2 border-l border-gold/30 pl-4">
@@ -131,6 +172,32 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
 
   return (
     <>
+      <input
+        ref={portraitInput}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) setPendingPortrait(file);
+        }}
+      />
+      <PhotoCropper
+        file={pendingPortrait}
+        open={pendingPortrait !== null}
+        aspect={1}
+        title="Crop this portrait"
+        onCancel={() => {
+          setPendingPortrait(null);
+          setPhotoTarget(null);
+        }}
+        onCropped={(cropped) => {
+          setPendingPortrait(null);
+          if (photoTarget) portraitMutation.mutate({ person: photoTarget, file: cropped });
+          setPhotoTarget(null);
+        }}
+      />
       <PageHeader
         title="Family Tree"
         description={
