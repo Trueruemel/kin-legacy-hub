@@ -271,6 +271,26 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
                   {event.going} going · {event.maybe} maybe · {event.declined} can't
                 </span>
               </div>
+              <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+                <Button size="sm" variant="ghost" onClick={() => setShareEvent(event)}>
+                  <Share2 className="size-4" /> Share & remind
+                </Button>
+                {canEdit && (
+                  <>
+                    <Button size="sm" variant="ghost" onClick={() => openEdit(event)}>
+                      <Pencil className="size-4" /> Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => deleteMutation.mutate(event.id)}
+                    >
+                      <Trash2 className="size-4" /> Delete
+                    </Button>
+                  </>
+                )}
+              </div>
             </Card>
           ))}
         </TabsContent>
