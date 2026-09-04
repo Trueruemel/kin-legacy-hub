@@ -1,5 +1,5 @@
 import { auth, defineMcp } from "@lovable.dev/mcp-js";
-import type { AnyToolDefinition } from "@lovable.dev/mcp-js";
+
 
 import listFamilies from "./tools/list-families";
 import listTreePeople from "./tools/list-tree-people";
@@ -20,5 +20,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [listFamilies, listTreePeople, listUpcomingEvents, createEvent] as unknown as AnyToolDefinition[],
+  tools: [listFamilies, listTreePeople, listUpcomingEvents, createEvent],
 });
