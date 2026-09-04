@@ -351,8 +351,8 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               {createMutation.isPending ? "Saving…" : "Create event"}
             </Button>
           </DialogFooter>
-        </DialogFooter>
         </DialogContent>
+
       </Dialog>
     </>
   );
