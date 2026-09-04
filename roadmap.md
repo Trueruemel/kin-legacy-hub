@@ -18,11 +18,13 @@
 - [x] Gallery + Vault (privater Storage, signierte URLs, Object-Lock)
 - [x] Feed (posts, reactions, comments, Foto-Upload)
 - [x] Family Tree (persons, relationships)
-- [ ] Calendar (events, RSVPs)
+- [x] Calendar (events, RSVPs, Bearbeiten, Einladungen & Erinnerungen per E-Mail)
 - [x] Messages (chats, chat_messages, Polling)
-- [ ] Forum, Rezepte
+- [x] Forum, Rezepte
 - [x] Members (echte Mitglieder + Rollen)
-- [ ] Settings (Profil bearbeiten)
+- [x] Settings (Profil bearbeiten)
+- [x] Family Dashboard (Baum, Fotos, nächste Termine auf einer Seite)
+- [x] Family-Setup-Wizard (Familie anlegen, einladen, Personen & Fotos)
 - [ ] Volltextsuche (tsvector + Trigram)
 
 - [x] Vault-UI als Karteikarten-Layout, Transkript direkt im Textfeld

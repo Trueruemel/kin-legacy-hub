@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Cake, CalendarDays, MapPin, Plus } from "lucide-react";
+import { Cake, CalendarDays, MapPin, Pencil, Plus, Send, Share2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/app-layout";
@@ -26,7 +27,16 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { createEvent, listEvents, setEventRsvp } from "@/lib/events.functions";
+import {
+  createEvent,
+  deleteEvent,
+  listEvents,
+  sendEventEmail,
+  setEventRsvp,
+  updateEvent,
+  type FamilyEvent,
+} from "@/lib/events.functions";
+
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const CATEGORIES = ["gathering", "birthday", "anniversary", "memorial", "trip", "other"] as const;
@@ -47,11 +57,32 @@ function daysFromToday(date: Date): number {
   return Math.max(0, Math.round((date.getTime() - start.getTime()) / 86_400_000));
 }
 
+/** ISO timestamp → value a datetime-local input accepts, in local time. */
+function toLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+const EMPTY_FORM = {
+  title: "",
+  description: "",
+  startsAt: "",
+  endsAt: "",
+  location: "",
+  category: "gathering" as (typeof CATEGORIES)[number],
+};
+
 export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit: boolean }) {
   const queryClient = useQueryClient();
   const list = useServerFn(listEvents);
   const create = useServerFn(createEvent);
+  const update = useServerFn(updateEvent);
+  const remove = useServerFn(deleteEvent);
+  const sendEmail = useServerFn(sendEventEmail);
   const rsvp = useServerFn(setEventRsvp);
+
 
   const calendar = useQuery({
     queryKey: ["events", familyId],
@@ -69,38 +100,87 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
   const [month, setMonth] = useState(new Date().getMonth());
   const year = new Date().getFullYear();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    startsAt: "",
-    endsAt: "",
-    location: "",
-    category: "gathering" as (typeof CATEGORIES)[number],
-  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [shareEvent, setShareEvent] = useState<FamilyEvent | null>(null);
+  const [shareEmail, setShareEmail] = useState("");
+  const [shareKind, setShareKind] = useState<"invitation" | "reminder">("invitation");
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["events", familyId] });
 
-  const createMutation = useMutation({
-    mutationFn: () =>
-      create({
-        data: {
-          familyId,
-          title: form.title.trim(),
-          startsAt: form.startsAt,
-          category: form.category,
-          ...(form.description.trim() ? { description: form.description.trim() } : {}),
-          ...(form.endsAt ? { endsAt: form.endsAt } : {}),
-          ...(form.location.trim() ? { location: form.location.trim() } : {}),
-        },
-      }),
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setOpen(true);
+  };
+
+  const openEdit = (event: FamilyEvent) => {
+    setEditingId(event.id);
+    setForm({
+      title: event.title,
+      description: event.description ?? "",
+      startsAt: toLocalInput(event.startsAt),
+      endsAt: toLocalInput(event.endsAt),
+      location: event.location ?? "",
+      category: (CATEGORIES as readonly string[]).includes(event.category)
+        ? (event.category as (typeof CATEGORIES)[number])
+        : "other",
+    });
+    setOpen(true);
+  };
+
+  const saveMutation = useMutation({
+    mutationFn: async (): Promise<void> => {
+      const payload = {
+        title: form.title.trim(),
+        startsAt: form.startsAt,
+        category: form.category,
+        ...(form.description.trim() ? { description: form.description.trim() } : {}),
+        ...(form.endsAt ? { endsAt: form.endsAt } : {}),
+        ...(form.location.trim() ? { location: form.location.trim() } : {}),
+      };
+      if (editingId) await update({ data: { eventId: editingId, ...payload } });
+      else await create({ data: { familyId, ...payload } });
+    },
     onSuccess: () => {
+      const edited = !!editingId;
       setOpen(false);
-      setForm({ title: "", description: "", startsAt: "", endsAt: "", location: "", category: "gathering" });
+      setEditingId(null);
+      setForm(EMPTY_FORM);
       void invalidate();
-      toast.success("Event added to your family calendar.");
+      toast.success(edited ? "Event updated for everyone." : "Event added to your family calendar.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (eventId: string) => remove({ data: { eventId } }),
+    onSuccess: () => {
+      void invalidate();
+      toast.success("Event removed from the calendar.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const emailMutation = useMutation({
+    mutationFn: () =>
+      sendEmail({
+        data: { eventId: shareEvent!.id, email: shareEmail.trim(), kind: shareKind },
+      }),
+    onSuccess: (result) => {
+      if (result.sent) {
+        toast.success(
+          shareKind === "reminder" ? "Reminder sent." : `Invitation sent to ${shareEmail.trim()}.`,
+        );
+        setShareEmail("");
+        setShareEvent(null);
+      } else {
+        toast.error("That address has unsubscribed from our emails, so nothing was sent.");
+      }
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const rsvpMutation = useMutation({
     mutationFn: (vars: { eventId: string; response: "going" | "maybe" | "no" }) =>
@@ -135,7 +215,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
         }
         action={
           canEdit ? (
-            <Button onClick={() => setOpen(true)}>
+            <Button onClick={openCreate}>
               <Plus className="size-4" /> Create event
             </Button>
           ) : undefined
@@ -190,6 +270,26 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
                 <span className="text-xs text-muted-foreground">
                   {event.going} going · {event.maybe} maybe · {event.declined} can't
                 </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+                <Button size="sm" variant="ghost" onClick={() => setShareEvent(event)}>
+                  <Share2 className="size-4" /> Share & remind
+                </Button>
+                {canEdit && (
+                  <>
+                    <Button size="sm" variant="ghost" onClick={() => openEdit(event)}>
+                      <Pencil className="size-4" /> Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => deleteMutation.mutate(event.id)}
+                    >
+                      <Trash2 className="size-4" /> Delete
+                    </Button>
+                  </>
+                )}
               </div>
             </Card>
           ))}
@@ -270,7 +370,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create a family event</DialogTitle>
+            <DialogTitle>{editingId ? "Edit this event" : "Create a family event"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-2">
@@ -345,15 +445,63 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               Cancel
             </Button>
             <Button
-              disabled={createMutation.isPending || form.title.trim().length < 2 || !form.startsAt}
-              onClick={() => createMutation.mutate()}
+              disabled={saveMutation.isPending || form.title.trim().length < 2 || !form.startsAt}
+              onClick={() => saveMutation.mutate()}
             >
-              {createMutation.isPending ? "Saving…" : "Create event"}
+              {saveMutation.isPending ? "Saving…" : editingId ? "Save changes" : "Create event"}
             </Button>
           </DialogFooter>
         </DialogContent>
+      </Dialog>
 
+      <Dialog open={!!shareEvent} onOpenChange={(next) => !next && setShareEvent(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share “{shareEvent?.title}”</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              We email one relative at a time from notify.eternalmemorys.com, with the date, place and a link
+              to this calendar.
+            </p>
+            <div className="grid gap-2">
+              <Label htmlFor="share-email">Their email</Label>
+              <Input
+                id="share-email"
+                type="email"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                placeholder="uncle@example.com"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="share-kind">What to send</Label>
+              <Select value={shareKind} onValueChange={(v) => setShareKind(v as typeof shareKind)}>
+                <SelectTrigger id="share-kind">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="invitation">Invitation</SelectItem>
+                  <SelectItem value="reminder">Reminder</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShareEvent(null)}>
+              Close
+            </Button>
+            <Button
+              disabled={emailMutation.isPending || !shareEmail.includes("@")}
+              onClick={() => emailMutation.mutate()}
+            >
+              <Send className="size-4" />
+              {emailMutation.isPending ? "Sending…" : shareKind === "reminder" ? "Send reminder" : "Send invitation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );
 }
+
