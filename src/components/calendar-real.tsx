@@ -445,15 +445,63 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               Cancel
             </Button>
             <Button
-              disabled={createMutation.isPending || form.title.trim().length < 2 || !form.startsAt}
-              onClick={() => createMutation.mutate()}
+              disabled={saveMutation.isPending || form.title.trim().length < 2 || !form.startsAt}
+              onClick={() => saveMutation.mutate()}
             >
-              {createMutation.isPending ? "Saving…" : "Create event"}
+              {saveMutation.isPending ? "Saving…" : editingId ? "Save changes" : "Create event"}
             </Button>
           </DialogFooter>
         </DialogContent>
+      </Dialog>
 
+      <Dialog open={!!shareEvent} onOpenChange={(next) => !next && setShareEvent(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share “{shareEvent?.title}”</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              We email one relative at a time from notify.eternalmemorys.com, with the date, place and a link
+              to this calendar.
+            </p>
+            <div className="grid gap-2">
+              <Label htmlFor="share-email">Their email</Label>
+              <Input
+                id="share-email"
+                type="email"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                placeholder="uncle@example.com"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="share-kind">What to send</Label>
+              <Select value={shareKind} onValueChange={(v) => setShareKind(v as typeof shareKind)}>
+                <SelectTrigger id="share-kind">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="invitation">Invitation</SelectItem>
+                  <SelectItem value="reminder">Reminder</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShareEvent(null)}>
+              Close
+            </Button>
+            <Button
+              disabled={emailMutation.isPending || !shareEmail.includes("@")}
+              onClick={() => emailMutation.mutate()}
+            >
+              <Send className="size-4" />
+              {emailMutation.isPending ? "Sending…" : shareKind === "reminder" ? "Send reminder" : "Send invitation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );
 }
+
