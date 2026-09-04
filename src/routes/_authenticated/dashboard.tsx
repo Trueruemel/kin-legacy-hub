@@ -77,7 +77,15 @@ function Overview({ familyId }: { familyId: string }) {
       <PageHeader
         title={data ? `${data.familyName} at a glance` : "Family Dashboard"}
         description="Who is in your tree, what has been archived and what is coming up next."
+        action={
+          <Button variant="outline" asChild>
+            <Link to="/family/$familyId" params={{ familyId }}>
+              Open family profile
+            </Link>
+          </Button>
+        }
       />
+
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
