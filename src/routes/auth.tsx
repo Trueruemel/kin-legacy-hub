@@ -92,11 +92,26 @@ function AuthPage() {
         </p>
 
         <Card className="mt-8 p-6">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={busy}
+            onClick={() => void signInWithGoogle()}
+          >
+            Continue with Google
+          </Button>
+          <div className="my-6 flex items-center gap-3">
+            <span className="h-px flex-1 bg-border" />
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">or use email</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
           <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Create account</TabsTrigger>
             </TabsList>
+
 
             <TabsContent value="signin" className="mt-6 space-y-4">
               <h2 className="font-display text-xl font-semibold">Welcome back</h2>
