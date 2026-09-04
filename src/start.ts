@@ -2,6 +2,7 @@ import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/r
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachAuth } from "./lib/auth-attach";
+import { logAuthHeader } from "./lib/auth-log";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
@@ -31,5 +32,5 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   requestMiddleware: [errorMiddleware, csrfMiddleware],
-  functionMiddleware: [attachSupabaseAuth, attachAuth],
+  functionMiddleware: [attachSupabaseAuth, attachAuth, logAuthHeader],
 }));
