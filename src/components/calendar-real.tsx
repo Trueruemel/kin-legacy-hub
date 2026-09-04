@@ -130,7 +130,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
   };
 
   const saveMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async (): Promise<void> => {
       const payload = {
         title: form.title.trim(),
         startsAt: form.startsAt,
