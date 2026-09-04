@@ -21,7 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useActiveFamily } from "@/hooks/use-active-family";
 import { supabase } from "@/integrations/supabase/client";
-import { listMembers } from "@/lib/members.functions";
+import { listFamilyMembers } from "@/lib/members.functions";
 import {
   getMyProfile,
   removeMember,
@@ -44,7 +44,7 @@ export function RealSettings() {
   const saveFamily = useServerFn(updateFamily);
   const setRole = useServerFn(updateMemberRole);
   const kick = useServerFn(removeMember);
-  const members = useServerFn(listMembers);
+  const members = useServerFn(listFamilyMembers);
 
   const profile = useQuery({ queryKey: ["my-profile"], queryFn: () => loadProfile() });
   const memberList = useQuery({
