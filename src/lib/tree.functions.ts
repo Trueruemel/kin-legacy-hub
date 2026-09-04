@@ -11,6 +11,7 @@ export type TreePerson = {
   deathDate: string | null;
   birthPlace: string | null;
   bio: string | null;
+  photoUrl: string | null;
 };
 
 export type TreeRelationship = {
@@ -33,7 +34,7 @@ export const listTree = createServerFn({ method: "GET" })
       const [{ data: persons, error }, { data: rels, error: relError }] = await Promise.all([
         supabase
           .from("persons")
-          .select("id, first_name, last_name, birth_date, death_date, birth_place, bio")
+          .select("id, first_name, last_name, birth_date, death_date, birth_place, bio, photo_path")
           .eq("family_id", data.familyId)
           .order("birth_date", { ascending: true, nullsFirst: false }),
         supabase
@@ -44,6 +45,15 @@ export const listTree = createServerFn({ method: "GET" })
       if (error) throw new Error(error.message);
       if (relError) throw new Error(relError.message);
 
+      const paths = (persons ?? []).map((p) => p.photo_path).filter((p): p is string => !!p);
+      const signed = new Map<string, string>();
+      if (paths.length > 0) {
+        const { data: urls } = await supabase.storage.from("memories").createSignedUrls(paths, 900);
+        for (const entry of urls ?? []) {
+          if (entry.path && entry.signedUrl) signed.set(entry.path, entry.signedUrl);
+        }
+      }
+
       return {
         persons: (persons ?? []).map((p) => ({
           id: p.id,
@@ -53,6 +63,7 @@ export const listTree = createServerFn({ method: "GET" })
           deathDate: p.death_date,
           birthPlace: p.birth_place,
           bio: p.bio,
+          photoUrl: p.photo_path ? (signed.get(p.photo_path) ?? null) : null,
         })),
         relationships: (rels ?? []).map((r) => ({
           id: r.id,
@@ -63,6 +74,7 @@ export const listTree = createServerFn({ method: "GET" })
       };
     },
   );
+
 
 /** Adds a person to the family tree. */
 export const addPerson = createServerFn({ method: "POST" })
@@ -116,6 +128,27 @@ export const addRelationship = createServerFn({ method: "POST" })
       to_person_id: data.toPersonId,
       type: data.type,
     });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Stores a cropped portrait for a person in the tree. */
+export const setPersonPhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        personId: z.string().uuid(),
+        storagePath: z.string().min(3).max(400),
+        mime: z.string().min(3).max(120),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("persons")
+      .update({ photo_path: data.storagePath, updated_at: new Date().toISOString() })
+      .eq("id", data.personId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
