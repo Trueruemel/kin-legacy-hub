@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 
+import { template as eventInviteTemplate } from './event-invite'
 import { template as familyWelcomeTemplate } from './family-welcome'
 
 
