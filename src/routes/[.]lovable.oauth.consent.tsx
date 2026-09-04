@@ -60,16 +60,45 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   ),
 });
 
+const AREAS = [
+  { key: "tree" as const, label: "Family tree", hint: "Names, birth dates and places of the people in your tree." },
+  { key: "photos" as const, label: "Photos", hint: "Captions and details of photos in your gallery." },
+  { key: "events" as const, label: "Calendar & events", hint: "Upcoming gatherings, and adding new ones for you." },
+];
+
 function Consent() {
   const details = Route.useLoaderData();
   const { authorization_id } = Route.useSearch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [areas, setAreas] = useState({ tree: true, photos: false, events: true });
   const clientName = details?.client?.name ?? "this app";
 
   async function decide(approve: boolean) {
     setBusy(true);
     setError(null);
+
+    if (approve) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const uid = sessionData.session?.user.id;
+      if (uid) {
+        const { error: saveError } = await supabase.from("assistant_scopes").upsert(
+          {
+            user_id: uid,
+            allow_tree: areas.tree,
+            allow_photos: areas.photos,
+            allow_events: areas.events,
+          },
+          { onConflict: "user_id" },
+        );
+        if (saveError) {
+          setBusy(false);
+          setError(saveError.message);
+          return;
+        }
+      }
+    }
+
     const { data, error: decideError } = approve
       ? await oauth().approveAuthorization(authorization_id)
       : await oauth().denyAuthorization(authorization_id);
@@ -87,32 +116,67 @@ function Consent() {
     window.location.href = target;
   }
 
+  const nothingAllowed = !areas.tree && !areas.photos && !areas.events;
+
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-6 py-16">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         <Wordmark className="text-primary dark:text-gold" />
         <h1 className="mt-6 font-display text-2xl font-semibold">Connect {clientName}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {clientName} is asking to read and add to your family archive on your behalf. You can
-          disconnect it at any time.
+          {clientName} is asking to work with your family archive on your behalf. Choose what it may
+          see. You can change this the next time you connect, and disconnect at any time.
         </p>
-        <Card className="mt-8 space-y-3 p-6">
+        <Card className="mt-8 space-y-5 p-6">
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-semibold">What {clientName} may access</legend>
+            {AREAS.map((area) => (
+              <div key={area.key} className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <Label htmlFor={`area-${area.key}`} className="text-sm font-medium">
+                    {area.label}
+                  </Label>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{area.hint}</p>
+                </div>
+                <Switch
+                  id={`area-${area.key}`}
+                  checked={areas[area.key]}
+                  disabled={busy}
+                  onCheckedChange={(checked) =>
+                    setAreas((prev) => ({ ...prev, [area.key]: checked }))
+                  }
+                />
+              </div>
+            ))}
+          </fieldset>
+
+          <p className="text-xs text-muted-foreground">
+            Nothing else is shared. Your vault, messages and anything a relative has hidden from you
+            stay out of reach.
+          </p>
+
           {error ? (
             <p role="alert" className="text-sm text-destructive">
               {error}
             </p>
           ) : null}
-          <Button className="w-full" disabled={busy} onClick={() => void decide(true)}>
-            Allow access
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={busy}
-            onClick={() => void decide(false)}
-          >
-            Deny
-          </Button>
+          <div className="space-y-3">
+            <Button
+              className="w-full"
+              disabled={busy || nothingAllowed}
+              onClick={() => void decide(true)}
+            >
+              {nothingAllowed ? "Choose at least one area" : "Allow access"}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={busy}
+              onClick={() => void decide(false)}
+            >
+              Deny
+            </Button>
+          </div>
           <p aria-live="polite" className="sr-only">
             {busy ? "Sending your decision…" : ""}
           </p>
