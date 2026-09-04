@@ -1,3 +1,5 @@
+import { RealSettings } from "@/components/settings-real";
+import { useActiveFamily } from "@/hooks/use-active-family";
 import { createFileRoute } from "@tanstack/react-router";
 import { Crown, HardDrive, Moon, Shield, Sun } from "lucide-react";
 import { toast } from "sonner";
@@ -28,6 +30,25 @@ export const Route = createFileRoute("/_authenticated/settings")({
 });
 
 function SettingsPage() {
+  const { family, loading } = useActiveFamily();
+  if (loading) {
+    return (
+      <AppLayout>
+        <p className="py-24 text-center text-sm text-muted-foreground">Loading your settings…</p>
+      </AppLayout>
+    );
+  }
+  if (family) {
+    return (
+      <AppLayout>
+        <RealSettings />
+      </AppLayout>
+    );
+  }
+  return <DemoSettingsPage />;
+}
+
+function DemoSettingsPage() {
   const user = userById(useAppStore((s) => s.currentUserId));
   const familyId = useAppStore((s) => s.activeFamilyId);
   const theme = useAppStore((s) => s.theme);

@@ -8,7 +8,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -46,6 +48,21 @@ function AuthPage() {
   const afterAuth = async () => {
     await navigate({ to: "/onboarding" });
   };
+
+  const signInWithGoogle = async () => {
+    setBusy(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setBusy(false);
+      toast.error("Google sign-in failed. Please try again or use your email.");
+      return;
+    }
+    if (result.redirected) return;
+    await afterAuth();
+  };
+
 
   const signIn = async () => {
     setBusy(true);
@@ -92,11 +109,26 @@ function AuthPage() {
         </p>
 
         <Card className="mt-8 p-6">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={busy}
+            onClick={() => void signInWithGoogle()}
+          >
+            Continue with Google
+          </Button>
+          <div className="my-6 flex items-center gap-3">
+            <span className="h-px flex-1 bg-border" />
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">or use email</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
           <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Create account</TabsTrigger>
             </TabsList>
+
 
             <TabsContent value="signin" className="mt-6 space-y-4">
               <h2 className="font-display text-xl font-semibold">Welcome back</h2>

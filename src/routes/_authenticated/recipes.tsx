@@ -1,3 +1,5 @@
+import { RealRecipes } from "@/components/recipes-real";
+import { useActiveFamily } from "@/hooks/use-active-family";
 import { createFileRoute } from "@tanstack/react-router";
 import { Clock, Plus, Printer, Users } from "lucide-react";
 import { useState } from "react";
@@ -26,6 +28,26 @@ export const Route = createFileRoute("/_authenticated/recipes")({
 });
 
 function RecipesPage() {
+  const { family, loading } = useActiveFamily();
+  if (loading) {
+    return (
+      <AppLayout>
+        <p className="py-24 text-center text-sm text-muted-foreground">Opening the family kitchen…</p>
+      </AppLayout>
+    );
+  }
+  if (family) {
+    return (
+      <AppLayout>
+        <RealRecipes familyId={family.id} />
+      </AppLayout>
+    );
+  }
+  return <DemoRecipesPage />;
+}
+
+
+function DemoRecipesPage() {
   const familyId = useAppStore((s) => s.activeFamilyId);
   const recipes = allRecipes.filter((r) => r.familyId === familyId);
   const [open, setOpen] = useState<Recipe | null>(null);

@@ -1,3 +1,5 @@
+import { RealCalendar } from "@/components/calendar-real";
+import { useActiveFamily } from "@/hooks/use-active-family";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, Cake, MapPin, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -27,6 +29,26 @@ export const Route = createFileRoute("/_authenticated/calendar")({
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function CalendarPage() {
+  const { family, loading } = useActiveFamily();
+  if (loading) {
+    return (
+      <AppLayout>
+        <p className="py-24 text-center text-sm text-muted-foreground">Opening your family calendar…</p>
+      </AppLayout>
+    );
+  }
+  if (family) {
+    return (
+      <AppLayout>
+        <RealCalendar familyId={family.id} canEdit={family.role !== "viewer"} />
+      </AppLayout>
+    );
+  }
+  return <DemoCalendarPage />;
+}
+
+
+function DemoCalendarPage() {
   const familyId = useAppStore((s) => s.activeFamilyId);
   const rsvps = useAppStore((s) => s.rsvps);
   const setRsvp = useAppStore((s) => s.setRsvp);

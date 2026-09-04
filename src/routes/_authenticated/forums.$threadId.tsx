@@ -1,3 +1,5 @@
+import { RealForumThread } from "@/components/forum-thread-real";
+import { useActiveFamily } from "@/hooks/use-active-family";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
@@ -13,14 +15,18 @@ import { formatLongDate, relativeTime } from "@/lib/format";
 import { forumCategories, forumThreads, userById } from "@/lib/mock-data";
 import type { ForumPost } from "@/lib/types";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const Route = createFileRoute("/_authenticated/forums/$threadId")({
   loader: ({ params }) => {
+    // Real (backend) threads use UUID ids; the investor demo uses "t_" ids.
+    if (UUID_RE.test(params.threadId)) return { thread: null };
     const thread = forumThreads.find((t) => t.id === params.threadId);
     if (!thread) throw notFound();
     return { thread };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) {
+    if (!loaderData?.thread) {
       return { meta: [{ title: "Thread not found — Eternal — Memories" }, { name: "robots", content: "noindex" }] };
     }
     const { thread } = loaderData;
@@ -37,7 +43,34 @@ export const Route = createFileRoute("/_authenticated/forums/$threadId")({
 });
 
 function ThreadPage() {
+  const { threadId } = Route.useParams();
   const { thread } = Route.useLoaderData();
+  const { family, loading } = useActiveFamily();
+
+  if (!thread) {
+    if (loading) {
+      return (
+        <AppLayout>
+          <p className="py-24 text-center text-sm text-muted-foreground">Loading conversation…</p>
+        </AppLayout>
+      );
+    }
+    if (!family) {
+      return (
+        <AppLayout>
+          <p className="py-24 text-center text-sm text-muted-foreground">
+            This conversation belongs to a family archive you are not part of.
+          </p>
+        </AppLayout>
+      );
+    }
+    return (
+      <AppLayout>
+        <RealForumThread familyId={family.id} threadId={threadId} />
+      </AppLayout>
+    );
+  }
+
   const category = forumCategories.find((c) => c.id === thread.categoryId);
   const [replies, setReplies] = useState<ForumPost[]>([]);
   const [draft, setDraft] = useState("");

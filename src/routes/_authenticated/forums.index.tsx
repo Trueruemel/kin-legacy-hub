@@ -1,3 +1,5 @@
+import { RealForums } from "@/components/forums-real";
+import { useActiveFamily } from "@/hooks/use-active-family";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, MessageSquare, Search, Sparkles, Utensils } from "lucide-react";
 
@@ -23,6 +25,26 @@ export const Route = createFileRoute("/_authenticated/forums/")({
 const icons = { utensils: Utensils, sparkles: Sparkles, search: Search, heart: Heart } as const;
 
 function ForumsPage() {
+  const { family, loading } = useActiveFamily();
+  if (loading) {
+    return (
+      <AppLayout>
+        <p className="py-24 text-center text-sm text-muted-foreground">Loading conversations…</p>
+      </AppLayout>
+    );
+  }
+  if (family) {
+    return (
+      <AppLayout>
+        <RealForums familyId={family.id} />
+      </AppLayout>
+    );
+  }
+  return <DemoForumsPage />;
+}
+
+
+function DemoForumsPage() {
   const familyId = useAppStore((s) => s.activeFamilyId);
   const categories = forumCategories.filter((c) => c.familyId === familyId);
 

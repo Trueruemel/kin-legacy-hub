@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/app-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PhotoCropper } from "@/components/photo-cropper";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +50,7 @@ export function RealGallery({
   const [albumOpen, setAlbumOpen] = useState(false);
   const [albumForm, setAlbumForm] = useState({ name: "", description: "", year: "" });
   const [uploading, setUploading] = useState(false);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -164,7 +166,11 @@ export function RealGallery({
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) void upload(file);
+              e.target.value = "";
+              if (!file) return;
+              // Photos get a crop pass; audio, video and documents upload as-is.
+              if (file.type.startsWith("image/")) setPendingPhoto(file);
+              else void upload(file);
             }}
           />
           <Button disabled={uploading} onClick={() => fileRef.current?.click()}>
@@ -172,6 +178,18 @@ export function RealGallery({
           </Button>
         </Card>
       )}
+
+      <PhotoCropper
+        file={pendingPhoto}
+        open={pendingPhoto !== null}
+        aspect={4 / 3}
+        title="Crop before adding to the archive"
+        onCancel={() => setPendingPhoto(null)}
+        onCropped={(cropped) => {
+          setPendingPhoto(null);
+          void upload(cropped);
+        }}
+      />
 
       {!gallery.isLoading && visible.length === 0 && (
         <Card className="p-8 text-center text-sm text-muted-foreground">
