@@ -119,3 +119,24 @@ export const addRelationship = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Stores a cropped portrait for a person in the tree. */
+export const setPersonPhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        personId: z.string().uuid(),
+        storagePath: z.string().min(3).max(400),
+        mime: z.string().min(3).max(120),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("persons")
+      .update({ photo_path: data.storagePath, updated_at: new Date().toISOString() })
+      .eq("id", data.personId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
