@@ -72,7 +72,7 @@ export default FamilyWelcomeEmail
 export const template: TemplateEntry = {
   component: FamilyWelcomeEmail,
   displayName: 'Family welcome',
-  subject: (data) => `Welcome to ${data.familyName ?? 'your family archive'}`,
+  subject: (data) => `Welcome to ${data['familyName'] ?? 'your family archive'}`,
   previewData: {
     familyName: 'The Berger Family',
     memberName: 'Tristan',
