@@ -57,11 +57,32 @@ function daysFromToday(date: Date): number {
   return Math.max(0, Math.round((date.getTime() - start.getTime()) / 86_400_000));
 }
 
+/** ISO timestamp → value a datetime-local input accepts, in local time. */
+function toLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+const EMPTY_FORM = {
+  title: "",
+  description: "",
+  startsAt: "",
+  endsAt: "",
+  location: "",
+  category: "gathering" as (typeof CATEGORIES)[number],
+};
+
 export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit: boolean }) {
   const queryClient = useQueryClient();
   const list = useServerFn(listEvents);
   const create = useServerFn(createEvent);
+  const update = useServerFn(updateEvent);
+  const remove = useServerFn(deleteEvent);
+  const sendEmail = useServerFn(sendEventEmail);
   const rsvp = useServerFn(setEventRsvp);
+
 
   const calendar = useQuery({
     queryKey: ["events", familyId],
