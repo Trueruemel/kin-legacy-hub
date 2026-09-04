@@ -58,6 +58,33 @@ export type Database = {
           },
         ]
       }
+      assistant_scopes: {
+        Row: {
+          allow_events: boolean
+          allow_photos: boolean
+          allow_tree: boolean
+          created_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_events?: boolean
+          allow_photos?: boolean
+          allow_tree?: boolean
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          allow_events?: boolean
+          allow_photos?: boolean
+          allow_tree?: boolean
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_members: {
         Row: {
           chat_id: string
@@ -538,6 +565,44 @@ export type Database = {
           },
           {
             foreignKeyName: "media_items_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_visibility: {
+        Row: {
+          allow_events: boolean
+          allow_photos: boolean
+          allow_tree: boolean
+          created_at: string
+          family_id: string
+          member_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          allow_events?: boolean
+          allow_photos?: boolean
+          allow_tree?: boolean
+          created_at?: string
+          family_id: string
+          member_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          allow_events?: boolean
+          allow_photos?: boolean
+          allow_tree?: boolean
+          created_at?: string
+          family_id?: string
+          member_user_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_visibility_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
@@ -1141,6 +1206,10 @@ export type Database = {
       is_demo_family: { Args: { _family_id: string }; Returns: boolean }
       is_family_creator: { Args: { _family_id: string }; Returns: boolean }
       is_family_member: { Args: { _family_id: string }; Returns: boolean }
+      member_can_see: {
+        Args: { _area: string; _family_id: string }
+        Returns: boolean
+      }
       shares_family_with: { Args: { _user_id: string }; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

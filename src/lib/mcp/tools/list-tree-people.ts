@@ -1,6 +1,7 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 import { supabaseForUser } from "../supabase";
+import { scopeAllowed, scopeDeniedResult } from "../scopes";
 
 export default defineTool({
   name: "list_tree_people",
@@ -15,6 +16,7 @@ export default defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
+    if (!(await scopeAllowed(ctx, "tree"))) return scopeDeniedResult("tree");
     const supabase = supabaseForUser(ctx);
     const { data, error } = await supabase
       .from("persons")

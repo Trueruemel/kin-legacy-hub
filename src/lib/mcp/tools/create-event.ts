@@ -1,6 +1,7 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 import { supabaseForUser } from "../supabase";
+import { scopeAllowed, scopeDeniedResult } from "../scopes";
 
 export default defineTool({
   name: "create_event",
@@ -20,6 +21,7 @@ export default defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
+    if (!(await scopeAllowed(ctx, "events"))) return scopeDeniedResult("events");
     const startsAt = new Date(input.startsAt);
     if (Number.isNaN(startsAt.getTime())) {
       return { content: [{ type: "text", text: "startsAt is not a valid timestamp" }], isError: true };

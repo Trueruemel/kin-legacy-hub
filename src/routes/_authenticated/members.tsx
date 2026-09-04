@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AppLayout, PageHeader } from "@/components/app-layout";
 import { FamilyInvites } from "@/components/family-invites";
+import { MemberVisibility } from "@/components/member-visibility";
 import { useActiveFamily } from "@/hooks/use-active-family";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -87,7 +88,19 @@ function MembersPage() {
         />
       )}
 
-      {family ? <RealMembers familyId={family.id} /> : <DemoMembers />}
+      {family ? (
+        <>
+          <RealMembers familyId={family.id} />
+          <div className="mt-10">
+            <MemberVisibility
+              familyId={family.id}
+              canAdmin={family.role === "owner" || family.role === "steward"}
+            />
+          </div>
+        </>
+      ) : (
+        <DemoMembers />
+      )}
     </AppLayout>
   );
 }
