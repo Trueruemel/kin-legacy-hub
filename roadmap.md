@@ -25,10 +25,12 @@ Jede Woche endet mit einem **sichtbaren Meilenstein** — etwas, das man im Brow
 - [x] Familien-ID in der URL: `/family/<familien-id>` als teilbare Adresse
 - [x] Eigenständige Familienprofil-Seite mit Mitgliedern, Fotos und Terminen
 - [x] Geschlossene Vorschau: nur die vorbereiteten Entwickler-/Demo-Konten kommen hinein
-- [ ] DNS für `notify.eternalmemorys.com` setzen und verifizieren (TXT + 2× NS)
+- [x] App veröffentlicht, eigene Adresse `eternalmemorys.enterprises` live (04.09.)
+- [x] Mailversand auf `notify.eternalmemorys.enterprises` umgestellt, Zone verifiziert (04.09.)
 - [ ] Zustellung aller 8 Templates an echte Postfächer prüfen (Signup, Invite, Welcome, Termin …)
 - [ ] 13 Security-Linter-Warnungen bewerten und auflösen (1× extension in public, 12× SECURITY DEFINER)
-- **Meilenstein:** Kunde öffnet die öffentliche URL, meldet sich mit dev1 an und sieht das Familienprofil.
+- **Meilenstein:** ✅ erreicht — Kunde öffnet die öffentliche URL, meldet sich mit dev1 an und sieht das Familienprofil.
+
 
 
 ### Woche 2 — „Eine echte Familie kann komplett starten"
