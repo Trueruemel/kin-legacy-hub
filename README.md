@@ -1,37 +1,44 @@
-# Welcome to your Lovable project
+# Eternal — Memories
 
-This project was built with [Lovable](https://lovable.dev).
+Private Familien- und Nachlass-Plattform: Stammbaum, Erinnerungs-Feed, Fotoarchiv, Kalender,
+Chats, Forum, Rezepte und ein zeitversiegelter Legacy Vault — plus ein OAuth-geschützter
+Assistenten-Zugang (MCP) für KI-Assistenten.
 
-## Build with Lovable
+Registrierte Familien arbeiten auf echter Datenbank, privatem Object Storage und
+authentifizierten Server-Funktionen. Ohne eigene Familie zeigt die App die Investor-Demo mit
+Seed-Daten.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## Auf einen Blick
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+| | |
+| --- | --- |
+| Stack | TanStack Start v1 (React 19, SSR), Vite 7, Tailwind v4, shadcn/ui |
+| Backend | Cloud-PostgreSQL mit RLS (26 Tabellen), privater Storage-Bucket `memories` |
+| Auth | E-Mail + Passwort, Google OAuth, HIBP-Check, geschützter Bereich `_authenticated/` |
+| E-Mail | 8 gebrandete Templates, Absenderdomain `notify.eternalmemorys.com` |
+| Assistenten | `/mcp` mit OAuth 2.1 und 4 Tools, Freigabe pro Bereich |
+| Domain | `eternalmemorys.enterprises` |
 
-## Development
+## Kernbereiche
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+- **Dashboard** — Mitglieder, Personen, Fotos und nächste Termine auf einer Seite
+- **Setup-Wizard** — Familie gründen, einladen, Personen und Fotos hinzufügen
+- **Feed / Stammbaum / Galerie** — Beiträge, Personen und Medien mit Foto-Upload und Zuschnitt
+- **Kalender** — Termine anlegen, bearbeiten, teilen, Einladungen und Erinnerungen per E-Mail
+- **Legacy Vault** — zeitversiegelte Nachrichten mit Countdown, Object Lock und AI-Story
+- **Messages / Forum / Rezepte** — Austausch innerhalb der Familie
+- **Freigaben** — Sichtbarkeit von Baum, Fotos und Terminen pro Angehörigem und pro Assistent
+
+## Entwicklung
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
 npm i
-npm run dev
+npm run dev      # Entwicklung
+npm run build    # Produktionsbuild
+npm run lint
 ```
 
-## Built with
+## Weiterlesen
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
-
-## Eternal — Memories
-
-Private Familien- und Nachlass-Plattform. Registrierte Familien arbeiten auf echter Datenbank,
-privatem Object Storage und authentifizierten Server-Funktionen; ohne eigene Familie zeigt die App
-die Investor-Demo mit Seed-Daten.
-
-Vollständige Beschreibung: [DOCUMENTATION.md](./DOCUMENTATION.md) · Stand der Beta: [roadmap.md](./roadmap.md)
+- Vollständige Systemdokumentation: [DOCUMENTATION.md](./DOCUMENTATION.md)
+- Stand und nächste Schritte: [roadmap.md](./roadmap.md)
