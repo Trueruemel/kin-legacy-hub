@@ -12,6 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { createFamily, ensureProfile, listMyFamilies } from "@/lib/family.functions";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
+  // The guided wizard replaces the old single-step form.
+  beforeLoad: () => {
+    throw redirect({ to: "/setup" });
+  },
   head: () => ({
     meta: [
       { title: "Create your family archive — Eternal — Memories" },
