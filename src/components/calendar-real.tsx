@@ -139,9 +139,8 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
         ...(form.endsAt ? { endsAt: form.endsAt } : {}),
         ...(form.location.trim() ? { location: form.location.trim() } : {}),
       };
-      return editingId
-        ? update({ data: { eventId: editingId, ...payload } })
-        : create({ data: { familyId, ...payload } });
+      if (editingId) await update({ data: { eventId: editingId, ...payload } });
+      else await create({ data: { familyId, ...payload } });
     },
     onSuccess: () => {
       const edited = !!editingId;
