@@ -370,7 +370,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create a family event</DialogTitle>
+            <DialogTitle>{editingId ? "Edit this event" : "Create a family event"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-2">
