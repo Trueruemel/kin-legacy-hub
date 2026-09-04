@@ -132,12 +132,12 @@ export const acceptInvite = createServerFn({ method: "POST" })
         context.supabase.from("families").select("name").eq("id", familyId as string).maybeSingle(),
         context.supabase
           .from("profiles")
-          .select("display_name, email")
+          .select("display_name")
           .eq("id", context.userId)
           .maybeSingle(),
       ]);
 
-      const recipient = profile?.email ?? (context.claims as { email?: string } | undefined)?.email;
+      const recipient = (context.claims as { email?: string } | undefined)?.email;
       if (recipient) {
         const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
         await sendTemplateEmail("family-welcome", recipient, {
