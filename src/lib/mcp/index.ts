@@ -20,5 +20,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [listFamilies, listTreePeople, listUpcomingEvents, createEvent],
+  tools: [listFamilies, listTreePeople, listUpcomingEvents, createEvent] as unknown as never[],
 });
