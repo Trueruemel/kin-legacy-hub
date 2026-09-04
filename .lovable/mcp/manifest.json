@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "sdk_version": "2.0.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://bnxdpwvdjwszshgzxrvr.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "remix-of-eternalmemorys",
+      "version": "0.1.0",
+      "title": "Remix of EternalMemorys"
+    },
+    "tools": [
+      {
+        "name": "list_families",
+        "title": "List my families",
+        "description": "List the families the signed-in user belongs to, with their role in each.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_tree_people",
+        "title": "List family tree people",
+        "description": "List people recorded in a family's tree, newest first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "familyId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Family id from list_families."
+            },
+            "limit": {
+              "description": "Maximum people to return (default 25).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "familyId"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_upcoming_events",
+        "title": "List upcoming events",
+        "description": "List a family's upcoming events, soonest first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "familyId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Family id from list_families."
+            },
+            "limit": {
+              "description": "Maximum events to return (default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": [
+            "familyId"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_event",
+        "title": "Create a family event",
+        "description": "Add an event to a family's calendar.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "familyId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Family id from list_families."
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "Event title."
+            },
+            "startsAt": {
+              "type": "string",
+              "description": "Start time as an ISO 8601 timestamp."
+            },
+            "endsAt": {
+              "description": "Optional end time as an ISO 8601 timestamp.",
+              "type": "string"
+            },
+            "location": {
+              "description": "Optional location.",
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": {
+              "description": "Optional details.",
+              "type": "string",
+              "maxLength": 2000
+            },
+            "category": {
+              "description": "Optional category, e.g. birthday or reunion.",
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          "required": [
+            "familyId",
+            "title",
+            "startsAt"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
