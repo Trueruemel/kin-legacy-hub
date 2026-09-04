@@ -471,7 +471,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              We email one relative at a time from notify.eternalmemorys.com, with the date, place and a link
+              We email one relative at a time from notify.eternalmemorys.enterprises, with the date, place and a link
               to this calendar.
             </p>
             <div className="grid gap-2">
