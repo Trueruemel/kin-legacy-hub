@@ -12,8 +12,16 @@ import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 
 
+function sanitizeNext(value: unknown): string | null {
+  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
+  return value;
+}
+
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: sanitizeNext(search['next']) ?? undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — Eternal — Memories" },
