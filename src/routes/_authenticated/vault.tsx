@@ -169,9 +169,11 @@ function DemoVault() {
       </div>
 
       <PageHeader
+        as="h2"
         title="Sealed items"
         description={`${sealedCount} of ${items.length} items are still locked. Locked content stays sealed until its moment arrives.`}
       />
+
 
       <div className="grid gap-4 md:grid-cols-2">
         {items.map((item) => {
