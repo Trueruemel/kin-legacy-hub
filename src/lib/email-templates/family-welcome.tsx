@@ -84,6 +84,7 @@ export const template: TemplateEntry = {
     familyName: 'The Berger Family',
     memberName: 'Tristan',
     siteUrl: 'https://eternalmemorys.enterprises',
+    familyUrl: 'https://eternalmemorys.enterprises/family/00000000-0000-0000-0000-000000000000',
     treeUrl: 'https://eternalmemorys.enterprises/tree',
     calendarUrl: 'https://eternalmemorys.enterprises/calendar',
   },

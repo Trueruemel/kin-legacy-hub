@@ -146,6 +146,7 @@ export const acceptInvite = createServerFn({ method: "POST" })
             familyName: family?.name ?? "your family archive",
             memberName: profile?.display_name ?? undefined,
             siteUrl: origin,
+            familyUrl: `${origin}/family/${familyId as string}`,
             treeUrl: `${origin}/tree`,
             calendarUrl: `${origin}/calendar`,
           },
