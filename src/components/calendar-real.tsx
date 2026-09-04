@@ -221,6 +221,16 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
           ) : undefined
         }
       />
+      <p role="status" aria-live="polite" className="sr-only">
+        {saveMutation.isPending
+          ? "Saving event"
+          : deleteMutation.isPending
+            ? "Deleting event"
+            : emailMutation.isPending
+              ? "Sending email"
+              : ""}
+      </p>
+
 
       <Tabs defaultValue="upcoming">
         <TabsList>
