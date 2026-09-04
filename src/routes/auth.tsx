@@ -19,10 +19,12 @@ function sanitizeNext(value: unknown): string | null {
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>): { next?: string } => {
+  validateSearch: (search: Record<string, unknown>): { next?: string; denied?: boolean } => {
     const next = sanitizeNext(search['next']);
-    return next ? { next } : {};
+    const denied = search['denied'] === true || search['denied'] === "true";
+    return { ...(next ? { next } : {}), ...(denied ? { denied: true } : {}) };
   },
+
   head: () => ({
     meta: [
       { title: "Sign in — Eternal — Memories" },
