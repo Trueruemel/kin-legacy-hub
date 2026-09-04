@@ -43,20 +43,27 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void navigate({ to: "/onboarding" });
-    });
-  }, [navigate]);
-
   const afterAuth = async () => {
+    if (next) {
+      window.location.href = next;
+      return;
+    }
     await navigate({ to: "/onboarding" });
   };
+
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) void afterAuth();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, next]);
+
 
   const signInWithGoogle = async () => {
     setBusy(true);

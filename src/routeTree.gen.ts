@@ -25,6 +25,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as AuthenticatedTreeRouteImport } from './routes/_authenticated/tree'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedForumsIndexRouteImport } from './routes/_authenticated/forums.index'
 import { Route as AuthenticatedForumsThreadIdRouteImport } from './routes/_authenticated/forums.$threadId'
@@ -113,6 +114,11 @@ const AuthenticatedVaultRoute = AuthenticatedVaultRouteImport.update({
   path: '/vault',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedEventsEventIdRoute =
   AuthenticatedEventsEventIdRouteImport.update({
     id: '/events/$eventId',
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/vault': typeof AuthenticatedVaultRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/forums/$threadId': typeof AuthenticatedForumsThreadIdRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/vault': typeof AuthenticatedVaultRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/forums/$threadId': typeof AuthenticatedForumsThreadIdRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/_authenticated/tree': typeof AuthenticatedTreeRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/forums/$threadId': typeof AuthenticatedForumsThreadIdRoute
   '/_authenticated/invite/$token': typeof AuthenticatedInviteTokenRoute
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/tree'
     | '/vault'
+    | '/.lovable/oauth/consent'
     | '/events/$eventId'
     | '/forums/$threadId'
     | '/invite/$token'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/tree'
     | '/vault'
+    | '/.lovable/oauth/consent'
     | '/events/$eventId'
     | '/forums/$threadId'
     | '/invite/$token'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/setup'
     | '/_authenticated/tree'
     | '/_authenticated/vault'
+    | '/.lovable/oauth/consent'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/forums/$threadId'
     | '/_authenticated/invite/$token'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -440,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVaultRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/events/$eventId': {
       id: '/_authenticated/events/$eventId'
       path: '/events/$eventId'
@@ -547,6 +567,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
