@@ -25,6 +25,8 @@
 - [x] Settings (Profil bearbeiten)
 - [x] Family Dashboard (Baum, Fotos, nächste Termine auf einer Seite)
 - [x] Family-Setup-Wizard (Familie anlegen, einladen, Personen & Fotos)
+- [x] Freigaben: Assistenten-Zustimmung mit Bereichs-Schaltern (Baum, Fotos, Termine)
+- [x] Freigaben: pro Angehörigem Baum/Fotos/Termine ein-/ausschalten (Mitglieder-Seite)
 - [ ] Volltextsuche (tsvector + Trigram)
 
 - [x] Vault-UI als Karteikarten-Layout, Transkript direkt im Textfeld
