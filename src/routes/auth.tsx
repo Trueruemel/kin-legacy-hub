@@ -19,9 +19,10 @@ function sanitizeNext(value: unknown): string | null {
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>) => ({
-    next: sanitizeNext(search['next']) ?? undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { next?: string } => {
+    const next = sanitizeNext(search['next']);
+    return next ? { next } : {};
+  },
   head: () => ({
     meta: [
       { title: "Sign in — Eternal — Memories" },
