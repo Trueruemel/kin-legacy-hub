@@ -126,7 +126,7 @@ function PostCard({ post, familyId }: { post: FeedPost; familyId: string }) {
           placeholder="Write a comment…"
           aria-label="Write a comment"
         />
-        <Button type="submit" size="icon" disabled={!draft.trim() || commentMutation.isPending}>
+        <Button type="submit" size="icon" aria-label="Send comment" className="min-h-11 min-w-11" disabled={!draft.trim() || commentMutation.isPending}>
           <Send className="size-4" />
         </Button>
       </form>

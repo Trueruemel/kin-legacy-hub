@@ -116,26 +116,69 @@ function GlobalSearch() {
     return [...people, ...mems, ...evs, ...vault, ...recs, ...albs].slice(0, 8);
   }, [query, familyId]);
 
+  const [active, setActive] = useState(-1);
+
+  useEffect(() => {
+    setActive(-1);
+  }, [query]);
+
+  const go = (to: string) => {
+    setQuery("");
+    setActive(-1);
+    void navigate({ to });
+  };
+
   return (
     <div className="relative hidden flex-1 md:block md:max-w-md">
       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (results.length === 0) return;
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setActive((i) => (i + 1) % results.length);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setActive((i) => (i - 1 + results.length) % results.length);
+          } else if (e.key === "Enter" && active >= 0) {
+            e.preventDefault();
+            go(results[active]!.to);
+          } else if (e.key === "Escape") {
+            setQuery("");
+          }
+        }}
         placeholder="Search memories, people, events…"
         aria-label="Search the family archive"
+        role="combobox"
+        aria-expanded={results.length > 0}
+        aria-controls="global-search-results"
+        aria-autocomplete="list"
+        {...(active >= 0 && { "aria-activedescendant": `global-search-option-${active}` })}
         className="pl-9"
       />
+      <p aria-live="polite" className="sr-only">
+        {query.trim().length < 2 ? "" : `${results.length} results`}
+      </p>
       {results.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-lg">
-          {results.map((r) => (
+        <div
+          id="global-search-results"
+          role="listbox"
+          aria-label="Search results"
+          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-lg"
+        >
+          {results.map((r, i) => (
             <button
               key={`${r.kind}-${r.label}`}
-              onClick={() => {
-                setQuery("");
-                void navigate({ to: r.to });
-              }}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-accent"
+              id={`global-search-option-${i}`}
+              role="option"
+              aria-selected={i === active}
+              onClick={() => go(r.to)}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-accent",
+                i === active && "bg-accent",
+              )}
             >
               <Badge variant="secondary" className="shrink-0 text-[10px]">
                 {r.kind}
@@ -411,9 +454,7 @@ export function SiteFooter() {
         <p>© 2026 Eternal — Memories</p>
         <nav aria-label="Footer" className="flex flex-wrap gap-3">
           {["About", "Privacy", "Terms", "Help", "Contact"].map((l) => (
-            <span key={l} className="cursor-default transition-colors hover:text-foreground">
-              {l}
-            </span>
+            <span key={l}>{l}</span>
           ))}
         </nav>
       </div>
@@ -454,7 +495,13 @@ export function AppLayout({ children, wide = false }: { children: ReactNode; wid
   const switching = useAppStore((s) => s.switching);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+      >
+        Skip to main content
+      </a>
       <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4">
           <Link to="/feed" className="shrink-0 text-primary dark:text-gold">
@@ -466,13 +513,18 @@ export function AppLayout({ children, wide = false }: { children: ReactNode; wid
           <div className="flex items-center gap-0.5">
             <InstallAppButton className="mr-1 hidden sm:inline-flex" />
             <ThemeToggle />
-            <Link to="/messages" aria-label="Messages">
-              <Button variant="ghost" size="icon" className="relative">
-                <MessageCircle className="size-5" />
-                <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-gold text-[10px] font-semibold text-gold-foreground">
-                  3
-                </span>
-              </Button>
+            <Link
+              to="/messages"
+              aria-label="Messages, 3 unread"
+              className="relative inline-flex size-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <MessageCircle className="size-5" />
+              <span
+                aria-hidden="true"
+                className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-gold text-[10px] font-semibold text-gold-foreground"
+              >
+                3
+              </span>
             </Link>
             <NotificationsMenu />
             <Separator orientation="vertical" className="mx-1 h-8" />
@@ -489,7 +541,7 @@ export function AppLayout({ children, wide = false }: { children: ReactNode; wid
           </div>
         </aside>
 
-        <main className={cn("min-w-0 flex-1", !wide && "mx-auto w-full")}>
+        <main id="main-content" tabIndex={-1} className={cn("min-w-0 flex-1", !wide && "mx-auto w-full")}>
           {switching ? <SwitchingSkeleton /> : children}
           <SiteFooter />
         </main>
@@ -504,7 +556,7 @@ export function AppLayout({ children, wide = false }: { children: ReactNode; wid
             key={to}
             to={to}
             activeProps={{ className: "text-primary dark:text-gold" }}
-            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground"
+            className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] text-muted-foreground"
           >
             <Icon className="size-5" />
             {label}

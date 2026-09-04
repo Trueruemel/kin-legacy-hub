@@ -16,7 +16,7 @@ import { useAppStore } from "@/lib/store";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <svg viewBox="0 0 120 120" className="mx-auto size-32 text-muted-foreground" aria-hidden="true">
           <circle cx="60" cy="60" r="46" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.3" />
@@ -49,7 +49,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
           This page didn't load

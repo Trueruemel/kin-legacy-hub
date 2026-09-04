@@ -161,7 +161,7 @@ export function RealMessages({ familyId, userId }: { familyId: string; userId: s
               aria-label="Write a message"
               disabled={!chatId}
             />
-            <Button type="submit" size="icon" disabled={!chatId || !draft.trim()}>
+            <Button type="submit" size="icon" aria-label="Send message" className="min-h-11 min-w-11" disabled={!chatId || !draft.trim()}>
               <Send className="size-4" />
             </Button>
           </form>

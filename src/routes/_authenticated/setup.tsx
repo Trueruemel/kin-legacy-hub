@@ -243,6 +243,7 @@ function SetupWizard() {
               <Input
                 type="email"
                 required
+                aria-label="Email address of the relative you want to invite"
                 placeholder="aunt@example.com"
                 className="min-w-52 flex-1"
                 value={email}
@@ -287,12 +288,13 @@ function SetupWizard() {
             >
               <Input
                 required
+                aria-label="First name"
                 placeholder="First name"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
-              <Input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-              <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+              <Input aria-label="Last name" placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              <Input type="date" aria-label="Date of birth" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
               <Button type="submit" disabled={personMutation.isPending}>
                 <Plus className="size-4" /> Add
               </Button>

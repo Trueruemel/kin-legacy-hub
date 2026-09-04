@@ -45,7 +45,7 @@ function LandingPage() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="grid min-h-dvh lg:grid-cols-2">
       <section className="relative hidden overflow-hidden bg-navy-deep lg:block">
         <img
           src={photo(photoPool[0]!, 1600)}
