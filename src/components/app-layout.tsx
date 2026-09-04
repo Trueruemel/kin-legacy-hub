@@ -429,21 +429,24 @@ export function PageHeader({
   title,
   description,
   action,
+  as: Heading = "h1",
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
+  as?: "h1" | "h2";
 }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">{title}</h1>
+        <Heading className="font-display text-3xl font-semibold tracking-tight">{title}</Heading>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}
     </div>
   );
 }
+
 
 export function AppLayout({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   const switching = useAppStore((s) => s.switching);
