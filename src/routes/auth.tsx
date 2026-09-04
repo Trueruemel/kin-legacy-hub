@@ -52,12 +52,20 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   const afterAuth = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data.user && !isBetaAllowed(data.user.email)) {
+      await supabase.auth.signOut();
+      toast.error("This is a closed preview — please use one of the accounts we prepared for you.");
+      await navigate({ to: "/auth", search: { denied: true } });
+      return;
+    }
     if (next) {
       window.location.href = next;
       return;
     }
     await navigate({ to: "/onboarding" });
   };
+
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
