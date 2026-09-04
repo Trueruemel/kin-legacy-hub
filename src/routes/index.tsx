@@ -94,7 +94,7 @@ function LandingPage() {
           <Card className="mt-8 p-6 lg:mt-0">
             <h2 className="font-display text-2xl font-semibold">Welcome back</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sign in to the Johnson family archive.
+              Sign in to your family archive.
             </p>
             <div className="mt-6 space-y-3">
               <Button className="w-full" onClick={() => void navigate({ to: "/auth" })}>
