@@ -225,7 +225,7 @@ export function RealSettings() {
             {(memberList.data ?? []).map((member) => (
               <div key={member.userId} className="flex flex-wrap items-center gap-3 py-3">
                 <span className="flex-1 font-medium">
-                  {member.displayName ?? "Family member"}
+                  {member.name}{member.isMe ? " (you)" : ""}
                 </span>
                 {canAdmin ? (
                   <Select
