@@ -24,5 +24,6 @@ export interface TemplateEntry {
 export const TEMPLATES: Record<string, TemplateEntry> = {
   // Add templates here as they are created, e.g.:
   'family-welcome': familyWelcomeTemplate,
+  'event-invite': eventInviteTemplate,
 }
 
