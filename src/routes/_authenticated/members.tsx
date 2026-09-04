@@ -87,7 +87,19 @@ function MembersPage() {
         />
       )}
 
-      {family ? <RealMembers familyId={family.id} /> : <DemoMembers />}
+      {family ? (
+        <>
+          <RealMembers familyId={family.id} />
+          <div className="mt-10">
+            <MemberVisibility
+              familyId={family.id}
+              canAdmin={family.role === "owner" || family.role === "steward"}
+            />
+          </div>
+        </>
+      ) : (
+        <DemoMembers />
+      )}
     </AppLayout>
   );
 }
