@@ -127,7 +127,7 @@ export const removeMember = createServerFn({ method: "POST" })
     z.object({ familyId: z.string().uuid(), userId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data: members, error: readError } = await supabase
       .from("family_members")
       .select("user_id, role")
@@ -136,7 +136,13 @@ export const removeMember = createServerFn({ method: "POST" })
 
     const owners = (members ?? []).filter((m) => m.role === "owner");
     const target = (members ?? []).find((m) => m.user_id === data.userId);
+    const callerIsOwner = (members ?? []).some(
+      (m) => m.user_id === userId && m.role === "owner",
+    );
     if (!target) return { ok: true };
+    if (target.role === "owner" && data.userId !== userId && !callerIsOwner) {
+      throw new Error("Only the family owner can remove another owner.");
+    }
     if (target.role === "owner" && owners.length <= 1) {
       throw new Error("The last owner cannot leave. Hand ownership over first.");
     }
