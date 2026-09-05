@@ -91,7 +91,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data: members, error: readError } = await supabase
       .from("family_members")
       .select("user_id, role")
@@ -100,7 +100,13 @@ export const updateMemberRole = createServerFn({ method: "POST" })
 
     const owners = (members ?? []).filter((m) => m.role === "owner");
     const target = (members ?? []).find((m) => m.user_id === data.userId);
+    const callerIsOwner = (members ?? []).some(
+      (m) => m.user_id === userId && m.role === "owner",
+    );
     if (!target) throw new Error("That person is not in this family.");
+    if ((data.role === "owner" || target.role === "owner") && !callerIsOwner) {
+      throw new Error("Only the family owner can hand over or take away ownership.");
+    }
     if (target.role === "owner" && data.role !== "owner" && owners.length <= 1) {
       throw new Error("A family needs at least one owner. Promote someone else first.");
     }
