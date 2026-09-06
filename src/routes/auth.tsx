@@ -14,7 +14,7 @@ import { isBetaAllowed } from "@/lib/access";
 import { supabase } from "@/integrations/supabase/client";
 
 
-function sanitizeNext(value: unknown): string | null {
+export function sanitizeNext(value: unknown): string | null {
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
   return value;
 }
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-function AuthPage() {
+export function AuthPage() {
   const navigate = useNavigate();
   const { next, denied } = Route.useSearch();
   const [email, setEmail] = useState("");
