@@ -11,16 +11,17 @@ import { useAppStore } from "@/lib/store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Eternal — Memories — Your family's story, preserved forever" },
+      { title: "Eternal — Memories: Private Family Memory Archive" },
       {
         name: "description",
         content:
-          "A private, invite-only home for your family's photos, stories, recipes and time-locked legacy messages across generations.",
+          "Keep your family's photos, stories, recipes and time-locked legacy letters in one private, invite-only archive built for every generation.",
       },
-      { property: "og:title", content: "Eternal — Memories — Your family's story, preserved forever" },
+      { property: "og:title", content: "Eternal — Memories: Private Family Memory Archive" },
       {
         property: "og:description",
-        content: "Private family feed, living family tree, media archive and legacy vault in one secure place.",
+        content:
+          "Keep your family's photos, stories, recipes and time-locked legacy letters in one private, invite-only archive built for every generation.",
       },
     ],
   }),
