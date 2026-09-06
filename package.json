@@ -11,6 +11,8 @@
     "build:desktop": "NITRO_PRESET=node-server vite build",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "format": "prettier --write ."
   },
   "overrides": {
