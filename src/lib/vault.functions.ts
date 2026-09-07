@@ -1,11 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 import { createCorrelationId } from "./evidence/contracts";
 import { recordEvidence, serverEvidence } from "./evidence/server";
 import { isReleased } from "./vault-release";
+import { writeVaultStory } from "./vault-story";
+
+/**
+ * The AI story feature is off unless explicitly switched on. Even when on, the request
+ * is pseudonymised (see vault-story.ts). Turning it on is a product/legal decision
+ * (Entscheidungsregister D-10): it means pseudonymised family text is processed by an
+ * external gateway.
+ */
+function isVaultStoryEnabled(): boolean {
+  return process.env["VAULT_STORY_ENABLED"] === "true";
+}
 
 export type RealVaultItem = {
   id: string;
@@ -170,10 +183,15 @@ export const vaultStory = createServerFn({ method: "POST" })
     // was requested, rejected or completed, never *which* one or for whom.
     const correlationId = createCorrelationId();
 
+    if (!isVaultStoryEnabled()) {
+      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "configuration", 503));
+      throw new Error("The story writer is not configured.");
+    }
+
     const { data: entry, error } = await context.supabase
       .from("vault_entries")
       .select(
-        "title, content, transcript, release_rule, release_on, released, sealed_by_name, recipient_names",
+        "family_id, title, content, transcript, release_rule, release_on, released, sealed_by_name, recipient_names",
       )
       .eq("id", data.entryId)
       .maybeSingle();
@@ -188,45 +206,75 @@ export const vaultStory = createServerFn({ method: "POST" })
       throw new Error("This item is still sealed.");
     }
 
-    const source = [entry.content, entry.transcript].filter(Boolean).join("\n\n").slice(0, 6000);
+    const source = [entry.content, entry.transcript].filter(Boolean).join("\n\n");
     if (!source) {
       recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 422));
       throw new Error("There is no text to work with yet.");
     }
 
+    const apiKey = process.env["LOVABLE_API_KEY"];
+    if (!apiKey) throw new Error("The story writer is not configured.");
+
+    // Every name the family knows, so the pseudonymiser can replace them in free text.
+    // Fail closed: without the name list the request would leave the server under-redacted.
+    const familyNames = await loadFamilyNames(context.supabase, entry.family_id);
+    if (familyNames === null) throw new Error("The story writer is unavailable.");
+
     // All guards passed: the request is now accepted into the AI path.
     recordEvidence(serverEvidence.vaultStoryRequested(correlationId));
     const startedAt = Date.now();
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) throw new Error("The story writer is not configured.");
+    const result = await writeVaultStory(
+      {
+        title: entry.title,
+        sealedByName: entry.sealed_by_name,
+        recipientNames: entry.recipient_names ?? [],
+        source,
+        familyNames,
+      },
+      { apiKey, fetchImpl: fetch },
+    );
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You retell family keepsakes. Write 3-5 warm, plain sentences in the language of the source text. Never invent facts.",
-          },
-          {
-            role: "user",
-            content: `Title: ${entry.title}\nSealed by: ${entry.sealed_by_name ?? "a family member"}\nFor: ${(entry.recipient_names ?? []).join(", ")}\n\n${source}`,
-          },
-        ],
-      }),
-    });
-    if (response.status === 429)
-      throw new Error("Too many requests right now — try again in a minute.");
-    if (!response.ok) throw new Error("The story writer is unavailable.");
-    const payload = (await response.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const story = payload.choices?.[0]?.message?.content?.trim();
-    if (!story) throw new Error("No story came back.");
+    if ("failure" in result) {
+      if (result.failure === "rate_limited")
+        throw new Error("Too many requests right now — try again in a minute.");
+      if (result.failure === "unavailable") throw new Error("The story writer is unavailable.");
+      throw new Error("No story came back.");
+    }
+
     recordEvidence(serverEvidence.vaultStoryCompleted(correlationId, Date.now() - startedAt));
-    return { story };
+    return { story: result.story };
   });
+
+/**
+ * Names the pseudonymiser must know for a family: people in the tree (first, last and
+ * birth names) and the display names of member profiles. Returns null when either
+ * lookup fails so the caller can fail closed.
+ */
+async function loadFamilyNames(
+  supabase: Pick<SupabaseClient<Database>, "from">,
+  familyId: string,
+): Promise<string[] | null> {
+  const [persons, members] = await Promise.all([
+    supabase.from("persons").select("first_name, last_name, birth_name").eq("family_id", familyId),
+    supabase.from("family_members").select("user_id").eq("family_id", familyId),
+  ]);
+  if (persons.error || members.error) return null;
+
+  const names: string[] = [];
+  for (const person of persons.data ?? []) {
+    const full = [person.first_name, person.last_name].filter(Boolean).join(" ");
+    if (full) names.push(full);
+    if (person.birth_name) names.push(`${person.first_name} ${person.birth_name}`);
+  }
+
+  const userIds = (members.data ?? []).map((m) => m.user_id).filter(Boolean);
+  if (userIds.length > 0) {
+    const profiles = await supabase.from("profiles").select("display_name").in("id", userIds);
+    if (profiles.error) return null;
+    for (const profile of profiles.data ?? []) {
+      if (profile.display_name) names.push(profile.display_name);
+    }
+  }
+  return names;
+}

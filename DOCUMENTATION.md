@@ -200,6 +200,16 @@ Gemeinsame Hilfsmittel: `components/photo-cropper.tsx` (Zuschnitt vor dem Upload
 - **Öffnen**: Text, Transkript, Bild-/Audio-/Video-Player, Download über signierte URLs (5 Min.).
 - **AI-Story**: `vaultStory` erzählt einen freigegebenen Eintrag in 3–5 warmen Sätzen nach.
   Versiegelte Einträge werden abgewiesen, die Story wird nicht gespeichert.
+  - Die Funktion ist standardmäßig **abgeschaltet** und wird nur mit der Umgebungsvariable
+    `VAULT_STORY_ENABLED=true` aktiv. Einschalten bedeutet, dass pseudonymisierter Familientext
+    an das Lovable AI Gateway übertragen wird — eine Produkt-/Rechtsentscheidung (Auftragsverarbeitung,
+    Information der Familien, Opt-in), keine technische.
+  - Vor dem Versand ersetzt `lib/privacy/pseudonymize.ts` alle der Familie bekannten Namen
+    (Personen im Stammbaum, Mitgliedsprofile, Absender, Empfänger) sowie E-Mail-Adressen,
+    Telefonnummern, IBANs, vollständige Daten und Straßenadressen durch Platzhalter wie `[PERSON_1]`.
+    Die Antwort wird serverseitig zurückübersetzt; die Zuordnung wird weder geloggt noch gespeichert.
+    Das ist Pseudonymisierung (Art. 4 Nr. 5 DSGVO), keine Anonymisierung: freier Text kann Personen
+    weiterhin über den Kontext erkennbar machen.
 
 ---
 
