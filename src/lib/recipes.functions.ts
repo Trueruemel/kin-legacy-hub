@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type RecipeRow = {
   id: string;
   title: string;
@@ -27,7 +29,7 @@ export const listRecipes = createServerFn({ method: "GET" })
       )
       .eq("family_id", data.familyId)
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listRecipes");
 
     const paths = (rows ?? []).map((r) => r.storage_path).filter((p): p is string => !!p);
     const signed = new Map<string, string>();
@@ -79,7 +81,7 @@ export const createRecipe = createServerFn({ method: "POST" })
       storage_path: data.storagePath ?? null,
       created_by: context.userId,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createRecipe");
     return { id };
   });
 
@@ -89,6 +91,6 @@ export const deleteRecipe = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ recipeId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("recipes").delete().eq("id", data.recipeId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "deleteRecipe");
     return { ok: true };
   });
