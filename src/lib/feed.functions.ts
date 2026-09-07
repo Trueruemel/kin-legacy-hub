@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type FeedComment = {
   id: string;
   authorId: string;
@@ -40,7 +42,7 @@ export const listFeed = createServerFn({ method: "GET" })
       .eq("family_id", data.familyId)
       .order("created_at", { ascending: false })
       .limit(100);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listFeed");
     if (!posts || posts.length === 0) return [];
 
     const ids = posts.map((p) => p.id);
@@ -113,7 +115,7 @@ export const createPost = createServerFn({ method: "POST" })
       text: data.text,
       photos: data.photos ?? [],
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createPost");
     return { ok: true };
   });
 
@@ -140,7 +142,7 @@ export const toggleReaction = createServerFn({ method: "POST" })
 
     if (existing && existing.reaction === data.reaction) {
       const { error } = await supabase.from("post_reactions").delete().eq("id", existing.id);
-      if (error) throw new Error(error.message);
+      if (error) throwSafe(error, "toggleReaction");
       return { reaction: null };
     }
     if (existing) {
@@ -148,7 +150,7 @@ export const toggleReaction = createServerFn({ method: "POST" })
         .from("post_reactions")
         .update({ reaction: data.reaction })
         .eq("id", existing.id);
-      if (error) throw new Error(error.message);
+      if (error) throwSafe(error, "toggleReaction");
       return { reaction: data.reaction };
     }
     const { error } = await supabase.from("post_reactions").insert({
@@ -157,7 +159,7 @@ export const toggleReaction = createServerFn({ method: "POST" })
       user_id: userId,
       reaction: data.reaction,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "toggleReaction");
     return { reaction: data.reaction };
   });
 
@@ -180,6 +182,6 @@ export const addComment = createServerFn({ method: "POST" })
       author_id: context.userId,
       text: data.text,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "addComment");
     return { ok: true };
   });

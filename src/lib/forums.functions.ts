@@ -4,6 +4,8 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+import { throwSafe } from "./safe-error";
 import type { Database } from "@/integrations/supabase/types";
 
 export const FORUM_CATEGORIES = ["recipes", "traditions", "research", "advice", "general"] as const;
@@ -70,8 +72,8 @@ export const listForumThreads = createServerFn({ method: "GET" })
         .select("id, thread_id, created_at")
         .eq("family_id", data.familyId),
     ]);
-    if (error) throw new Error(error.message);
-    if (postError) throw new Error(postError.message);
+    if (error) throwSafe(error, "listForumThreads");
+    if (postError) throwSafe(postError, "listForumThreads");
 
     const names = await profileNames(
       supabase,
@@ -115,7 +117,7 @@ export const getForumThread = createServerFn({ method: "GET" })
         .eq("family_id", data.familyId)
         .eq("id", data.threadId)
         .maybeSingle();
-      if (error) throw new Error(error.message);
+      if (error) throwSafe(error, "getForumThread");
       if (!thread) return { thread: null, posts: [] };
 
       const { data: posts, error: postError } = await supabase
@@ -123,7 +125,7 @@ export const getForumThread = createServerFn({ method: "GET" })
         .select("id, body, author_id, created_at")
         .eq("thread_id", data.threadId)
         .order("created_at", { ascending: true });
-      if (postError) throw new Error(postError.message);
+      if (postError) throwSafe(postError, "getForumThread");
 
       const names = await profileNames(supabase, [
         thread.author_id,
@@ -177,7 +179,7 @@ export const createForumThread = createServerFn({ method: "POST" })
       category: data.category,
       author_id: userId,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createForumThread");
 
     const { error: postError } = await supabase.from("forum_posts").insert({
       family_id: data.familyId,
@@ -185,7 +187,7 @@ export const createForumThread = createServerFn({ method: "POST" })
       author_id: userId,
       body: data.body,
     });
-    if (postError) throw new Error(postError.message);
+    if (postError) throwSafe(postError, "createForumThread");
     return { id };
   });
 
@@ -209,7 +211,7 @@ export const addForumPost = createServerFn({ method: "POST" })
       author_id: userId,
       body: data.body,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "addForumPost");
     await supabase
       .from("forum_threads")
       .update({ updated_at: new Date().toISOString() })

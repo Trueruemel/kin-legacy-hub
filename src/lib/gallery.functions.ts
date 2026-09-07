@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type GalleryAlbum = {
   id: string;
   name: string;
@@ -44,8 +46,8 @@ export const listGallery = createServerFn({ method: "GET" })
         .order("taken_at", { ascending: false })
         .limit(300),
     ]);
-    if (error) throw new Error(error.message);
-    if (mediaError) throw new Error(mediaError.message);
+    if (error) throwSafe(error, "listGallery");
+    if (mediaError) throwSafe(mediaError, "listGallery");
 
     const paths = (media ?? []).map((m) => m.storage_path).filter((p): p is string => !!p);
     const signedByPath = new Map<string, string>();
@@ -107,7 +109,7 @@ export const createAlbum = createServerFn({ method: "POST" })
       description: data.description ?? null,
       year: data.year ?? null,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createAlbum");
     return { id };
   });
 
@@ -141,6 +143,6 @@ export const addMediaItem = createServerFn({ method: "POST" })
       uploaded_by_name: data.uploadedByName,
       transcript: data.transcript ?? null,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "addMediaItem");
     return { id };
   });

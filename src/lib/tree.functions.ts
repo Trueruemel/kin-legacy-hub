@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type TreePerson = {
   id: string;
   firstName: string;
@@ -42,8 +44,8 @@ export const listTree = createServerFn({ method: "GET" })
           .select("id, from_person_id, to_person_id, type")
           .eq("family_id", data.familyId),
       ]);
-      if (error) throw new Error(error.message);
-      if (relError) throw new Error(relError.message);
+      if (error) throwSafe(error, "listTree");
+      if (relError) throwSafe(relError, "listTree");
 
       const paths = (persons ?? []).map((p) => p.photo_path).filter((p): p is string => !!p);
       const signed = new Map<string, string>();
@@ -108,7 +110,7 @@ export const addPerson = createServerFn({ method: "POST" })
       bio: data.bio || null,
       created_by: context.userId,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "addPerson");
     return { ok: true };
   });
 
@@ -133,7 +135,7 @@ export const addRelationship = createServerFn({ method: "POST" })
       to_person_id: data.toPersonId,
       type: data.type,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "addRelationship");
     return { ok: true };
   });
 
@@ -154,6 +156,6 @@ export const setPersonPhoto = createServerFn({ method: "POST" })
       .from("persons")
       .update({ photo_path: data.storagePath, updated_at: new Date().toISOString() })
       .eq("id", data.personId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "setPersonPhoto");
     return { ok: true };
   });

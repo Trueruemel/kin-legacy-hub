@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type ChatSummary = {
   id: string;
   title: string;
@@ -31,7 +33,7 @@ export const listChats = createServerFn({ method: "GET" })
       .select("id, title, is_group, updated_at")
       .eq("family_id", data.familyId)
       .order("updated_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listChats");
     if (!chats || chats.length === 0) return [];
 
     const { data: members } = await supabase
@@ -63,7 +65,7 @@ export const listMessages = createServerFn({ method: "GET" })
       .eq("chat_id", data.chatId)
       .order("created_at", { ascending: true })
       .limit(300);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listMessages");
     if (!rows || rows.length === 0) return [];
 
     const { data: profiles } = await supabase
@@ -106,7 +108,7 @@ export const createChat = createServerFn({ method: "POST" })
       .select("user_id")
       .eq("family_id", data.familyId)
       .in("user_id", requested);
-    if (membershipError) throw new Error(membershipError.message);
+    if (membershipError) throwSafe(membershipError, "createChat");
 
     const allowed = new Set((familyMembers ?? []).map((m) => m.user_id));
     if (!allowed.has(userId)) throw new Error("You are not a member of this family.");
@@ -122,12 +124,12 @@ export const createChat = createServerFn({ method: "POST" })
       is_group: (data.memberIds?.length ?? 0) !== 1,
       created_by: userId,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createChat");
 
     const { error: memberError } = await supabase
       .from("chat_members")
       .insert(requested.map((id) => ({ chat_id: chatId, family_id: data.familyId, user_id: id })));
-    if (memberError) throw new Error(memberError.message);
+    if (memberError) throwSafe(memberError, "createChat");
     return { id: chatId };
   });
 
@@ -151,7 +153,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       author_id: userId,
       text: data.text,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "sendChatMessage");
     await supabase
       .from("chats")
       .update({ updated_at: new Date().toISOString() })

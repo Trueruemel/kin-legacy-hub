@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type FamilyEvent = {
   id: string;
   title: string;
@@ -50,8 +52,8 @@ export const listEvents = createServerFn({ method: "GET" })
             .not("birth_date", "is", null)
             .is("death_date", null),
         ]);
-      if (error) throw new Error(error.message);
-      if (rsvpError) throw new Error(rsvpError.message);
+      if (error) throwSafe(error, "listEvents");
+      if (rsvpError) throwSafe(rsvpError, "listEvents");
 
       const all = rsvps ?? [];
       return {
@@ -113,7 +115,7 @@ export const createEvent = createServerFn({ method: "POST" })
       category: data.category,
       created_by: context.userId,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createEvent");
     return { id };
   });
 
@@ -143,7 +145,7 @@ export const setEventRsvp = createServerFn({ method: "POST" })
         .from("event_rsvps")
         .update({ response: data.response, updated_at: new Date().toISOString() })
         .eq("id", existing.id);
-      if (error) throw new Error(error.message);
+      if (error) throwSafe(error, "setEventRsvp");
       return { ok: true };
     }
 
@@ -153,7 +155,7 @@ export const setEventRsvp = createServerFn({ method: "POST" })
       user_id: userId,
       response: data.response,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "setEventRsvp");
     return { ok: true };
   });
 
@@ -186,7 +188,7 @@ export const updateEvent = createServerFn({ method: "POST" })
         updated_at: new Date().toISOString(),
       })
       .eq("id", data.eventId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "updateEvent");
     return { ok: true };
   });
 
@@ -196,7 +198,7 @@ export const deleteEvent = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ eventId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("events").delete().eq("id", data.eventId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "deleteEvent");
     return { ok: true };
   });
 
@@ -223,7 +225,7 @@ export const sendEventEmail = createServerFn({ method: "POST" })
       .select("id, family_id, title, description, starts_at, ends_at, location")
       .eq("id", data.eventId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "sendEventEmail");
     if (!event) throw new Error("That event is not available to you.");
 
     const [{ data: family }, { data: profile }] = await Promise.all([
