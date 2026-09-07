@@ -9,6 +9,7 @@ import { createCorrelationId } from "./evidence/contracts";
 import { recordEvidence, serverEvidence } from "./evidence/server";
 import { isReleased } from "./vault-release";
 import { writeVaultStory } from "./vault-story";
+import { runVaultStoryFlow } from "./vault-story-flow";
 
 /**
  * The AI story feature is off unless explicitly switched on. Even when on, the request
@@ -177,74 +178,30 @@ export const vaultMediaUrl = createServerFn({ method: "POST" })
 export const vaultStory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ entryId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }): Promise<{ story: string }> => {
-    // Opaque per-call correlation for the evidence trail. It is random and unrelated to
-    // the entry, the family, the user or the request — the trail records *that* a story
-    // was requested, rejected or completed, never *which* one or for whom.
-    const correlationId = createCorrelationId();
-
-    if (!isVaultStoryEnabled()) {
-      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "configuration", 503));
-      throw new Error("The story writer is not configured.");
-    }
-
-    const { data: entry, error } = await context.supabase
-      .from("vault_entries")
-      .select(
-        "family_id, title, content, transcript, release_rule, release_on, released, sealed_by_name, recipient_names",
-      )
-      .eq("id", data.entryId)
-      .maybeSingle();
-    if (error) throwSafe(error, "vaultStory");
-    if (!entry) {
-      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 404));
-      throw new Error("That item does not exist.");
-    }
-
-    if (!isReleased(entry)) {
-      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 403));
-      throw new Error("This item is still sealed.");
-    }
-
-    const source = [entry.content, entry.transcript].filter(Boolean).join("\n\n");
-    if (!source) {
-      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 422));
-      throw new Error("There is no text to work with yet.");
-    }
-
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) throw new Error("The story writer is not configured.");
-
-    // Every name the family knows, so the pseudonymiser can replace them in free text.
-    // Fail closed: without the name list the request would leave the server under-redacted.
-    const familyNames = await loadFamilyNames(entry.family_id);
-    if (familyNames === null) throw new Error("The story writer is unavailable.");
-
-    // All guards passed: the request is now accepted into the AI path.
-    recordEvidence(serverEvidence.vaultStoryRequested(correlationId));
-    const startedAt = Date.now();
-
-    const result = await writeVaultStory(
-      {
-        title: entry.title,
-        sealedByName: entry.sealed_by_name,
-        recipientNames: entry.recipient_names ?? [],
-        source,
-        familyNames,
+  .handler(async ({ data, context }): Promise<{ story: string }> =>
+    // The flow itself (guard order, evidence points, fail-closed rules) lives in
+    // vault-story-flow.ts and is unit-tested there; this binds the real dependencies.
+    runVaultStoryFlow(data.entryId, {
+      isEnabled: isVaultStoryEnabled,
+      loadEntry: async (entryId) => {
+        const { data: entry, error } = await context.supabase
+          .from("vault_entries")
+          .select(
+            "family_id, title, content, transcript, release_rule, release_on, released, sealed_by_name, recipient_names",
+          )
+          .eq("id", entryId)
+          .maybeSingle();
+        return { entry, error };
       },
-      { apiKey, fetchImpl: fetch },
-    );
-
-    if ("failure" in result) {
-      if (result.failure === "rate_limited")
-        throw new Error("Too many requests right now — try again in a minute.");
-      if (result.failure === "unavailable") throw new Error("The story writer is unavailable.");
-      throw new Error("No story came back.");
-    }
-
-    recordEvidence(serverEvidence.vaultStoryCompleted(correlationId, Date.now() - startedAt));
-    return { story: result.story };
-  });
+      apiKey: () => process.env["LOVABLE_API_KEY"],
+      loadFamilyNames,
+      writeStory: (input) =>
+        writeVaultStory(input, { apiKey: process.env["LOVABLE_API_KEY"] ?? "", fetchImpl: fetch }),
+      evidence: serverEvidence,
+      correlationId: createCorrelationId,
+      now: Date.now,
+    }),
+  );
 
 /**
  * Names the pseudonymiser must know for a family: people in the tree (first, last and
