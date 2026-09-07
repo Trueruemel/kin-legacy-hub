@@ -1,0 +1,62 @@
+# Quality gate for every push and pull request.
+# Read-only: no deploy, no secrets, no database access. Lovable keeps deploying
+# from the connected branch on its own; this workflow only tells us whether the
+# code is in a working state before a PR is merged there.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: test · lint · typecheck · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.13"
+
+      # bun.lock pins every tarball to Lovable's public registry cache
+      # (europe-west1-npm.pkg.dev). If that host is ever unreachable from
+      # GitHub runners, fall back to npmjs: the sha512 integrity hashes in the
+      # lockfile are verified either way, so the installed bytes are identical.
+      - name: Install (frozen lockfile)
+        run: |
+          if ! bun install --frozen-lockfile; then
+            echo "::warning::Lovable registry cache unreachable — retrying via registry.npmjs.org (same integrity hashes)"
+            cp bun.lock /tmp/bun.lock.orig
+            sed -i 's#https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/#https://registry.npmjs.org/#g' bun.lock
+            bun install --frozen-lockfile
+            cp /tmp/bun.lock.orig bun.lock
+          fi
+          git diff --exit-code -- bun.lock
+
+      - name: Test
+        run: bun run test
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bunx tsc --noEmit -p tsconfig.json
+
+      - name: Build
+        run: bun run build
+
+      - name: Build (development mode)
+        run: bun run build:dev
+
+      - name: Whitespace check
+        run: git diff --check
