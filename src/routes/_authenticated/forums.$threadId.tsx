@@ -57,6 +57,9 @@ function ThreadPage() {
   const { threadId } = Route.useParams();
   const { thread } = Route.useLoaderData();
   const { family, loading } = useActiveFamily();
+  // Hooks must run on every render, so demo-thread state lives above the early returns.
+  const [replies, setReplies] = useState<ForumPost[]>([]);
+  const [draft, setDraft] = useState("");
 
   if (!thread) {
     if (loading) {
@@ -83,8 +86,6 @@ function ThreadPage() {
   }
 
   const category = forumCategories.find((c) => c.id === thread.categoryId);
-  const [replies, setReplies] = useState<ForumPost[]>([]);
-  const [draft, setDraft] = useState("");
   const posts = [...thread.posts, ...replies];
 
   return (

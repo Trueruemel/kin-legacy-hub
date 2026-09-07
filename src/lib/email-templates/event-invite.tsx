@@ -12,7 +12,7 @@ import {
   Text,
 } from "@react-email/components";
 
-import type { TemplateEntry } from "./registry";
+import type { TemplateData, TemplateEntry } from "./registry";
 
 interface EventInviteProps {
   kind?: "invitation" | "reminder";
@@ -136,7 +136,7 @@ const EventInviteEmail = ({
 
 export const template = {
   component: EventInviteEmail,
-  subject: (data: Record<string, any>) =>
+  subject: (data: TemplateData) =>
     data["kind"] === "reminder"
       ? `Reminder: ${data["eventTitle"] ?? "a family event"}`
       : `You're invited: ${data["eventTitle"] ?? "a family event"}`,

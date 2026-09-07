@@ -220,7 +220,7 @@ export function RealVault({
       const id = crypto.randomUUID();
       let media: { path: string; mime: string; name: string; size: number } | null = null;
       if (file) {
-        const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+        const safeName = file.name.replace(/[^\w.-]+/g, "_");
         const path = `${familyId}/vault/${id}/${safeName}`;
         const { error } = await supabase.storage.from("memories").upload(path, file, {
           contentType: file.type || "application/octet-stream",

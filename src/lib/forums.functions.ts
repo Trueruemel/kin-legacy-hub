@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 export const FORUM_CATEGORIES = ["recipes", "traditions", "research", "advice", "general"] as const;
 
@@ -29,7 +32,7 @@ export type ForumPostRow = {
 };
 
 async function profileNames(
-  supabase: { from: (t: string) => any },
+  supabase: Pick<SupabaseClient<Database>, "from">,
   ids: string[],
 ): Promise<Map<string, { name: string; avatarUrl: string | null }>> {
   const unique = [...new Set(ids)].filter(Boolean);

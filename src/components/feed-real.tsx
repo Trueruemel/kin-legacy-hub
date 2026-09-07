@@ -186,7 +186,7 @@ export function RealFeed({ familyId, familyName }: { familyId: string; familyNam
     }
     setUploading(true);
     try {
-      const path = `${familyId}/feed/${crypto.randomUUID()}/${file.name.replace(/[^\w.\-]+/g, "_")}`;
+      const path = `${familyId}/feed/${crypto.randomUUID()}/${file.name.replace(/[^\w.-]+/g, "_")}`;
       const { error } = await supabase.storage
         .from("memories")
         .upload(path, file, { contentType: file.type || "application/octet-stream" });

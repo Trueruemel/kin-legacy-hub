@@ -141,7 +141,7 @@ function SetupWizard() {
     setUploading(true);
     try {
       const id = crypto.randomUUID();
-      const path = `${familyId}/gallery/${id}/${file.name.replace(/[^\w.\-]+/g, "_")}`;
+      const path = `${familyId}/gallery/${id}/${file.name.replace(/[^\w.-]+/g, "_")}`;
       const { error } = await supabase.storage
         .from("memories")
         .upload(path, file, { contentType: file.type || "image/jpeg" });
