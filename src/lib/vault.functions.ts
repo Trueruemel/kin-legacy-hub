@@ -1,9 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 
 import { createCorrelationId } from "./evidence/contracts";
 import { recordEvidence, serverEvidence } from "./evidence/server";
@@ -217,7 +215,7 @@ export const vaultStory = createServerFn({ method: "POST" })
 
     // Every name the family knows, so the pseudonymiser can replace them in free text.
     // Fail closed: without the name list the request would leave the server under-redacted.
-    const familyNames = await loadFamilyNames(context.supabase, entry.family_id);
+    const familyNames = await loadFamilyNames(entry.family_id);
     if (familyNames === null) throw new Error("The story writer is unavailable.");
 
     // All guards passed: the request is now accepted into the AI path.
@@ -248,33 +246,48 @@ export const vaultStory = createServerFn({ method: "POST" })
 
 /**
  * Names the pseudonymiser must know for a family: people in the tree (first, last and
- * birth names) and the display names of member profiles. Returns null when either
- * lookup fails so the caller can fail closed.
+ * birth names) and the display names of member profiles.
+ *
+ * Read with the service-role client on purpose: the caller's own client is subject to
+ * `member_visibility` RLS, so a member without tree access would receive an empty list
+ * *without* an error and the request would leave the server under-redacted. The list is
+ * scoped to the family of the entry the caller was already allowed to read, and it never
+ * leaves this function except as placeholders.
+ *
+ * Returns null on any failure so the caller fails closed.
  */
-async function loadFamilyNames(
-  supabase: Pick<SupabaseClient<Database>, "from">,
-  familyId: string,
-): Promise<string[] | null> {
-  const [persons, members] = await Promise.all([
-    supabase.from("persons").select("first_name, last_name, birth_name").eq("family_id", familyId),
-    supabase.from("family_members").select("user_id").eq("family_id", familyId),
-  ]);
-  if (persons.error || members.error) return null;
+async function loadFamilyNames(familyId: string): Promise<string[] | null> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [persons, members] = await Promise.all([
+      supabaseAdmin
+        .from("persons")
+        .select("first_name, last_name, birth_name")
+        .eq("family_id", familyId),
+      supabaseAdmin.from("family_members").select("user_id").eq("family_id", familyId),
+    ]);
+    if (persons.error || members.error) return null;
 
-  const names: string[] = [];
-  for (const person of persons.data ?? []) {
-    const full = [person.first_name, person.last_name].filter(Boolean).join(" ");
-    if (full) names.push(full);
-    if (person.birth_name) names.push(`${person.first_name} ${person.birth_name}`);
-  }
-
-  const userIds = (members.data ?? []).map((m) => m.user_id).filter(Boolean);
-  if (userIds.length > 0) {
-    const profiles = await supabase.from("profiles").select("display_name").in("id", userIds);
-    if (profiles.error) return null;
-    for (const profile of profiles.data ?? []) {
-      if (profile.display_name) names.push(profile.display_name);
+    const names: string[] = [];
+    for (const person of persons.data ?? []) {
+      const full = [person.first_name, person.last_name].filter(Boolean).join(" ");
+      if (full) names.push(full);
+      if (person.birth_name) names.push(`${person.first_name} ${person.birth_name}`);
     }
+
+    const userIds = (members.data ?? []).map((m) => m.user_id).filter(Boolean);
+    if (userIds.length > 0) {
+      const profiles = await supabaseAdmin
+        .from("profiles")
+        .select("display_name")
+        .in("id", userIds);
+      if (profiles.error) return null;
+      for (const profile of profiles.data ?? []) {
+        if (profile.display_name) names.push(profile.display_name);
+      }
+    }
+    return names;
+  } catch {
+    return null;
   }
-  return names;
 }
