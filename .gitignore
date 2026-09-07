@@ -33,3 +33,9 @@ dist-ssr
 
 # Desktop build output
 electron-release/
+
+# Environment files — never commit secrets (Lovable-managed .env stays tracked on purpose; see README)
+.env.*
+*.env
+desktop.env
+!.env.example
