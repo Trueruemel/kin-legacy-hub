@@ -39,3 +39,6 @@ electron-release/
 *.env
 desktop.env
 !.env.example
+
+# Test coverage output
+coverage/
