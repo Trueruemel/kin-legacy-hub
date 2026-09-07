@@ -167,15 +167,17 @@ describe("InMemoryMailLedger", () => {
   it("rejects anything that is not a frozen record from the contract factories", () => {
     const ledger = new InMemoryMailLedger();
     expect(() =>
-      ledger.append({
-        schemaVersion: "1.0",
-        occurredAt: "2026-09-07T15:00:00.000Z",
-        correlationId: C1,
-        stage: "intent",
-        templateKey: "family-welcome",
-        templateRevisionHash: HASH,
-        recipient: "emma@example.com",
-      } as never),
+      ledger.append(
+        Object.freeze({
+          schemaVersion: "1.0",
+          occurredAt: "2026-09-07T15:00:00.000Z",
+          correlationId: C1,
+          stage: "intent",
+          templateKey: "family-welcome",
+          templateRevisionHash: HASH,
+          recipient: "emma@example.com",
+        }) as never,
+      ),
     ).toThrow(/unknown field/i);
   });
 
@@ -194,5 +196,77 @@ describe("InMemoryMailLedger", () => {
     );
     chain(ledger, C2, "event-invite");
     expect(ledger.provenByTemplate()).toEqual({ "family-welcome": 1 });
+  });
+});
+
+describe("InMemoryMailLedger — fabricated records", () => {
+  const frozen = (o: Record<string, unknown>) => Object.freeze(o) as never;
+
+  it("rejects a hand-built trio with local ids and a local timestamp, so nothing is proven", () => {
+    const ledger = new InMemoryMailLedger();
+    const common = {
+      schemaVersion: "1.0",
+      correlationId: "not-a-uuid",
+      templateKey: "family-welcome",
+      templateRevisionHash: HASH,
+    };
+    expect(() =>
+      ledger.append(
+        frozen({ ...common, stage: "intent", occurredAt: "2026-09-07T17:00:00+02:00" }),
+      ),
+    ).toThrow(/occurredAt|correlationId/);
+    expect(() =>
+      ledger.append(
+        frozen({
+          ...common,
+          correlationId: C1,
+          stage: "accepted",
+          occurredAt: "2026-09-07T15:00:00.000Z",
+          providerMessageId: "local-fake",
+        }),
+      ),
+    ).toThrow(/providerMessageId/);
+    expect(() =>
+      ledger.append(
+        frozen({
+          ...common,
+          correlationId: C1,
+          stage: "delivered",
+          occurredAt: "2026-09-07T15:00:00.000Z",
+          providerMessageId: "msg_1",
+          providerEventId: "unknown",
+        }),
+      ),
+    ).toThrow(/providerEventId/);
+    expect(ledger.all()).toHaveLength(0);
+    expect(ledger.isProven(C1)).toBe(false);
+  });
+
+  it("rejects a frozen record that lacks a required field", () => {
+    const ledger = new InMemoryMailLedger();
+    expect(() =>
+      ledger.append(
+        frozen({
+          schemaVersion: "1.0",
+          occurredAt: "2026-09-07T15:00:00.000Z",
+          correlationId: C1,
+          stage: "accepted",
+          templateKey: "family-welcome",
+          templateRevisionHash: HASH,
+        }),
+      ),
+    ).toThrow(/providerMessageId/);
+  });
+
+  it("rejects an unfrozen object even with valid values", () => {
+    const ledger = new InMemoryMailLedger();
+    const record = {
+      ...createMailIntentRecord({
+        correlationId: C1,
+        templateKey: "family-welcome",
+        templateRevisionHash: HASH,
+      }),
+    };
+    expect(() => ledger.append(record as never)).toThrow(/frozen/);
   });
 });

@@ -16,7 +16,7 @@
  * No dependencies beyond the sibling evidence modules; no environment, no I/O.
  */
 
-import { toUtcIsoString } from "./utc";
+import { isUtcIsoString, toUtcIsoString } from "./utc";
 
 export const MAIL_EVIDENCE_STAGES = [
   "intent",
@@ -198,18 +198,79 @@ export function createMailDeliveryRecord(
   });
 }
 
-/** True when a record was produced by one of the factories above (frozen, closed shape). */
-export function isMailEvidenceRecord(value: unknown): value is MailEvidenceRecordV1 {
-  if (!isPlainObject(value) || !Object.isFrozen(value)) return false;
+/**
+ * Full re-validation of a record, independent of how it was built. The ledger uses this
+ * so a hand-crafted frozen object with fake ids or a local timestamp can never be
+ * appended and later counted as proof.
+ */
+export function assertMailEvidenceRecord(value: unknown): asserts value is MailEvidenceRecordV1 {
+  if (!isPlainObject(value) || !Object.isFrozen(value)) {
+    throw new TypeError("a mail evidence record must be a frozen plain object");
+  }
   const stage = value["stage"];
   if (typeof stage !== "string" || !(MAIL_EVIDENCE_STAGES as readonly string[]).includes(stage)) {
+    throw new TypeError(`stage must be one of ${MAIL_EVIDENCE_STAGES.join(", ")}`);
+  }
+  const required =
+    stage === "intent"
+      ? [
+          "schemaVersion",
+          "occurredAt",
+          "correlationId",
+          "stage",
+          "templateKey",
+          "templateRevisionHash",
+        ]
+      : stage === "accepted"
+        ? [
+            "schemaVersion",
+            "occurredAt",
+            "correlationId",
+            "stage",
+            "templateKey",
+            "templateRevisionHash",
+            "providerMessageId",
+          ]
+        : [
+            "schemaVersion",
+            "occurredAt",
+            "correlationId",
+            "stage",
+            "templateKey",
+            "templateRevisionHash",
+            "providerMessageId",
+            "providerEventId",
+          ];
+  const keys = Reflect.ownKeys(value);
+  for (const key of keys) {
+    if (typeof key !== "string" || !required.includes(key)) {
+      throw new TypeError(
+        `Unknown field "${String(key)}" is not allowed in a mail evidence record`,
+      );
+    }
+  }
+  for (const key of required) {
+    if (!(key in value)) throw new TypeError(`${key} is required for stage ${stage}`);
+  }
+  if (value["schemaVersion"] !== "1.0") throw new TypeError("schemaVersion must be 1.0");
+  if (typeof value["occurredAt"] !== "string" || !isUtcIsoString(value["occurredAt"])) {
+    throw new TypeError("occurredAt must be an RFC 3339 UTC timestamp");
+  }
+  assertCorrelationId(value["correlationId"]);
+  assertTemplateKey(value["templateKey"]);
+  assertRevisionHash(value["templateRevisionHash"]);
+  if (stage !== "intent") assertProviderId(value["providerMessageId"], "providerMessageId");
+  if (stage !== "intent" && stage !== "accepted") {
+    assertProviderId(value["providerEventId"], "providerEventId");
+  }
+}
+
+/** Boolean form of {@link assertMailEvidenceRecord}. */
+export function isMailEvidenceRecord(value: unknown): value is MailEvidenceRecordV1 {
+  try {
+    assertMailEvidenceRecord(value);
+    return true;
+  } catch {
     return false;
   }
-  const allowed =
-    stage === "intent" ? INTENT_FIELDS : stage === "accepted" ? ACCEPTED_FIELDS : DELIVERY_FIELDS;
-  for (const key of Object.keys(value)) {
-    if (key === "schemaVersion" || key === "occurredAt" || key === "stage") continue;
-    if (!allowed.has(key)) return false;
-  }
-  return value["schemaVersion"] === "1.0";
 }

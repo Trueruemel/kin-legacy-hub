@@ -11,7 +11,7 @@
 
 import {
   MAIL_DELIVERY_STAGES,
-  isMailEvidenceRecord,
+  assertMailEvidenceRecord,
   type MailEvidenceRecordV1,
 } from "./mail-contracts";
 
@@ -23,11 +23,9 @@ export class InMemoryMailLedger {
   private readonly seenEventIds = new Set<string>();
 
   append(record: MailEvidenceRecordV1): void {
-    if (!isMailEvidenceRecord(record)) {
-      throw new TypeError(
-        "Unknown field or shape: only records from mail-contracts.ts are accepted",
-      );
-    }
+    // Full re-validation: a hand-built frozen object with fake ids or a local timestamp
+    // must never enter the ledger, whatever shape it pretends to have.
+    assertMailEvidenceRecord(record);
 
     const chain = this.chain(record.correlationId);
     const first = chain[0];
