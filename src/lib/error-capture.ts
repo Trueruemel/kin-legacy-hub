@@ -1,5 +1,11 @@
 // Captures the original Error out-of-band so server.ts can recover the stack
 // when h3 has already swallowed the throw into a generic 500 Response.
+//
+// NOT AN EVIDENCE SOURCE. This module deliberately expands messages, stacks and cause
+// chains for the product's own diagnostics. Nothing in here may be imported by, or fed
+// into, src/lib/evidence/* — the evidence trail accepts closed categories only (see
+// evidence/redact.ts#classifySafeError). A test in evidence/server.test.ts enforces the
+// import boundary.
 
 let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;

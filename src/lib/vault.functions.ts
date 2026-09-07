@@ -3,6 +3,10 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { createCorrelationId } from "./evidence/contracts";
+import { recordEvidence, serverEvidence } from "./evidence/server";
+import { isReleased } from "./vault-release";
+
 export type RealVaultItem = {
   id: string;
   title: string;
@@ -144,14 +148,7 @@ export const vaultMediaUrl = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!entry?.media_path) return { url: null };
-
-    const released =
-      entry.release_rule === "immediate" ||
-      entry.released ||
-      (entry.release_rule === "on_date" &&
-        !!entry.release_on &&
-        new Date(entry.release_on).getTime() <= Date.now());
-    if (!released) return { url: null };
+    if (!isReleased(entry)) return { url: null };
 
     const { data: signed, error: signError } = await supabase.storage
       .from("memories")
@@ -168,6 +165,11 @@ export const vaultStory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ entryId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ story: string }> => {
+    // Opaque per-call correlation for the evidence trail. It is random and unrelated to
+    // the entry, the family, the user or the request — the trail records *that* a story
+    // was requested, rejected or completed, never *which* one or for whom.
+    const correlationId = createCorrelationId();
+
     const { data: entry, error } = await context.supabase
       .from("vault_entries")
       .select(
@@ -176,18 +178,25 @@ export const vaultStory = createServerFn({ method: "POST" })
       .eq("id", data.entryId)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!entry) throw new Error("That item does not exist.");
+    if (!entry) {
+      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 404));
+      throw new Error("That item does not exist.");
+    }
 
-    const released =
-      entry.release_rule === "immediate" ||
-      entry.released ||
-      (entry.release_rule === "on_date" &&
-        !!entry.release_on &&
-        new Date(entry.release_on).getTime() <= Date.now());
-    if (!released) throw new Error("This item is still sealed.");
+    if (!isReleased(entry)) {
+      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 403));
+      throw new Error("This item is still sealed.");
+    }
 
     const source = [entry.content, entry.transcript].filter(Boolean).join("\n\n").slice(0, 6000);
-    if (!source) throw new Error("There is no text to work with yet.");
+    if (!source) {
+      recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 422));
+      throw new Error("There is no text to work with yet.");
+    }
+
+    // All guards passed: the request is now accepted into the AI path.
+    recordEvidence(serverEvidence.vaultStoryRequested(correlationId));
+    const startedAt = Date.now();
 
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("The story writer is not configured.");
@@ -218,5 +227,6 @@ export const vaultStory = createServerFn({ method: "POST" })
     };
     const story = payload.choices?.[0]?.message?.content?.trim();
     if (!story) throw new Error("No story came back.");
+    recordEvidence(serverEvidence.vaultStoryCompleted(correlationId, Date.now() - startedAt));
     return { story };
   });
