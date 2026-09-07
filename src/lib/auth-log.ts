@@ -1,6 +1,9 @@
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 
+import { createCorrelationId } from "./evidence/contracts";
+import { recordEvidence, serverEvidence } from "./evidence/server";
+
 type Diagnosis = "missing" | "empty" | "wrong-scheme" | "not-a-jwt" | "ok";
 
 /** Classifies the Authorization header without ever logging its value. */
@@ -27,6 +30,11 @@ export const logAuthHeader = createMiddleware({ type: "function" }).server(async
   const state = diagnose(header);
 
   if (state !== "ok") {
+    // Evidence trail: only the fact of a rejection, as a closed category. The header
+    // shape, lengths, segment counts and cookie/api-key presence below stay in the
+    // existing product diagnostic and are deliberately NOT part of the evidence event.
+    recordEvidence(serverEvidence.authHeaderRejected(createCorrelationId(), "authentication"));
+
     const token = header?.trim().split(/\s+/).slice(1).join("") ?? "";
     console.warn(
       "[auth] rejected server-function request",
