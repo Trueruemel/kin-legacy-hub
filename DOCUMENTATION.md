@@ -76,7 +76,11 @@ Handler gelesen, niemals auf Modulebene.
 - App / Custom Domain: `eternalmemorys.enterprises`, `www.eternalmemorys.enterprises`
 - E-Mail-Absender: `notify.eternalmemorys.enterprises` (eigene Subdomain, DNS-Verifikation offen)
 
-### Ausstehende DNS-Einträge für den Mailversand (Zone `eternalmemorys.com`)
+### Ausstehende DNS-Einträge für den Mailversand (Zone `eternalmemorys.enterprises`)
+
+Die Einträge gehören in die Zone der im Code konfigurierten Absenderdomain (`SENDER_DOMAIN` in
+`send-email.ts` und `webhook.ts`). Der `lovable_email_verify`-Wert unten stammt aus einer früheren
+Einrichtung; vor dem Setzen den aktuellen Wert aus der Lovable-E-Mail-Konfiguration übernehmen.
 
 | Typ | Name             | Wert                                                                                    |
 | --- | ---------------- | --------------------------------------------------------------------------------------- |
