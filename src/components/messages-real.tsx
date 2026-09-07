@@ -18,12 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { relativeTime } from "@/lib/format";
 import { listFamilyMembers } from "@/lib/members.functions";
-import {
-  createChat,
-  listChats,
-  listMessages,
-  sendChatMessage,
-} from "@/lib/messages.functions";
+import { createChat, listChats, listMessages, sendChatMessage } from "@/lib/messages.functions";
 import { cn } from "@/lib/utils";
 
 export function RealMessages({ familyId, userId }: { familyId: string; userId: string }) {
@@ -34,7 +29,10 @@ export function RealMessages({ familyId, userId }: { familyId: string; userId: s
   const createFn = useServerFn(createChat);
   const membersFn = useServerFn(listFamilyMembers);
 
-  const chats = useQuery({ queryKey: ["chats", familyId], queryFn: () => chatsFn({ data: { familyId } }) });
+  const chats = useQuery({
+    queryKey: ["chats", familyId],
+    queryFn: () => chatsFn({ data: { familyId } }),
+  });
   const members = useQuery({
     queryKey: ["family-members", familyId],
     queryFn: () => membersFn({ data: { familyId } }),
@@ -161,7 +159,13 @@ export function RealMessages({ familyId, userId }: { familyId: string; userId: s
               aria-label="Write a message"
               disabled={!chatId}
             />
-            <Button type="submit" size="icon" aria-label="Send message" className="min-h-11 min-w-11" disabled={!chatId || !draft.trim()}>
+            <Button
+              type="submit"
+              size="icon"
+              aria-label="Send message"
+              className="min-h-11 min-w-11"
+              disabled={!chatId || !draft.trim()}
+            >
               <Send className="size-4" />
             </Button>
           </form>

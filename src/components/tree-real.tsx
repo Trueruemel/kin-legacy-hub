@@ -18,7 +18,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { addPerson, addRelationship, listTree, setPersonPhoto, type TreePerson } from "@/lib/tree.functions";
+import {
+  addPerson,
+  addRelationship,
+  listTree,
+  setPersonPhoto,
+  type TreePerson,
+} from "@/lib/tree.functions";
 import { PhotoCropper } from "@/components/photo-cropper";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,7 +60,10 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const tree = useQuery({ queryKey: ["tree", familyId], queryFn: () => list({ data: { familyId } }) });
+  const tree = useQuery({
+    queryKey: ["tree", familyId],
+    queryFn: () => list({ data: { familyId } }),
+  });
   const persons = tree.data?.persons ?? [];
   const relationships = tree.data?.relationships ?? [];
 
@@ -68,7 +77,11 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
     birthPlace: "",
     bio: "",
   });
-  const [linkForm, setLinkForm] = useState({ from: "", to: "", type: "parent" as "parent" | "partner" });
+  const [linkForm, setLinkForm] = useState({
+    from: "",
+    to: "",
+    type: "parent" as "parent" | "partner",
+  });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["tree", familyId] });
 
@@ -87,7 +100,14 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
       }),
     onSuccess: () => {
       setPersonOpen(false);
-      setForm({ firstName: "", lastName: "", birthDate: "", deathDate: "", birthPlace: "", bio: "" });
+      setForm({
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+        deathDate: "",
+        birthPlace: "",
+        bio: "",
+      });
       void invalidate();
       toast.success("Added to your family tree.");
     },
@@ -97,7 +117,12 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
   const linkMutation = useMutation({
     mutationFn: () =>
       link({
-        data: { familyId, fromPersonId: linkForm.from, toPersonId: linkForm.to, type: linkForm.type },
+        data: {
+          familyId,
+          fromPersonId: linkForm.from,
+          toPersonId: linkForm.to,
+          type: linkForm.type,
+        },
       }),
     onSuccess: () => {
       setLinkOpen(false);
@@ -117,7 +142,9 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
   const partnersOf = (id: string) =>
     relationships
       .filter((r) => r.type === "partner" && (r.fromPersonId === id || r.toPersonId === id))
-      .map((r) => persons.find((p) => p.id === (r.fromPersonId === id ? r.toPersonId : r.fromPersonId)))
+      .map((r) =>
+        persons.find((p) => p.id === (r.fromPersonId === id ? r.toPersonId : r.fromPersonId)),
+      )
       .filter((p): p is TreePerson => !!p);
 
   const roots = persons.filter(
@@ -135,7 +162,9 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
               <AvatarFallback>{fullName(person).slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <p className="font-display text-lg font-semibold">{fullName(person)}</p>
-            <Badge variant="secondary">{lifeDates(person.birthDate ?? "", person.deathDate ?? undefined)}</Badge>
+            <Badge variant="secondary">
+              {lifeDates(person.birthDate ?? "", person.deathDate ?? undefined)}
+            </Badge>
             {partnersOf(person.id).map((partner) => (
               <Badge key={partner.id} variant="outline">
                 with {fullName(partner)}
@@ -212,7 +241,12 @@ export function RealTree({ familyId, canEdit }: { familyId: string; canEdit: boo
           <Button size="sm" onClick={() => setPersonOpen(true)}>
             <UserPlus className="size-4" /> Add a person
           </Button>
-          <Button size="sm" variant="outline" disabled={persons.length < 2} onClick={() => setLinkOpen(true)}>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={persons.length < 2}
+            onClick={() => setLinkOpen(true)}
+          >
             <Link2 className="size-4" /> Connect two people
           </Button>
         </div>

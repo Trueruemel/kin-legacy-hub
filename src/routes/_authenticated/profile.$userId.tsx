@@ -21,7 +21,12 @@ export const Route = createFileRoute("/_authenticated/profile/$userId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Member not found — Eternal — Memories" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [
+          { title: "Member not found — Eternal — Memories" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
     }
     const { person } = loaderData;
     const description = person.bio.slice(0, 150);
@@ -66,10 +71,14 @@ function ProfilePage() {
             <AvatarFallback>{person.firstName[0]}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-3xl font-semibold tracking-tight">{person.displayName}</h1>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">
+              {person.displayName}
+            </h1>
             <p className="text-sm text-muted-foreground">
               {person.relationshipToViewer} · {lifeDates(person.birthDate, person.deathDate)} ·{" "}
-              {person.status === "deceased" ? `lived ${age(person.birthDate, person.deathDate)} years` : `${age(person.birthDate)} years old`}
+              {person.status === "deceased"
+                ? `lived ${age(person.birthDate, person.deathDate)} years`
+                : `${age(person.birthDate)} years old`}
             </p>
             {person.location && (
               <p className="mt-1 inline-flex items-center gap-1 text-sm text-muted-foreground">
@@ -78,9 +87,13 @@ function ProfilePage() {
             )}
           </div>
           <div className="flex gap-2">
-            <Badge variant="secondary" className="capitalize">{person.role.replace("_", " ")}</Badge>
+            <Badge variant="secondary" className="capitalize">
+              {person.role.replace("_", " ")}
+            </Badge>
             <Button asChild variant="outline" size="sm">
-              <Link to="/messages"><MessageSquare className="size-4" /> Message</Link>
+              <Link to="/messages">
+                <MessageSquare className="size-4" /> Message
+              </Link>
             </Button>
           </div>
         </div>
@@ -99,7 +112,9 @@ function ProfilePage() {
               <Card className="p-6">
                 <h2 className="font-display text-xl font-semibold">About</h2>
                 <Separator className="my-3" />
-                <p className="whitespace-pre-line leading-relaxed text-foreground/90">{person.bio}</p>
+                <p className="whitespace-pre-line leading-relaxed text-foreground/90">
+                  {person.bio}
+                </p>
               </Card>
               <Card className="p-6">
                 <h2 className="font-display text-xl font-semibold">Timeline</h2>
@@ -111,7 +126,9 @@ function ProfilePage() {
                       <p className="font-display text-lg font-semibold">
                         {ev.year} — {ev.title}
                       </p>
-                      {ev.description && <p className="text-sm text-muted-foreground">{ev.description}</p>}
+                      {ev.description && (
+                        <p className="text-sm text-muted-foreground">{ev.description}</p>
+                      )}
                     </li>
                   ))}
                 </ol>
@@ -120,7 +137,9 @@ function ProfilePage() {
 
             <TabsContent value="memories" className="mt-4 space-y-5">
               {memories.length === 0 && (
-                <Card className="p-8 text-center text-sm text-muted-foreground">No memories yet.</Card>
+                <Card className="p-8 text-center text-sm text-muted-foreground">
+                  No memories yet.
+                </Card>
               )}
               {memories.map((memory) => (
                 <MemoryCard key={memory.id} memory={memory} />
@@ -130,9 +149,17 @@ function ProfilePage() {
             <TabsContent value="photos" className="mt-4">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {photos.map((p) => (
-                  <img key={p.id} src={p.url} alt={p.caption} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+                  <img
+                    key={p.id}
+                    src={p.url}
+                    alt={p.caption}
+                    loading="lazy"
+                    className="aspect-square w-full rounded-lg object-cover"
+                  />
                 ))}
-                {photos.length === 0 && <p className="text-sm text-muted-foreground">No photos uploaded yet.</p>}
+                {photos.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No photos uploaded yet.</p>
+                )}
               </div>
             </TabsContent>
           </Tabs>
@@ -160,14 +187,18 @@ function ProfilePage() {
           <Card className="p-5">
             <h2 className="font-display text-lg font-semibold">Family</h2>
             <Separator className="my-3" />
-            {([
-              ["Parents", parents],
-              ["Partner", spouses],
-              ["Children", children],
-            ] as const).map(([label, list]) =>
+            {(
+              [
+                ["Parents", parents],
+                ["Partner", spouses],
+                ["Children", children],
+              ] as const
+            ).map(([label, list]) =>
               list.length ? (
                 <div key={label} className="mb-4 last:mb-0">
-                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </p>
                   <div className="space-y-2">
                     {list.map((rel) => (
                       <Link
@@ -195,10 +226,13 @@ function ProfilePage() {
             </h2>
             <Separator className="my-3" />
             <p className="text-sm text-muted-foreground">
-              {person.stats.vaultItems} sealed item{person.stats.vaultItems === 1 ? "" : "s"} waiting in the vault.
+              {person.stats.vaultItems} sealed item{person.stats.vaultItems === 1 ? "" : "s"}{" "}
+              waiting in the vault.
             </p>
             <Button asChild variant="outline" size="sm" className="mt-3">
-              <Link to="/vault"><CalendarDays className="size-4" /> Open vault</Link>
+              <Link to="/vault">
+                <CalendarDays className="size-4" /> Open vault
+              </Link>
             </Button>
           </Card>
         </aside>

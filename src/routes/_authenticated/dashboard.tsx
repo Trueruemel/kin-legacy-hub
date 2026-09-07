@@ -37,7 +37,9 @@ function DashboardPage() {
   if (loading) {
     return (
       <AppLayout>
-        <p className="py-24 text-center text-sm text-muted-foreground">Opening your family dashboard…</p>
+        <p className="py-24 text-center text-sm text-muted-foreground">
+          Opening your family dashboard…
+        </p>
       </AppLayout>
     );
   }
@@ -86,19 +88,38 @@ function Overview({ familyId }: { familyId: string }) {
         }
       />
 
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
-          { label: "Members joined", value: data?.counts.members, icon: Users2, to: "/members" as const },
-          { label: "People in the tree", value: data?.counts.persons, icon: Users2, to: "/tree" as const },
-          { label: "Photos & media", value: data?.counts.photos, icon: Images, to: "/gallery" as const },
+          {
+            label: "Members joined",
+            value: data?.counts.members,
+            icon: Users2,
+            to: "/members" as const,
+          },
+          {
+            label: "People in the tree",
+            value: data?.counts.persons,
+            icon: Users2,
+            to: "/tree" as const,
+          },
+          {
+            label: "Photos & media",
+            value: data?.counts.photos,
+            icon: Images,
+            to: "/gallery" as const,
+          },
           {
             label: "Upcoming events",
             value: data?.counts.upcomingEvents,
             icon: CalendarDays,
             to: "/calendar" as const,
           },
-          { label: "Stories shared", value: data?.counts.stories, icon: Sparkles, to: "/feed" as const },
+          {
+            label: "Stories shared",
+            value: data?.counts.stories,
+            icon: Sparkles,
+            to: "/feed" as const,
+          },
         ].map(({ label, value, icon: Icon, to }) => (
           <Link key={label} to={to}>
             <Card className="card-lift h-full p-5">
@@ -125,9 +146,17 @@ function Overview({ familyId }: { familyId: string }) {
           )}
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {(data?.people ?? []).map((p) => (
-              <li key={p.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
+              <li
+                key={p.id}
+                className="flex items-center gap-3 rounded-lg border border-border p-3"
+              >
                 {p.photoUrl ? (
-                  <img src={p.photoUrl} alt="" loading="lazy" className="size-10 rounded-full object-cover" />
+                  <img
+                    src={p.photoUrl}
+                    alt=""
+                    loading="lazy"
+                    className="size-10 rounded-full object-cover"
+                  />
                 ) : (
                   <span className="grid size-10 place-items-center rounded-full bg-muted text-xs font-medium">
                     {p.name.slice(0, 1)}
@@ -136,7 +165,9 @@ function Overview({ familyId }: { familyId: string }) {
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium">{p.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {p.birthDate ? `Born ${new Date(p.birthDate).toLocaleDateString()}` : "No birth date yet"}
+                    {p.birthDate
+                      ? `Born ${new Date(p.birthDate).toLocaleDateString()}`
+                      : "No birth date yet"}
                   </span>
                 </span>
               </li>
@@ -152,15 +183,22 @@ function Overview({ familyId }: { familyId: string }) {
             </Button>
           </div>
           {data && data.events.length === 0 && (
-            <p className="mt-4 text-sm text-muted-foreground">Nothing planned yet — create the next gathering.</p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Nothing planned yet — create the next gathering.
+            </p>
           )}
           <ul className="mt-4 space-y-3">
             {(data?.events ?? []).map((e) => (
               <li key={e.id} className="rounded-lg border border-border p-3">
-                <Badge variant="secondary" className="capitalize">{e.category}</Badge>
+                <Badge variant="secondary" className="capitalize">
+                  {e.category}
+                </Badge>
                 <p className="mt-2 text-sm font-medium">{e.title}</p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(e.startsAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                  {new Date(e.startsAt).toLocaleString(undefined, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
                 </p>
                 {e.location && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">

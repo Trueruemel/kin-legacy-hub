@@ -83,7 +83,7 @@ export function RealGallery({
     setUploading(true);
     try {
       const id = crypto.randomUUID();
-      const path = `${familyId}/gallery/${id}/${file.name.replace(/[^\w.\-]+/g, "_")}`;
+      const path = `${familyId}/gallery/${id}/${file.name.replace(/[^\w.-]+/g, "_")}`;
       const { error } = await supabase.storage
         .from("memories")
         .upload(path, file, { contentType: file.type || "application/octet-stream" });
@@ -201,7 +201,12 @@ export function RealGallery({
         {visible.map((item) => (
           <Card key={item.id} className="break-inside-avoid overflow-hidden p-0">
             {item.url && item.mime?.startsWith("image/") && (
-              <img src={item.url} alt={item.caption} loading="lazy" className="w-full object-cover" />
+              <img
+                src={item.url}
+                alt={item.caption}
+                loading="lazy"
+                className="w-full object-cover"
+              />
             )}
             {item.url && item.mime?.startsWith("video/") && (
               <video controls src={item.url} className="w-full" />

@@ -27,7 +27,10 @@ export const listFamilyMembers = createServerFn({ method: "GET" })
     const { data: profiles } = await supabase
       .from("profiles")
       .select("id, display_name, avatar_url")
-      .in("id", members.map((m) => m.user_id));
+      .in(
+        "id",
+        members.map((m) => m.user_id),
+      );
 
     return members.map((m) => {
       const profile = profiles?.find((p) => p.id === m.user_id);

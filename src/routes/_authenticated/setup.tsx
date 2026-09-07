@@ -74,11 +74,15 @@ function SetupWizard() {
   const createMutation = useMutation({
     mutationFn: () =>
       create({
-        data: { name: familyName.trim(), ...(description.trim() ? { description: description.trim() } : {}) },
+        data: {
+          name: familyName.trim(),
+          ...(description.trim() ? { description: description.trim() } : {}),
+        },
       }),
     onSuccess: (result) => {
       setFamilyId(result.id);
-      if (typeof window !== "undefined") window.localStorage.setItem("em.activeFamilyId", result.id);
+      if (typeof window !== "undefined")
+        window.localStorage.setItem("em.activeFamilyId", result.id);
       setStep(1);
       toast.success("Your family archive is open. Now bring your people in.");
     },
@@ -137,7 +141,7 @@ function SetupWizard() {
     setUploading(true);
     try {
       const id = crypto.randomUUID();
-      const path = `${familyId}/gallery/${id}/${file.name.replace(/[^\w.\-]+/g, "_")}`;
+      const path = `${familyId}/gallery/${id}/${file.name.replace(/[^\w.-]+/g, "_")}`;
       const { error } = await supabase.storage
         .from("memories")
         .upload(path, file, { contentType: file.type || "image/jpeg" });
@@ -167,8 +171,8 @@ function SetupWizard() {
     <div className="mx-auto max-w-2xl px-6 py-14">
       <h1 className="font-display text-3xl font-semibold">Set up your family archive</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Three steps: name your family, bring your relatives in, and archive the first photos. Nobody sees
-        the tree before you are ready.
+        Three steps: name your family, bring your relatives in, and archive the first photos. Nobody
+        sees the tree before you are ready.
       </p>
 
       <ol className="mt-8 flex flex-wrap gap-2">
@@ -186,8 +190,8 @@ function SetupWizard() {
         <Card className="mt-6 p-6">
           {existing.length > 0 && (
             <p className="mb-4 rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-              You already belong to {existing.map((f) => f.name).join(", ")}. Creating another family opens a
-              second, separate archive.
+              You already belong to {existing.map((f) => f.name).join(", ")}. Creating another
+              family opens a second, separate archive.
             </p>
           )}
           <form
@@ -268,7 +272,9 @@ function SetupWizard() {
                 {invited.map((i) => (
                   <li key={i.email} className="rounded-lg border border-border p-3">
                     <span className="font-medium">{i.email}</span>
-                    <span className="mt-1 block truncate text-xs text-muted-foreground">{i.link}</span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">
+                      {i.link}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -293,8 +299,18 @@ function SetupWizard() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
-              <Input aria-label="Last name" placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-              <Input type="date" aria-label="Date of birth" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+              <Input
+                aria-label="Last name"
+                placeholder="Last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+              <Input
+                type="date"
+                aria-label="Date of birth"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+              />
               <Button type="submit" disabled={personMutation.isPending}>
                 <Plus className="size-4" /> Add
               </Button>

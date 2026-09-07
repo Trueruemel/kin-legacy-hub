@@ -151,7 +151,9 @@ export function FamilyInvites({
             className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm"
           >
             <span className="min-w-0 flex-1 truncate">{row.email}</span>
-            <Badge variant="secondary" className="capitalize">{row.role}</Badge>
+            <Badge variant="secondary" className="capitalize">
+              {row.role}
+            </Badge>
             <Badge variant={row.accepted ? "default" : "outline"}>
               {row.accepted ? "joined" : `expires ${formatDate(row.expiresAt)}`}
             </Badge>

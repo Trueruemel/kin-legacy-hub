@@ -1,5 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, FileText, LockKeyhole, Mic, Paperclip, Plus, Sparkles, Unlock, Video, X } from "lucide-react";
+import {
+  Download,
+  FileText,
+  LockKeyhole,
+  Mic,
+  Paperclip,
+  Plus,
+  Sparkles,
+  Unlock,
+  Video,
+  X,
+} from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -32,9 +43,15 @@ export const Route = createFileRoute("/_authenticated/vault")({
   head: () => ({
     meta: [
       { title: "Legacy Vault — Eternal — Memories" },
-      { name: "description", content: "Time-locked letters, videos and recordings sealed for the people who come next." },
+      {
+        name: "description",
+        content: "Time-locked letters, videos and recordings sealed for the people who come next.",
+      },
       { property: "og:title", content: "Legacy Vault — Eternal — Memories" },
-      { property: "og:description", content: "Seal a message today; it opens on the date, birthday or moment you choose." },
+      {
+        property: "og:description",
+        content: "Seal a message today; it opens on the date, birthday or moment you choose.",
+      },
     ],
   }),
   component: VaultPage,
@@ -95,7 +112,10 @@ function DemoVault() {
   const allItems = useAppStore((s) => s.vault);
   const sealVaultItem = useAppStore((s) => s.sealVaultItem);
 
-  const items = useMemo(() => allItems.filter((i) => i.familyId === familyId), [allItems, familyId]);
+  const items = useMemo(
+    () => allItems.filter((i) => i.familyId === familyId),
+    [allItems, familyId],
+  );
 
   const [open, setOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -163,7 +183,10 @@ function DemoVault() {
           Words for people who aren't ready to hear them yet. Sealed today, delivered exactly when
           they should be.
         </p>
-        <Button className="mt-6 bg-gold text-gold-foreground hover:bg-gold/90" onClick={() => setOpen(true)}>
+        <Button
+          className="mt-6 bg-gold text-gold-foreground hover:bg-gold/90"
+          onClick={() => setOpen(true)}
+        >
           <Plus className="size-4" /> Create a sealed item
         </Button>
       </div>
@@ -174,14 +197,17 @@ function DemoVault() {
         description={`${sealedCount} of ${items.length} items are still locked. Locked content stays sealed until its moment arrives.`}
       />
 
-
       <div className="grid gap-4 md:grid-cols-2">
         {items.map((item) => {
           const released = isReleased(item);
           const Icon = released ? Unlock : kindIcon[item.kind];
           const progress = unlockProgress(item);
           return (
-            <Card key={item.id} className="card-lift cursor-pointer p-5" onClick={() => setDetailId(item.id)}>
+            <Card
+              key={item.id}
+              className="card-lift cursor-pointer p-5"
+              onClick={() => setDetailId(item.id)}
+            >
               <div className="flex items-start gap-3">
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold">
                   <Icon className="size-5" />
@@ -198,7 +224,9 @@ function DemoVault() {
               </div>
 
               {released && item.content ? (
-                <p className="mt-3 line-clamp-3 rounded-lg bg-muted/60 px-3 py-2 text-sm">{item.content}</p>
+                <p className="mt-3 line-clamp-3 rounded-lg bg-muted/60 px-3 py-2 text-sm">
+                  {item.content}
+                </p>
               ) : (
                 <p className="mt-3 rounded-lg bg-muted/60 px-3 py-2 text-sm text-muted-foreground select-none">
                   {item.preview}
@@ -230,7 +258,8 @@ function DemoVault() {
               <DialogHeader>
                 <DialogTitle className="font-display text-xl">{detail.title}</DialogTitle>
                 <DialogDescription>
-                  Sealed by {userById(detail.authorId).displayName} on {formatLongDate(detail.sealedAt)}.
+                  Sealed by {userById(detail.authorId).displayName} on{" "}
+                  {formatLongDate(detail.sealedAt)}.
                 </DialogDescription>
               </DialogHeader>
               {isReleased(detail) ? (
@@ -242,7 +271,9 @@ function DemoVault() {
                   <LockKeyhole className="mx-auto size-8 text-gold" />
                   <p className="mt-3 font-display text-lg">{unlockLabel(detail)}</p>
                   {detail.unlock.kind === "date" && (
-                    <p className="mt-1 text-sm text-muted-foreground">{countdown(detail.unlock.date)}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {countdown(detail.unlock.date)}
+                    </p>
                   )}
                   <p className="mt-4 text-sm text-muted-foreground">
                     The content stays sealed until the unlock condition is met — this view has
@@ -263,7 +294,11 @@ function DemoVault() {
                   ) : detail.mediaMime?.startsWith("audio/") ? (
                     <audio controls src={detail.mediaUrl} className="w-full" />
                   ) : detail.mediaMime?.startsWith("video/") ? (
-                    <video controls src={detail.mediaUrl} className="max-h-72 w-full rounded-xl border" />
+                    <video
+                      controls
+                      src={detail.mediaUrl}
+                      className="max-h-72 w-full rounded-xl border"
+                    />
                   ) : (
                     <Button asChild variant="outline" size="sm">
                       <a href={detail.mediaUrl} target="_blank" rel="noreferrer">
@@ -279,7 +314,9 @@ function DemoVault() {
                   <p className="flex items-center gap-2 text-sm font-medium text-gold">
                     <Sparkles className="size-4" /> AI transcript
                   </p>
-                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed">{detail.transcript}</p>
+                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed">
+                    {detail.transcript}
+                  </p>
                 </div>
               )}
 
@@ -287,7 +324,9 @@ function DemoVault() {
                 <p className="font-medium">Recipients</p>
                 <p className="text-muted-foreground">
                   {detail.recipients
-                    .map((r) => (r.startsWith("u_") || r.startsWith("c_") ? userById(r).displayName : r))
+                    .map((r) =>
+                      r.startsWith("u_") || r.startsWith("c_") ? userById(r).displayName : r,
+                    )
                     .join(", ")}
                 </p>
               </div>
@@ -299,7 +338,9 @@ function DemoVault() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="font-display text-xl">Seal something for the future</DialogTitle>
+            <DialogTitle className="font-display text-xl">
+              Seal something for the future
+            </DialogTitle>
             <DialogDescription>Choose the moment it should open.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -368,7 +409,9 @@ function DemoVault() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
             <Button
               className="bg-gold text-gold-foreground hover:bg-gold/90"
               disabled={sealing}

@@ -33,7 +33,6 @@ export function useActiveFamily() {
     retry: false,
   });
 
-
   const families = query.data ?? [];
   const family = families.find((f) => f.id === selected) ?? families[0] ?? null;
 

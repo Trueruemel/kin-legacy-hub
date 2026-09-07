@@ -104,7 +104,9 @@ export function Lightbox({
           className="mx-auto max-h-[80vh] rounded-lg object-contain shadow-2xl"
         />
         {current.caption && (
-          <figcaption className="mt-3 text-center text-sm text-white/80">{current.caption}</figcaption>
+          <figcaption className="mt-3 text-center text-sm text-white/80">
+            {current.caption}
+          </figcaption>
         )}
         <p className="mt-1 text-center text-xs text-white/50">
           {index + 1} / {photos.length}

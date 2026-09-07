@@ -10,14 +10,14 @@ Seed-Daten.
 
 ## Auf einen Blick
 
-| | |
-| --- | --- |
-| Stack | TanStack Start v1 (React 19, SSR), Vite 7, Tailwind v4, shadcn/ui |
-| Backend | Cloud-PostgreSQL mit RLS (26 Tabellen), privater Storage-Bucket `memories` |
-| Auth | E-Mail + Passwort, Google OAuth, HIBP-Check, geschützter Bereich `_authenticated/` |
-| E-Mail | 8 gebrandete Templates, Absenderdomain `notify.eternalmemorys.com` |
-| Assistenten | `/mcp` mit OAuth 2.1 und 4 Tools, Freigabe pro Bereich |
-| Domain | `eternalmemorys.enterprises` |
+|             |                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------- |
+| Stack       | TanStack Start v1 (React 19, SSR), Vite 8, Tailwind v4, shadcn/ui                  |
+| Backend     | Cloud-PostgreSQL mit RLS (26 Tabellen), privater Storage-Bucket `memories`         |
+| Auth        | E-Mail + Passwort, Google OAuth, HIBP-Check, geschützter Bereich `_authenticated/` |
+| E-Mail      | 8 gebrandete Templates, Absenderdomain `notify.eternalmemorys.enterprises`         |
+| Assistenten | `/mcp` mit OAuth 2.1 und 4 Tools, Freigabe pro Bereich                             |
+| Domain      | `eternalmemorys.enterprises`                                                       |
 
 ## Kernbereiche
 
@@ -32,11 +32,16 @@ Seed-Daten.
 ## Entwicklung
 
 ```sh
-npm i
-npm run dev      # Entwicklung
-npm run build    # Produktionsbuild
-npm run lint
+bun install --frozen-lockfile   # Paketmanager ist Bun (bun.lock + bunfig.toml)
+bun run dev      # Entwicklung
+bun run build    # Produktionsbuild
+bun run lint
+bun run test
 ```
+
+Hinweis zu Umgebungsdateien: `.env` enthält ausschließlich Supabase-Publishable-Werte (Projekt-ID, URL,
+Publishable Key), die ohnehin im Browser landen, und wird von Lovable verwaltet. Serverseitige
+Geheimnisse (`LOVABLE_API_KEY`, Service-Role-Key, Cron-Secret) gehören niemals in eine versionierte Datei.
 
 ## Weiterlesen
 

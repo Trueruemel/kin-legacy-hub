@@ -12,13 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { addForumPost, getForumThread } from "@/lib/forums.functions";
 
-export function RealForumThread({
-  familyId,
-  threadId,
-}: {
-  familyId: string;
-  threadId: string;
-}) {
+export function RealForumThread({ familyId, threadId }: { familyId: string; threadId: string }) {
   const queryClient = useQueryClient();
   const load = useServerFn(getForumThread);
   const reply = useServerFn(addForumPost);
@@ -52,7 +46,9 @@ export function RealForumThread({
         <ArrowLeft className="size-4" /> All conversations
       </Link>
 
-      {query.isLoading && <p className="py-16 text-center text-sm text-muted-foreground">Loading…</p>}
+      {query.isLoading && (
+        <p className="py-16 text-center text-sm text-muted-foreground">Loading…</p>
+      )}
 
       {!query.isLoading && !thread && (
         <Card className="p-8 text-center text-sm text-muted-foreground">
@@ -62,8 +58,12 @@ export function RealForumThread({
 
       {thread && (
         <>
-          <Badge variant="secondary" className="capitalize">{thread.category}</Badge>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">{thread.title}</h1>
+          <Badge variant="secondary" className="capitalize">
+            {thread.category}
+          </Badge>
+          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+            {thread.title}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Started by {thread.authorName} on{" "}
             {new Date(thread.createdAt).toLocaleDateString(undefined, { dateStyle: "long" })}
@@ -74,7 +74,9 @@ export function RealForumThread({
               <Card key={post.id} className="p-5">
                 <div className="flex gap-3">
                   <Avatar className="size-10">
-                    <AvatarFallback>{(post.authorName ?? "?").charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {(post.authorName ?? "?").charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <p className="font-display text-base font-semibold">{post.authorName}</p>

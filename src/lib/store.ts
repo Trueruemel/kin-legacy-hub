@@ -44,7 +44,7 @@ const STORIES = [
   "Every family keeps two histories: the one it tells and the one it photographs. This collection is the second kind. Nobody posed for posterity here; they were simply present, and the camera happened to be nearby.\n\nThere are tables mid-meal, coats still on, a dog moving too fast for the shutter. There are older frames, softened by time, where the clothing dates the year better than any caption could.\n\nRead together, they say something simple and unfashionable: that a life is mostly made of afternoons, and that afternoons are worth keeping.",
 ];
 
-const pick = <T,>(list: T[]): T => list[Math.floor(Math.random() * list.length)]!;
+const pick = <T>(list: T[]): T => list[Math.floor(Math.random() * list.length)]!;
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 type Rsvp = "going" | "maybe" | "no";

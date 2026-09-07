@@ -21,9 +21,15 @@ export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — Eternal — Memories" },
-      { name: "description", content: "Manage your profile, family plan, privacy and notification preferences." },
+      {
+        name: "description",
+        content: "Manage your profile, family plan, privacy and notification preferences.",
+      },
       { property: "og:title", content: "Settings — Eternal — Memories" },
-      { property: "og:description", content: "Profile, plan, storage and privacy controls for your family archive." },
+      {
+        property: "og:description",
+        content: "Profile, plan, storage and privacy controls for your family archive.",
+      },
     ],
   }),
   component: SettingsPage,
@@ -58,7 +64,10 @@ function DemoSettingsPage() {
 
   return (
     <AppLayout>
-      <PageHeader title="Settings" description="Demo settings — changes are local to this session." />
+      <PageHeader
+        title="Settings"
+        description="Demo settings — changes are local to this session."
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-6">
@@ -90,7 +99,11 @@ function DemoSettingsPage() {
                 {theme === "dark" ? <Moon className="size-4" /> : <Sun className="size-4" />}
                 <span>{theme === "dark" ? "Evening (dark)" : "Daylight (light)"}</span>
               </div>
-              <Switch checked={theme === "dark"} onCheckedChange={toggleTheme} aria-label="Toggle dark mode" />
+              <Switch
+                checked={theme === "dark"}
+                onCheckedChange={toggleTheme}
+                aria-label="Toggle dark mode"
+              />
             </div>
           </Card>
 
@@ -99,15 +112,23 @@ function DemoSettingsPage() {
             <Separator className="my-4" />
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">{family.name}</p>
-              <Badge className="capitalize"><Crown className="mr-1 size-3" />{family.subscription}</Badge>
+              <Badge className="capitalize">
+                <Crown className="mr-1 size-3" />
+                {family.subscription}
+              </Badge>
             </div>
             <div className="mt-4">
               <p className="mb-2 inline-flex items-center gap-1.5 text-sm">
-                <HardDrive className="size-4" /> {family.storageUsedGB} GB of {family.storageQuotaGB} GB used
+                <HardDrive className="size-4" /> {family.storageUsedGB} GB of{" "}
+                {family.storageQuotaGB} GB used
               </p>
               <Progress value={storagePct} />
             </div>
-            <Button variant="outline" className="mt-4" onClick={() => toast.info("Plan upgrades open after the demo")}>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => toast.info("Plan upgrades open after the demo")}
+            >
               Upgrade plan
             </Button>
           </Card>

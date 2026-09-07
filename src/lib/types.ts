@@ -105,7 +105,8 @@ export type FamilyEvent = {
 };
 
 export type VaultKind = "message" | "video" | "letter" | "audio";
-export type VaultUnlock = { kind: "date"; date: string } | { kind: "passing" } | { kind: "age"; age: number };
+export type VaultUnlock =
+  { kind: "date"; date: string } | { kind: "passing" } | { kind: "age"; age: number };
 
 export type VaultItem = {
   id: string;

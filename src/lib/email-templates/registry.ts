@@ -1,16 +1,22 @@
-import type { ComponentType } from 'react'
+import type { ComponentType } from "react";
 
-import { template as eventInviteTemplate } from './event-invite'
-import { template as familyWelcomeTemplate } from './family-welcome'
+import { template as eventInviteTemplate } from "./event-invite";
+import { template as familyWelcomeTemplate } from "./family-welcome";
 
+/** Untyped template model — each template validates its own props at render time. */
+export type TemplateData = Record<string, unknown>;
 
 export interface TemplateEntry {
-  component: ComponentType<any>
-  subject: string | ((data: Record<string, any>) => string)
-  displayName?: string
-  previewData?: Record<string, any>
+  /**
+   * `never` keeps the registry open to any prop shape without resorting to `any`;
+   * send-email.ts widens it to `ComponentType<TemplateData>` at the single render site.
+   */
+  component: ComponentType<never>;
+  subject: string | ((data: TemplateData) => string);
+  displayName?: string;
+  previewData?: TemplateData;
   /** Fixed recipient — overrides caller-provided recipientEmail when set. */
-  to?: string
+  to?: string;
 }
 
 /**
@@ -23,7 +29,6 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   // Add templates here as they are created, e.g.:
-  'family-welcome': familyWelcomeTemplate,
-  'event-invite': eventInviteTemplate,
-}
-
+  "family-welcome": familyWelcomeTemplate,
+  "event-invite": eventInviteTemplate,
+};

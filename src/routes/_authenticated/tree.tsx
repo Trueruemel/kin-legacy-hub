@@ -18,9 +18,16 @@ export const Route = createFileRoute("/_authenticated/tree")({
   head: () => ({
     meta: [
       { title: "Family Tree — Eternal — Memories" },
-      { name: "description", content: "An interactive four-generation family tree with every branch and story connected." },
+      {
+        name: "description",
+        content:
+          "An interactive four-generation family tree with every branch and story connected.",
+      },
       { property: "og:title", content: "Family Tree — Eternal — Memories" },
-      { property: "og:description", content: "Explore four generations of your family on one living canvas." },
+      {
+        property: "og:description",
+        content: "Explore four generations of your family on one living canvas.",
+      },
     ],
   }),
   component: TreePage,
@@ -100,13 +107,28 @@ function DemoTree() {
         description={`${familyUsers.length} people across ${layout.generations.length} generations. Click anyone to see their story.`}
         action={
           <div className="flex gap-1">
-            <Button variant="outline" size="icon" aria-label="Zoom out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.15))}>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Zoom out"
+              onClick={() => setZoom((z) => Math.max(0.5, z - 0.15))}
+            >
               <Minus className="size-4" />
             </Button>
-            <Button variant="outline" size="icon" aria-label="Reset zoom" onClick={() => setZoom(1)}>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Reset zoom"
+              onClick={() => setZoom(1)}
+            >
               <RotateCcw className="size-4" />
             </Button>
-            <Button variant="outline" size="icon" aria-label="Zoom in" onClick={() => setZoom((z) => Math.min(1.6, z + 0.15))}>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Zoom in"
+              onClick={() => setZoom((z) => Math.min(1.6, z + 0.15))}
+            >
               <Plus className="size-4" />
             </Button>
           </div>
@@ -180,7 +202,13 @@ function DemoTree() {
                     strokeWidth={selected?.id === user.id ? 3 : 1.5}
                   />
                   {user.status === "deceased" && (
-                    <rect width={NODE_W} height={NODE_H} rx={12} className="fill-muted" opacity={0.5} />
+                    <rect
+                      width={NODE_W}
+                      height={NODE_H}
+                      rx={12}
+                      className="fill-muted"
+                      opacity={0.5}
+                    />
                   )}
                   <clipPath id={`clip-${user.id}`}>
                     <circle cx={32} cy={NODE_H / 2} r={20} />
@@ -219,7 +247,8 @@ function DemoTree() {
               />
               <h2 className="mt-3 font-display text-xl font-semibold">{selected.displayName}</h2>
               <p className="text-sm text-muted-foreground">
-                {lifeDates(selected.birthDate, selected.deathDate)} · {selected.relationshipToViewer}
+                {lifeDates(selected.birthDate, selected.deathDate)} ·{" "}
+                {selected.relationshipToViewer}
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <Badge variant="secondary">Generation {selected.generation}</Badge>
@@ -227,7 +256,9 @@ function DemoTree() {
                   {selected.status === "deceased" ? "In memoriam" : "Living"}
                 </Badge>
               </div>
-              <p className="mt-3 line-clamp-5 text-sm leading-relaxed text-foreground/85">{selected.bio}</p>
+              <p className="mt-3 line-clamp-5 text-sm leading-relaxed text-foreground/85">
+                {selected.bio}
+              </p>
               <Link to="/profile/$userId" params={{ userId: selected.id }}>
                 <Button className="mt-4 w-full">View full profile</Button>
               </Link>

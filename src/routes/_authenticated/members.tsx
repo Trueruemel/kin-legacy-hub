@@ -28,7 +28,10 @@ export const Route = createFileRoute("/_authenticated/members")({
   head: () => ({
     meta: [
       { title: "Family Members — Eternal — Memories" },
-      { name: "description", content: "Everyone in the family, grouped by generation, with roles and life dates." },
+      {
+        name: "description",
+        content: "Everyone in the family, grouped by generation, with roles and life dates.",
+      },
       { property: "og:title", content: "Family Members — Eternal — Memories" },
       { property: "og:description", content: "Browse the whole family, generation by generation." },
     ],
@@ -63,7 +66,9 @@ function RealMembers({ familyId }: { familyId: string }) {
               <div className="min-w-0">
                 <p className="font-display text-lg font-semibold leading-tight">{member.name}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  <Badge variant="secondary" className="capitalize">{member.role}</Badge>
+                  <Badge variant="secondary" className="capitalize">
+                    {member.role}
+                  </Badge>
                   {member.isMe && <Badge variant="outline">You</Badge>}
                 </div>
               </div>
@@ -105,19 +110,26 @@ function MembersPage() {
   );
 }
 
-
 function LegacyMembers() {
   const familyId = useAppStore((s) => s.activeFamilyId);
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
   const members = users
     .filter((u) => u.familyId === familyId)
-    .filter((u) => !q || u.displayName.toLowerCase().includes(q) || u.relationshipToViewer.toLowerCase().includes(q));
+    .filter(
+      (u) =>
+        !q ||
+        u.displayName.toLowerCase().includes(q) ||
+        u.relationshipToViewer.toLowerCase().includes(q),
+    );
   const generations = [...new Set(members.map((m) => m.generation))].sort((a, b) => a - b);
 
   return (
     <>
-      <PageHeader title="Family Members" description={`${members.length} people across ${generations.length} generations.`} />
+      <PageHeader
+        title="Family Members"
+        description={`${members.length} people across ${generations.length} generations.`}
+      />
 
       <div className="relative mb-6 max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -147,8 +159,12 @@ function LegacyMembers() {
                         <AvatarFallback>{member.firstName[0]}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <p className="font-display text-lg font-semibold leading-tight">{member.displayName}</p>
-                        <p className="text-xs text-muted-foreground">{member.relationshipToViewer}</p>
+                        <p className="font-display text-lg font-semibold leading-tight">
+                          {member.displayName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {member.relationshipToViewer}
+                        </p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {lifeDates(member.birthDate, member.deathDate)}
                         </p>
@@ -158,9 +174,13 @@ function LegacyMembers() {
                           </p>
                         )}
                         <div className="mt-2 flex flex-wrap gap-1.5">
-                          <Badge variant="secondary" className="capitalize">{member.role.replace("_", " ")}</Badge>
+                          <Badge variant="secondary" className="capitalize">
+                            {member.role.replace("_", " ")}
+                          </Badge>
                           {member.status !== "living" && (
-                            <Badge variant="outline" className="capitalize">{member.status.replace("_", " ")}</Badge>
+                            <Badge variant="outline" className="capitalize">
+                              {member.status.replace("_", " ")}
+                            </Badge>
                           )}
                         </div>
                       </div>

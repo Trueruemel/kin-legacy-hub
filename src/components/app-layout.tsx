@@ -200,7 +200,12 @@ function NotificationsMenu() {
   return (
     <DropdownMenu onOpenChange={(open) => open && unread > 0 && markRead()}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`Notifications, ${unread} unread`} className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={`Notifications, ${unread} unread`}
+          className="relative"
+        >
           <Bell className="size-5" />
           {unread > 0 && (
             <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-gold text-[10px] font-semibold text-gold-foreground">
@@ -222,7 +227,9 @@ function NotificationsMenu() {
               </Avatar>
               <span className="flex-1 text-xs leading-relaxed">
                 <span className="font-medium">{actor.displayName}</span> {n.text}
-                <span className="mt-0.5 block text-muted-foreground">{relativeTime(n.createdAt)}</span>
+                <span className="mt-0.5 block text-muted-foreground">
+                  {relativeTime(n.createdAt)}
+                </span>
               </span>
             </DropdownMenuItem>
           );
@@ -248,7 +255,8 @@ function InviteDialog() {
         <DialogHeader>
           <DialogTitle className="font-display text-xl">Invite a family member</DialogTitle>
           <DialogDescription>
-            They'll receive a private invitation link. Only invited relatives can ever see this archive.
+            They'll receive a private invitation link. Only invited relatives can ever see this
+            archive.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
@@ -292,7 +300,11 @@ function useEnsureProfile() {
 
 function FamilySwitcher() {
   useEnsureProfile();
-  const { family: realFamily, families: realFamilies, setFamily: setRealFamily } = useActiveFamily();
+  const {
+    family: realFamily,
+    families: realFamilies,
+    setFamily: setRealFamily,
+  } = useActiveFamily();
   const activeFamilyId = useAppStore((s) => s.activeFamilyId);
   const setFamily = useAppStore((s) => s.setFamily);
   const family = families.find((f) => f.id === activeFamilyId)!;
@@ -308,8 +320,12 @@ function FamilySwitcher() {
                 {realFamily.name.charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-display text-sm font-semibold">{realFamily.name}</span>
-                <span className="block text-xs capitalize text-muted-foreground">{realFamily.role}</span>
+                <span className="block truncate font-display text-sm font-semibold">
+                  {realFamily.name}
+                </span>
+                <span className="block text-xs capitalize text-muted-foreground">
+                  {realFamily.role}
+                </span>
               </span>
             </button>
           </DropdownMenuTrigger>
@@ -343,7 +359,6 @@ function FamilySwitcher() {
           </span>
         </div>
       </div>
-
     );
   }
 
@@ -359,7 +374,9 @@ function FamilySwitcher() {
               className="size-10 rounded-lg object-cover"
             />
             <span className="min-w-0 flex-1">
-              <span className="block truncate font-display text-sm font-semibold">{family.name}</span>
+              <span className="block truncate font-display text-sm font-semibold">
+                {family.name}
+              </span>
               <span className="block text-xs text-muted-foreground">{memberCount} members</span>
             </span>
           </button>
@@ -375,7 +392,12 @@ function FamilySwitcher() {
                 if (f.id !== activeFamilyId) toast.success(`Switched to ${f.name}`);
               }}
             >
-              <img src={f.coverPhotoUrl} alt="" loading="lazy" className="size-6 rounded object-cover" />
+              <img
+                src={f.coverPhotoUrl}
+                alt=""
+                loading="lazy"
+                className="size-6 rounded object-cover"
+              />
               <span className="flex-1 truncate">{f.name}</span>
               {f.id === activeFamilyId && <Badge variant="secondary">Active</Badge>}
             </DropdownMenuItem>
@@ -419,7 +441,10 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-accent" aria-label="Account menu">
+        <button
+          className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-accent"
+          aria-label="Account menu"
+        >
           <Avatar className="size-8">
             <AvatarImage src={user.avatarUrl} alt="" />
             <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
@@ -431,10 +456,14 @@ function UserMenu() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem onSelect={() => void navigate({ to: "/profile/$userId", params: { userId: user.id } })}>
+        <DropdownMenuItem
+          onSelect={() => void navigate({ to: "/profile/$userId", params: { userId: user.id } })}
+        >
           My profile
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => void navigate({ to: "/settings" })}>Settings</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => void navigate({ to: "/settings" })}>
+          Settings
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => {
@@ -472,10 +501,18 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="inline-flex items-center gap-1"><LockKeyhole className="size-3" /> Private</span>
-        <span className="inline-flex items-center gap-1"><Users className="size-3" /> Family-Governed</span>
-        <span className="inline-flex items-center gap-1"><Bell className="size-3" /> Secure</span>
-        <span className="inline-flex items-center gap-1"><Users2 className="size-3" /> Generational</span>
+        <span className="inline-flex items-center gap-1">
+          <LockKeyhole className="size-3" /> Private
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <Users className="size-3" /> Family-Governed
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <Bell className="size-3" /> Secure
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <Users2 className="size-3" /> Generational
+        </span>
       </p>
     </footer>
   );
@@ -502,7 +539,6 @@ export function PageHeader({
     </div>
   );
 }
-
 
 export function AppLayout({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   const switching = useAppStore((s) => s.switching);
@@ -554,7 +590,11 @@ export function AppLayout({ children, wide = false }: { children: ReactNode; wid
           </div>
         </aside>
 
-        <main id="main-content" tabIndex={-1} className={cn("min-w-0 flex-1", !wide && "mx-auto w-full")}>
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className={cn("min-w-0 flex-1", !wide && "mx-auto w-full")}
+        >
           {switching ? <SwitchingSkeleton /> : children}
           <SiteFooter />
         </main>
