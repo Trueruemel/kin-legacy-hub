@@ -33,14 +33,14 @@ rendern alle Seiten die realen Komponenten (`*-real.tsx`).
 | --- | --- |
 | Framework | TanStack Start v1 (React 19, SSR, Edge/Worker-Runtime) |
 | Routing | TanStack Router, dateibasiert unter `src/routes` |
-| Build | Vite 7 |
+| Build | Vite 8 |
 | Styling | Tailwind CSS v4 (`src/styles.css`, semantische oklch-Tokens) |
 | UI | shadcn/ui + Radix, `lucide-react` |
 | Server-Logik | `createServerFn` (typisierte RPCs, Zod-validiert) |
 | Datenbank | Cloud-PostgreSQL, 26 Tabellen, durchgängig Row Level Security |
 | Object Storage | privater Bucket `memories`, kurzlebige signierte URLs |
 | Auth | E-Mail + Passwort, Google OAuth, HIBP-Check, Bereich `_authenticated/` |
-| E-Mail | React-Email-Templates, Versand über `notify.eternalmemorys.com` |
+| E-Mail | React-Email-Templates, Versand über `notify.eternalmemorys.enterprises` |
 | Client-State | TanStack Query (echt) + Zustand (Demo) |
 | AI | Lovable AI Gateway (`google/gemini-2.5-flash`) für Vault-Stories |
 | Assistenten | `@lovable.dev/mcp-js` v2, OAuth 2.1 Resource Server unter `/mcp` |
@@ -64,7 +64,7 @@ Backend (Lovable Cloud)
         ├── PostgreSQL + RLS + SECURITY-DEFINER-Helper
         ├── Auth (E-Mail/Passwort, Google, OAuth-2.1-Server für MCP)
         ├── Object Storage: privater Bucket `memories`
-        └── E-Mail-Versand über Absenderdomain notify.eternalmemorys.com
+        └── E-Mail-Versand über Absenderdomain notify.eternalmemorys.enterprises
 ```
 
 Wesentliche Grenzen der Laufzeit: kein Node-Host, keine Kindprozesse, kein echtes Dateisystem —
@@ -74,7 +74,7 @@ Handler gelesen, niemals auf Modulebene.
 ### Domains
 
 - App / Custom Domain: `eternalmemorys.enterprises`, `www.eternalmemorys.enterprises`
-- E-Mail-Absender: `notify.eternalmemorys.com` (eigene Subdomain, DNS-Verifikation offen)
+- E-Mail-Absender: `notify.eternalmemorys.enterprises` (eigene Subdomain, DNS-Verifikation offen)
 
 ### Ausstehende DNS-Einträge für den Mailversand (Zone `eternalmemorys.com`)
 
@@ -201,8 +201,10 @@ Gemeinsame Hilfsmittel: `components/photo-cropper.tsx` (Zuschnitt vor dem Upload
 
 ## 9. Einladungen & E-Mail
 
-Sieben gebrandete Templates unter `src/lib/email-templates/`, registriert in `registry.ts`,
-versendet über `send-email.ts`:
+Acht gebrandete Templates unter `src/lib/email-templates/`. Die sechs Auth-Templates (`signup`, `magic-link`,
+`recovery`, `email-change`, `reauthentication`, `invite`) werden über den SDK-Webhook
+`src/routes/lovable/email/auth/webhook.ts` gerendert; die zwei transaktionalen Templates (`family-welcome`,
+`event-invite`) sind in `registry.ts` registriert und werden über `send-email.ts` versendet:
 
 | Template | Auslöser |
 | --- | --- |
@@ -319,7 +321,7 @@ Client-Bundles importieren.
 **Blocker Beta-Start**
 
 1. Veröffentlichung der App (Freigabe war zuletzt deaktiviert) → echte URL, echter Mailversand.
-2. DNS-Einträge für `notify.eternalmemorys.com` setzen und verifizieren.
+2. DNS-Einträge für `notify.eternalmemorys.enterprises` setzen und verifizieren.
 3. 13 Security-Linter-Warnungen bewerten und auflösen.
 
 **Funktional**
