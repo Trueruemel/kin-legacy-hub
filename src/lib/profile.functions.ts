@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type MyProfile = {
   id: string;
   displayName: string | null;
@@ -21,7 +23,7 @@ export const getMyProfile = createServerFn({ method: "GET" })
       .select("id, display_name, avatar_url, locale")
       .eq("id", userId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "getMyProfile");
     return {
       id: userId,
       displayName: data?.display_name ?? null,
@@ -53,7 +55,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("profiles")
       .upsert({ id: userId, ...patch }, { onConflict: "id" });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "updateMyProfile");
     return { ok: true };
   });
 
@@ -74,7 +76,7 @@ export const updateFamily = createServerFn({ method: "POST" })
       .from("families")
       .update({ name: data.name, description: data.description ?? null })
       .eq("id", data.familyId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "updateFamily");
     return { ok: true };
   });
 
@@ -96,7 +98,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
       .from("family_members")
       .select("user_id, role")
       .eq("family_id", data.familyId);
-    if (readError) throw new Error(readError.message);
+    if (readError) throwSafe(readError, "updateMemberRole");
 
     const owners = (members ?? []).filter((m) => m.role === "owner");
     const target = (members ?? []).find((m) => m.user_id === data.userId);
@@ -114,7 +116,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
       .update({ role: data.role })
       .eq("family_id", data.familyId)
       .eq("user_id", data.userId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "updateMemberRole");
     return { ok: true };
   });
 
@@ -130,7 +132,7 @@ export const removeMember = createServerFn({ method: "POST" })
       .from("family_members")
       .select("user_id, role")
       .eq("family_id", data.familyId);
-    if (readError) throw new Error(readError.message);
+    if (readError) throwSafe(readError, "removeMember");
 
     const owners = (members ?? []).filter((m) => m.role === "owner");
     const target = (members ?? []).find((m) => m.user_id === data.userId);
@@ -148,6 +150,6 @@ export const removeMember = createServerFn({ method: "POST" })
       .delete()
       .eq("family_id", data.familyId)
       .eq("user_id", data.userId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "removeMember");
     return { ok: true };
   });

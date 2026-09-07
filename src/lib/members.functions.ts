@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type FamilyMemberRow = {
   userId: string;
   name: string;
@@ -21,7 +23,7 @@ export const listFamilyMembers = createServerFn({ method: "GET" })
       .from("family_members")
       .select("user_id, role")
       .eq("family_id", data.familyId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listFamilyMembers");
     if (!members || members.length === 0) return [];
 
     const { data: profiles } = await supabase

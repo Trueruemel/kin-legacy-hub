@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type FamilyInvite = {
   id: string;
   email: string;
@@ -34,7 +36,7 @@ export const listInvites = createServerFn({ method: "GET" })
       .select("id, email, role, token, accepted, created_at, expires_at")
       .eq("family_id", data.familyId)
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listInvites");
 
     return (rows ?? []).map((row) => ({
       id: row.id,
@@ -77,7 +79,7 @@ export const createInvite = createServerFn({ method: "POST" })
       .insert({ family_id: data.familyId, email, role: data.role, invited_by: userId })
       .select("id, token")
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createInvite");
     return { id: created.id, token: created.token, email, reused: false };
   });
 
@@ -87,7 +89,7 @@ export const revokeInvite = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("family_invitations").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "revokeInvite");
     return { id: data.id };
   });
 
@@ -99,7 +101,7 @@ export const previewInvite = createServerFn({ method: "GET" })
     const { data: rows, error } = await context.supabase.rpc("family_invitation_preview", {
       _token: data.token,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "previewInvite");
     const row = (rows ?? [])[0];
     if (!row) return null;
 
@@ -121,7 +123,7 @@ export const acceptInvite = createServerFn({ method: "POST" })
     const { data: familyId, error } = await context.supabase.rpc("accept_family_invitation", {
       _token: data.token,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "acceptInvite");
 
     // Welcome the new member. Never let email trouble break joining.
     try {
