@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 import { createCorrelationId } from "./evidence/contracts";
 import { recordEvidence, serverEvidence } from "./evidence/server";
 import { isReleased } from "./vault-release";
@@ -45,7 +47,7 @@ export const listVault = createServerFn({ method: "GET" })
     const { data: rows, error } = await context.supabase.rpc("vault_list", {
       _family_id: data.familyId,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listVault");
 
     return (rows ?? []).map((row) => ({
       id: row.id,
@@ -128,7 +130,7 @@ export const sealVaultEntry = createServerFn({ method: "POST" })
       created_by: userId,
       ...(media ? { media_path: media.path, media_mime: media.mime, media_name: media.name } : {}),
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "sealVaultEntry");
     return { id: data.id };
   });
 
@@ -141,7 +143,7 @@ export const releaseVaultEntry = createServerFn({ method: "POST" })
       .from("vault_entries")
       .update({ released: true })
       .eq("id", data.entryId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "releaseVaultEntry");
     return { id: data.entryId, released: true };
   });
 
@@ -157,14 +159,14 @@ export const vaultMediaUrl = createServerFn({ method: "POST" })
       .select("media_path, release_rule, release_on, released")
       .eq("id", data.entryId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "vaultMediaUrl");
     if (!entry?.media_path) return { url: null };
     if (!isReleased(entry)) return { url: null };
 
     const { data: signed, error: signError } = await supabase.storage
       .from("memories")
       .createSignedUrl(entry.media_path, 300);
-    if (signError) throw new Error(signError.message);
+    if (signError) throwSafe(signError, "vaultMediaUrl");
     return { url: signed?.signedUrl ?? null };
   });
 
@@ -193,7 +195,7 @@ export const vaultStory = createServerFn({ method: "POST" })
       )
       .eq("id", data.entryId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "vaultStory");
     if (!entry) {
       recordEvidence(serverEvidence.vaultStoryRejected(correlationId, "validation", 404));
       throw new Error("That item does not exist.");

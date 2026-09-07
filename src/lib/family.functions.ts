@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type FamilySummary = {
   id: string;
   name: string;
@@ -38,7 +40,7 @@ export const ensureProfile = createServerFn({ method: "POST" })
         .eq("id", userId)
         .select("id, display_name")
         .single();
-      if (fillError) throw new Error(fillError.message);
+      if (fillError) throwSafe(fillError, "ensureProfile");
       return { id: filled.id, displayName: filled.display_name };
     }
 
@@ -47,7 +49,7 @@ export const ensureProfile = createServerFn({ method: "POST" })
       .insert({ id: userId, display_name: fallback })
       .select("id, display_name")
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "ensureProfile");
     return { id: created.id, displayName: created.display_name };
   });
 
@@ -60,7 +62,7 @@ export const listMyFamilies = createServerFn({ method: "GET" })
       .from("family_members")
       .select("role, family_id")
       .eq("user_id", userId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listMyFamilies");
 
     const memberships = data ?? [];
     if (memberships.length === 0) return [];
@@ -72,7 +74,7 @@ export const listMyFamilies = createServerFn({ method: "GET" })
         "id",
         memberships.map((m) => m.family_id),
       );
-    if (familyError) throw new Error(familyError.message);
+    if (familyError) throwSafe(familyError, "listMyFamilies");
 
     return (familyRows ?? []).flatMap((family) => {
       const membership = memberships.find((m) => m.family_id === family.id);
@@ -111,12 +113,12 @@ export const createFamily = createServerFn({ method: "POST" })
       description: data.description ?? null,
       created_by: userId,
     });
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "createFamily");
 
     const { error: memberError } = await supabase
       .from("family_members")
       .insert({ family_id: familyId, user_id: userId, role: "owner" });
-    if (memberError) throw new Error(memberError.message);
+    if (memberError) throwSafe(memberError, "createFamily");
 
     return { id: familyId, name: data.name };
   });

@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { throwSafe } from "./safe-error";
+
 export type Areas = { tree: boolean; photos: boolean; events: boolean };
 
 export type MemberVisibilityRow = {
@@ -28,7 +30,7 @@ export const listMemberVisibility = createServerFn({ method: "GET" })
       .from("family_members")
       .select("user_id, role")
       .eq("family_id", data.familyId);
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "listMemberVisibility");
     if (!members || members.length === 0) return [];
 
     const ids = members.map((m) => m.user_id);
@@ -85,7 +87,7 @@ export const setMemberVisibility = createServerFn({ method: "POST" })
       },
       { onConflict: "family_id,member_user_id" },
     );
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "setMemberVisibility");
     return { ok: true };
   });
 
@@ -98,7 +100,7 @@ export const getAssistantScopes = createServerFn({ method: "GET" })
       .select("allow_tree, allow_photos, allow_events")
       .eq("user_id", context.userId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "getAssistantScopes");
     return {
       tree: data?.allow_tree ?? true,
       photos: data?.allow_photos ?? false,
@@ -119,6 +121,6 @@ export const setAssistantScopes = createServerFn({ method: "POST" })
       },
       { onConflict: "user_id" },
     );
-    if (error) throw new Error(error.message);
+    if (error) throwSafe(error, "setAssistantScopes");
     return { ok: true };
   });
