@@ -18,9 +18,15 @@ export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
     meta: [
       { title: "Family Calendar — Eternal — Memories" },
-      { name: "description", content: "Reunions, birthdays and anniversaries — everything your family gathers around." },
+      {
+        name: "description",
+        content: "Reunions, birthdays and anniversaries — everything your family gathers around.",
+      },
       { property: "og:title", content: "Family Calendar — Eternal — Memories" },
-      { property: "og:description", content: "Never miss a birthday, reunion or anniversary again." },
+      {
+        property: "og:description",
+        content: "Never miss a birthday, reunion or anniversary again.",
+      },
     ],
   }),
   component: CalendarPage,
@@ -33,7 +39,9 @@ function CalendarPage() {
   if (loading) {
     return (
       <AppLayout>
-        <p className="py-24 text-center text-sm text-muted-foreground">Opening your family calendar…</p>
+        <p className="py-24 text-center text-sm text-muted-foreground">
+          Opening your family calendar…
+        </p>
       </AppLayout>
     );
   }
@@ -47,7 +55,6 @@ function CalendarPage() {
   return <DemoCalendarPage />;
 }
 
-
 function DemoCalendarPage() {
   const familyId = useAppStore((s) => s.activeFamilyId);
   const rsvps = useAppStore((s) => s.rsvps);
@@ -56,7 +63,8 @@ function DemoCalendarPage() {
   const year = new Date().getFullYear();
 
   const events = useMemo(
-    () => allEvents.filter((e) => e.familyId === familyId).sort((a, b) => a.date.localeCompare(b.date)),
+    () =>
+      allEvents.filter((e) => e.familyId === familyId).sort((a, b) => a.date.localeCompare(b.date)),
     [familyId],
   );
 
@@ -71,15 +79,16 @@ function DemoCalendarPage() {
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  const cells = [
+    ...Array(firstDay).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
 
   const dayEvents = (day: number) => {
     const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return {
       events: events.filter((e) => e.date === iso),
-      birthdays: birthdays.filter(
-        (b) => b.date.getMonth() === month && b.date.getDate() === day,
-      ),
+      birthdays: birthdays.filter((b) => b.date.getMonth() === month && b.date.getDate() === day),
     };
   };
 
@@ -117,7 +126,9 @@ function DemoCalendarPage() {
             </div>
             <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                <div key={d} className="py-2">{d}</div>
+                <div key={d} className="py-2">
+                  {d}
+                </div>
               ))}
             </div>
             <div className="grid grid-cols-7 gap-1">
@@ -125,10 +136,16 @@ function DemoCalendarPage() {
                 if (day === null) return <div key={`e${i}`} className="min-h-20 rounded-lg" />;
                 const { events: evs, birthdays: bds } = dayEvents(day);
                 return (
-                  <div key={day} className="min-h-20 rounded-lg border border-border p-1.5 text-left">
+                  <div
+                    key={day}
+                    className="min-h-20 rounded-lg border border-border p-1.5 text-left"
+                  >
                     <span className="text-xs font-medium text-muted-foreground">{day}</span>
                     {bds.map((b) => (
-                      <span key={b.user.id} className="mt-1 block truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold">
+                      <span
+                        key={b.user.id}
+                        className="mt-1 block truncate rounded bg-gold/15 px-1 py-0.5 text-[10px] text-gold"
+                      >
                         🎂 {b.user.firstName}
                       </span>
                     ))}
@@ -160,13 +177,17 @@ function DemoCalendarPage() {
               />
               <div className="flex-1 p-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary" className="capitalize">{event.type}</Badge>
+                  <Badge variant="secondary" className="capitalize">
+                    {event.type}
+                  </Badge>
                   <span className="text-xs text-muted-foreground">
                     {formatDate(event.date)} · in {daysUntil(event.date)} days
                   </span>
                 </div>
                 <Link to="/events/$eventId" params={{ eventId: event.id }}>
-                  <h2 className="mt-2 font-display text-xl font-semibold hover:underline">{event.title}</h2>
+                  <h2 className="mt-2 font-display text-xl font-semibold hover:underline">
+                    {event.title}
+                  </h2>
                 </Link>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                   <MapPin className="size-3.5" /> {event.location}
@@ -205,10 +226,16 @@ function DemoCalendarPage() {
                 className="flex items-center gap-3 p-4 transition-colors hover:bg-accent"
               >
                 <Cake className="size-4 text-gold" />
-                <img src={user.avatarUrl} alt="" loading="lazy" className="size-9 rounded-full object-cover" />
+                <img
+                  src={user.avatarUrl}
+                  alt=""
+                  loading="lazy"
+                  className="size-9 rounded-full object-cover"
+                />
                 <span className="flex-1 font-medium">{user.displayName}</span>
                 <span className="text-sm text-muted-foreground">
-                  {MONTHS[date.getMonth()]} {date.getDate()} · in {daysUntil(date.toISOString())} days
+                  {MONTHS[date.getMonth()]} {date.getDate()} · in {daysUntil(date.toISOString())}{" "}
+                  days
                 </span>
               </Link>
             ))}

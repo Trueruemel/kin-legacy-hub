@@ -68,7 +68,10 @@ export const listMyFamilies = createServerFn({ method: "GET" })
     const { data: familyRows, error: familyError } = await supabase
       .from("families")
       .select("id, name, description, is_demo")
-      .in("id", memberships.map((m) => m.family_id));
+      .in(
+        "id",
+        memberships.map((m) => m.family_id),
+      );
     if (familyError) throw new Error(familyError.message);
 
     return (familyRows ?? []).flatMap((family) => {

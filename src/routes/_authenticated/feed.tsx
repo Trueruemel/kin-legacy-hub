@@ -1,5 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarDays, Cake, Image as ImageIcon, LockKeyhole, MapPin, Sparkles } from "lucide-react";
+import {
+  CalendarDays,
+  Cake,
+  Image as ImageIcon,
+  LockKeyhole,
+  MapPin,
+  Sparkles,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -29,9 +36,15 @@ export const Route = createFileRoute("/_authenticated/feed")({
   head: () => ({
     meta: [
       { title: "Family Feed — Eternal — Memories" },
-      { name: "description", content: "The living feed of your family's memories, photos and milestones." },
+      {
+        name: "description",
+        content: "The living feed of your family's memories, photos and milestones.",
+      },
       { property: "og:title", content: "Family Feed — Eternal — Memories" },
-      { property: "og:description", content: "Every story your family shares, in one warm private place." },
+      {
+        property: "og:description",
+        content: "Every story your family shares, in one warm private place.",
+      },
     ],
   }),
   component: FeedPage,
@@ -61,7 +74,13 @@ function Composer() {
           {photos.length > 0 && (
             <div className="grid grid-cols-3 gap-1">
               {photos.map((p) => (
-                <img key={p} src={p} alt="" loading="lazy" className="aspect-4/3 w-full rounded-md object-cover" />
+                <img
+                  key={p}
+                  src={p}
+                  alt=""
+                  loading="lazy"
+                  className="aspect-4/3 w-full rounded-md object-cover"
+                />
               ))}
             </div>
           )}
@@ -71,15 +90,26 @@ function Composer() {
                 variant="ghost"
                 size="sm"
                 onClick={() =>
-                  setPhotos((p) => [...p, photo(photoPool[(p.length * 3 + 2) % photoPool.length]!, 900)])
+                  setPhotos((p) => [
+                    ...p,
+                    photo(photoPool[(p.length * 3 + 2) % photoPool.length]!, 900),
+                  ])
                 }
               >
                 <ImageIcon className="size-4" /> Photo
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => toast("Tagging is part of the full product")}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toast("Tagging is part of the full product")}
+              >
                 <Sparkles className="size-4" /> Tag family
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => toast("Location picker coming soon")}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toast("Location picker coming soon")}
+              >
                 <MapPin className="size-4" /> Place
               </Button>
             </div>
@@ -155,7 +185,8 @@ function DemoFeed() {
             <div className="absolute bottom-4 left-5 text-white">
               <h1 className="font-display text-2xl font-semibold">{family.name}</h1>
               <p className="text-sm text-white/75">
-                Since {family.foundedYear} · {familyUsers.length} members · {memories.length} memories
+                Since {family.foundedYear} · {familyUsers.length} members · {memories.length}{" "}
+                memories
               </p>
             </div>
           </div>
@@ -241,11 +272,18 @@ function DemoFeed() {
                 {onThisDay.map((m) => (
                   <li key={m.id} className="flex gap-3">
                     {m.photos[0] && (
-                      <img src={m.photos[0]} alt="" loading="lazy" className="size-12 rounded-md object-cover" />
+                      <img
+                        src={m.photos[0]}
+                        alt=""
+                        loading="lazy"
+                        className="size-12 rounded-md object-cover"
+                      />
                     )}
                     <span className="min-w-0 flex-1 text-xs">
                       <span className="line-clamp-2 text-foreground/85">{m.text}</span>
-                      <span className="mt-1 block text-muted-foreground">{relativeTime(m.createdAt)}</span>
+                      <span className="mt-1 block text-muted-foreground">
+                        {relativeTime(m.createdAt)}
+                      </span>
                     </span>
                   </li>
                 ))}

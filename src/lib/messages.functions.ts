@@ -37,7 +37,10 @@ export const listChats = createServerFn({ method: "GET" })
     const { data: members } = await supabase
       .from("chat_members")
       .select("chat_id")
-      .in("chat_id", chats.map((c) => c.id));
+      .in(
+        "chat_id",
+        chats.map((c) => c.id),
+      );
 
     return chats.map((c) => ({
       id: c.id,
@@ -121,9 +124,9 @@ export const createChat = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
 
-    const { error: memberError } = await supabase.from("chat_members").insert(
-      requested.map((id) => ({ chat_id: chatId, family_id: data.familyId, user_id: id })),
-    );
+    const { error: memberError } = await supabase
+      .from("chat_members")
+      .insert(requested.map((id) => ({ chat_id: chatId, family_id: data.familyId, user_id: id })));
     if (memberError) throw new Error(memberError.message);
     return { id: chatId };
   });
@@ -149,6 +152,9 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       text: data.text,
     });
     if (error) throw new Error(error.message);
-    await supabase.from("chats").update({ updated_at: new Date().toISOString() }).eq("id", data.chatId);
+    await supabase
+      .from("chats")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", data.chatId);
     return { ok: true };
   });

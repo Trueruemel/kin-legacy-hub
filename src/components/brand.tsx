@@ -5,13 +5,7 @@ import wordmarkLight from "@/assets/wordmark-light.png";
 export function TreeMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn("size-7", className)} aria-hidden="true">
-      <path
-        d="M16 30v-9"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-      />
+      <path d="M16 30v-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
       <path
         d="M16 21 9 16M16 21l7-5"
         stroke="currentColor"

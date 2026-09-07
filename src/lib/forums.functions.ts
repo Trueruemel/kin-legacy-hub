@@ -3,13 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export const FORUM_CATEGORIES = [
-  "recipes",
-  "traditions",
-  "research",
-  "advice",
-  "general",
-] as const;
+export const FORUM_CATEGORIES = ["recipes", "traditions", "research", "advice", "general"] as const;
 
 export type ForumCategory = (typeof FORUM_CATEGORIES)[number];
 
@@ -41,8 +35,15 @@ async function profileNames(
   const unique = [...new Set(ids)].filter(Boolean);
   const map = new Map<string, { name: string; avatarUrl: string | null }>();
   if (unique.length === 0) return map;
-  const { data } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", unique);
-  for (const row of (data ?? []) as { id: string; display_name: string | null; avatar_url: string | null }[]) {
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, display_name, avatar_url")
+    .in("id", unique);
+  for (const row of (data ?? []) as {
+    id: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  }[]) {
     map.set(row.id, { name: row.display_name ?? "Family member", avatarUrl: row.avatar_url });
   }
   return map;
@@ -61,12 +62,18 @@ export const listForumThreads = createServerFn({ method: "GET" })
         .eq("family_id", data.familyId)
         .order("pinned", { ascending: false })
         .order("updated_at", { ascending: false }),
-      supabase.from("forum_posts").select("id, thread_id, created_at").eq("family_id", data.familyId),
+      supabase
+        .from("forum_posts")
+        .select("id, thread_id, created_at")
+        .eq("family_id", data.familyId),
     ]);
     if (error) throw new Error(error.message);
     if (postError) throw new Error(postError.message);
 
-    const names = await profileNames(supabase, (threads ?? []).map((t) => t.author_id));
+    const names = await profileNames(
+      supabase,
+      (threads ?? []).map((t) => t.author_id),
+    );
     return (threads ?? []).map((t) => {
       const replies = (posts ?? []).filter((p) => p.thread_id === t.id);
       const last = replies

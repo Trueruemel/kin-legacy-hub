@@ -13,7 +13,6 @@ import { isBetaAllowed } from "@/lib/access";
 
 import { supabase } from "@/integrations/supabase/client";
 
-
 export function sanitizeNext(value: unknown): string | null {
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
   return value;
@@ -22,8 +21,8 @@ export function sanitizeNext(value: unknown): string | null {
 export const Route = createFileRoute("/auth")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { next?: string; denied?: boolean } => {
-    const next = sanitizeNext(search['next']);
-    const denied = search['denied'] === true || search['denied'] === "true";
+    const next = sanitizeNext(search["next"]);
+    const denied = search["denied"] === true || search["denied"] === "true";
     return { ...(next ? { next } : {}), ...(denied ? { denied: true } : {}) };
   },
 
@@ -68,14 +67,12 @@ export function AuthPage() {
     await navigate({ to: "/onboarding" });
   };
 
-
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
       if (data.session) void afterAuth();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, next]);
-
 
   const signInWithGoogle = async () => {
     setBusy(true);
@@ -90,7 +87,6 @@ export function AuthPage() {
     if (result.redirected) return;
     await afterAuth();
   };
-
 
   const signIn = async () => {
     setBusy(true);
@@ -129,9 +125,7 @@ export function AuthPage() {
           <Wordmark className="text-primary dark:text-gold" />
         </Link>
 
-        <h1 className="mt-6 font-display text-2xl font-semibold">
-          Sign in to Eternal — Memories
-        </h1>
+        <h1 className="mt-6 font-display text-2xl font-semibold">Sign in to Eternal — Memories</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Your family's private archive of memories, stories and heirlooms.
         </p>
@@ -141,11 +135,10 @@ export function AuthPage() {
             role="alert"
             className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-3 text-sm text-foreground"
           >
-            This is a closed preview. Only the accounts we prepared for you can open the archive right
-            now — please sign in with one of those.
+            This is a closed preview. Only the accounts we prepared for you can open the archive
+            right now — please sign in with one of those.
           </p>
         )}
-
 
         <Card className="mt-8 p-6">
           <Button
@@ -159,7 +152,9 @@ export function AuthPage() {
           </Button>
           <div className="my-6 flex items-center gap-3">
             <span className="h-px flex-1 bg-border" />
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">or use email</span>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              or use email
+            </span>
             <span className="h-px flex-1 bg-border" />
           </div>
           <Tabs defaultValue="signin">
@@ -167,7 +162,6 @@ export function AuthPage() {
               <TabsTrigger value="signin">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Create account</TabsTrigger>
             </TabsList>
-
 
             <TabsContent value="signin" className="mt-6 space-y-4">
               <h2 className="font-display text-xl font-semibold">Welcome back</h2>
@@ -181,11 +175,25 @@ export function AuthPage() {
               >
                 <div className="space-y-1.5">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <Input
+                    id="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={busy}>
                   {busy ? "Opening the archive…" : "Sign in"}
@@ -204,15 +212,35 @@ export function AuthPage() {
               >
                 <div className="space-y-1.5">
                   <Label htmlFor="name">Your name</Label>
-                  <Input id="name" required value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                  <Input
+                    id="name"
+                    required
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="email-up">Email</Label>
-                  <Input id="email-up" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    id="email-up"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="password-up">Password</Label>
-                  <Input id="password-up" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <Input
+                    id="password-up"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={busy}>
                   {busy ? "Creating your account…" : "Create account"}

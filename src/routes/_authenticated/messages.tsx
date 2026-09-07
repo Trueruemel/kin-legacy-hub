@@ -21,7 +21,10 @@ export const Route = createFileRoute("/_authenticated/messages")({
       { title: "Messages — Eternal — Memories" },
       { name: "description", content: "Private family group chats and one-to-one conversations." },
       { property: "og:title", content: "Messages — Eternal — Memories" },
-      { property: "og:description", content: "Keep the everyday conversation in the same place as the memories." },
+      {
+        property: "og:description",
+        content: "Keep the everyday conversation in the same place as the memories.",
+      },
     ],
   }),
   component: MessagesPage,
@@ -73,7 +76,12 @@ function DemoMessages() {
         <div className="hidden divide-y divide-border overflow-y-auto border-r border-border md:block">
           {familyChats.map((c) => {
             const last = allMessages.filter((m) => m.chatId === c.id).at(-1);
-            const other = c.kind === "direct" ? userById(c.participantIds.find((p) => p !== currentUserId) ?? c.participantIds[0]!) : null;
+            const other =
+              c.kind === "direct"
+                ? userById(
+                    c.participantIds.find((p) => p !== currentUserId) ?? c.participantIds[0]!,
+                  )
+                : null;
             return (
               <button
                 key={c.id}
@@ -107,7 +115,9 @@ function DemoMessages() {
             <div>
               <p className="font-display text-base font-semibold">{chat?.name}</p>
               <p className="text-xs text-muted-foreground">
-                {chat?.kind === "group" ? `${chat.participantIds.length} members` : "Direct message"}
+                {chat?.kind === "group"
+                  ? `${chat.participantIds.length} members`
+                  : "Direct message"}
               </p>
             </div>
           </div>
@@ -123,7 +133,11 @@ function DemoMessages() {
                     <AvatarFallback>{author.firstName[0]}</AvatarFallback>
                   </Avatar>
                   <div className={cn("max-w-[75%]", mine && "text-right")}>
-                    {!mine && <p className="mb-0.5 text-xs font-medium text-muted-foreground">{author.displayName}</p>}
+                    {!mine && (
+                      <p className="mb-0.5 text-xs font-medium text-muted-foreground">
+                        {author.displayName}
+                      </p>
+                    )}
                     <p
                       className={cn(
                         "inline-block rounded-2xl px-3.5 py-2 text-sm leading-relaxed",
@@ -132,7 +146,9 @@ function DemoMessages() {
                     >
                       {m.text}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{relativeTime(m.createdAt)}</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {relativeTime(m.createdAt)}
+                    </p>
                   </div>
                 </div>
               );

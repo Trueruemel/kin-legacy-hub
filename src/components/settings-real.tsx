@@ -158,7 +158,9 @@ export function RealSettings() {
             <Button
               variant="outline"
               disabled={
-                emailMutation.isPending || !email.includes("@") || email === (profile.data?.email ?? "")
+                emailMutation.isPending ||
+                !email.includes("@") ||
+                email === (profile.data?.email ?? "")
               }
               onClick={() => emailMutation.mutate()}
             >
@@ -220,12 +222,15 @@ export function RealSettings() {
         <Card className="mt-6 p-6">
           <h2 className="font-display text-xl font-semibold">Members</h2>
           <Separator className="my-4" />
-          {memberList.isLoading && <p className="text-sm text-muted-foreground">Loading members…</p>}
+          {memberList.isLoading && (
+            <p className="text-sm text-muted-foreground">Loading members…</p>
+          )}
           <div className="divide-y divide-border">
             {(memberList.data ?? []).map((member) => (
               <div key={member.userId} className="flex flex-wrap items-center gap-3 py-3">
                 <span className="flex-1 font-medium">
-                  {member.name}{member.isMe ? " (you)" : ""}
+                  {member.name}
+                  {member.isMe ? " (you)" : ""}
                 </span>
                 {canAdmin ? (
                   <Select
@@ -249,7 +254,9 @@ export function RealSettings() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <Badge variant="secondary" className="capitalize">{member.role}</Badge>
+                  <Badge variant="secondary" className="capitalize">
+                    {member.role}
+                  </Badge>
                 )}
                 {canAdmin && (
                   <Button

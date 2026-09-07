@@ -117,16 +117,18 @@ export function MemoryCard({ memory }: { memory: Memory }) {
             variant="ghost"
             size="sm"
             onClick={() => toggleReaction(memory.id, type)}
-            className={cn(
-              "flex-1 gap-1.5 text-xs",
-              memory.myReaction === type && "text-gold",
-            )}
+            className={cn("flex-1 gap-1.5 text-xs", memory.myReaction === type && "text-gold")}
           >
             <Icon className={cn("size-4", memory.myReaction === type && "fill-gold/30")} />
             {label}
           </Button>
         ))}
-        <Button variant="ghost" size="sm" className="flex-1 gap-1.5 text-xs" onClick={() => toast.success("Shared with the family")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex-1 gap-1.5 text-xs"
+          onClick={() => toast.success("Shared with the family")}
+        >
           <Share2 className="size-4" />
           Share
         </Button>
@@ -144,7 +146,9 @@ export function MemoryCard({ memory }: { memory: Memory }) {
               <div className="min-w-0 flex-1 rounded-2xl bg-muted px-3 py-2">
                 <p className="text-xs font-semibold">{cAuthor.displayName}</p>
                 <p className="text-sm leading-relaxed text-foreground/90">{comment.text}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{relativeTime(comment.createdAt)}</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {relativeTime(comment.createdAt)}
+                </p>
               </div>
             </div>
           );

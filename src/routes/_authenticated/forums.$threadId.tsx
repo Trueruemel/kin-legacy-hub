@@ -27,15 +27,26 @@ export const Route = createFileRoute("/_authenticated/forums/$threadId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData?.thread) {
-      return { meta: [{ title: "Thread not found — Eternal — Memories" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [
+          { title: "Thread not found — Eternal — Memories" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
     }
     const { thread } = loaderData;
     return {
       meta: [
         { title: `${thread.title} — Family Forums` },
-        { name: "description", content: thread.posts[0]?.body.slice(0, 150) ?? "A family forum discussion." },
+        {
+          name: "description",
+          content: thread.posts[0]?.body.slice(0, 150) ?? "A family forum discussion.",
+        },
         { property: "og:title", content: `${thread.title} — Family Forums` },
-        { property: "og:description", content: thread.posts[0]?.body.slice(0, 150) ?? "A family forum discussion." },
+        {
+          property: "og:description",
+          content: thread.posts[0]?.body.slice(0, 150) ?? "A family forum discussion.",
+        },
       ],
     };
   },
@@ -78,7 +89,10 @@ function ThreadPage() {
 
   return (
     <AppLayout>
-      <Link to="/forums" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to="/forums"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="size-4" /> All forums
       </Link>
 
@@ -128,7 +142,12 @@ function ThreadPage() {
           onClick={() => {
             setReplies((r) => [
               ...r,
-              { id: `p_${Date.now()}`, authorId: "u_john", body: draft.trim(), createdAt: new Date().toISOString() },
+              {
+                id: `p_${Date.now()}`,
+                authorId: "u_john",
+                body: draft.trim(),
+                createdAt: new Date().toISOString(),
+              },
             ]);
             setDraft("");
             toast.success("Reply posted");

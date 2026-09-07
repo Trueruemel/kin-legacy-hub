@@ -9,7 +9,13 @@ export default defineTool({
   description: "List people recorded in a family's tree, newest first.",
   inputSchema: {
     familyId: z.string().uuid().describe("Family id from list_families."),
-    limit: z.number().int().min(1).max(100).optional().describe("Maximum people to return (default 25)."),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .optional()
+      .describe("Maximum people to return (default 25)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ familyId, limit }, ctx) => {
@@ -33,6 +39,9 @@ export default defineTool({
       deathDate: p.death_date,
       birthPlace: p.birth_place,
     }));
-    return { content: [{ type: "text", text: JSON.stringify(people) }], structuredContent: { people } };
+    return {
+      content: [{ type: "text", text: JSON.stringify(people) }],
+      structuredContent: { people },
+    };
   },
 });

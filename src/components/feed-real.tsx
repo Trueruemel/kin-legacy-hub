@@ -12,7 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { addComment, createPost, listFeed, toggleReaction, type FeedPost } from "@/lib/feed.functions";
+import {
+  addComment,
+  createPost,
+  listFeed,
+  toggleReaction,
+  type FeedPost,
+} from "@/lib/feed.functions";
 import { formatBytes } from "@/lib/file-upload";
 import { relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -70,9 +76,17 @@ function PostCard({ post, familyId }: { post: FeedPost; familyId: string }) {
       <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed">{post.text}</p>
 
       {post.photos.length > 0 && (
-        <div className={cn("mt-3 grid gap-1", post.photos.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+        <div
+          className={cn("mt-3 grid gap-1", post.photos.length > 1 ? "grid-cols-2" : "grid-cols-1")}
+        >
           {post.photos.map((url) => (
-            <img key={url} src={url} alt="" loading="lazy" className="w-full rounded-lg object-cover" />
+            <img
+              key={url}
+              src={url}
+              alt=""
+              loading="lazy"
+              className="w-full rounded-lg object-cover"
+            />
           ))}
         </div>
       )}
@@ -126,7 +140,13 @@ function PostCard({ post, familyId }: { post: FeedPost; familyId: string }) {
           placeholder="Write a comment…"
           aria-label="Write a comment"
         />
-        <Button type="submit" size="icon" aria-label="Send comment" className="min-h-11 min-w-11" disabled={!draft.trim() || commentMutation.isPending}>
+        <Button
+          type="submit"
+          size="icon"
+          aria-label="Send comment"
+          className="min-h-11 min-w-11"
+          disabled={!draft.trim() || commentMutation.isPending}
+        >
           <Send className="size-4" />
         </Button>
       </form>
@@ -143,7 +163,10 @@ export function RealFeed({ familyId, familyName }: { familyId: string; familyNam
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const feed = useQuery({ queryKey: ["feed", familyId], queryFn: () => list({ data: { familyId } }) });
+  const feed = useQuery({
+    queryKey: ["feed", familyId],
+    queryFn: () => list({ data: { familyId } }),
+  });
 
   const postMutation = useMutation({
     mutationFn: () => post({ data: { familyId, text: text.trim(), photos } }),

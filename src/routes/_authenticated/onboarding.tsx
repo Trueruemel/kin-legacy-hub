@@ -77,7 +77,11 @@ function Onboarding() {
               </li>
             ))}
           </ul>
-          <Button className="mt-4 w-full" variant="outline" onClick={() => void navigate({ to: "/feed" })}>
+          <Button
+            className="mt-4 w-full"
+            variant="outline"
+            onClick={() => void navigate({ to: "/feed" })}
+          >
             Open the archive
           </Button>
         </Card>

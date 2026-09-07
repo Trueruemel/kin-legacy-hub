@@ -1,6 +1,5 @@
 import { auth, defineMcp } from "@lovable.dev/mcp-js";
 
-
 import listFamilies from "./tools/list-families";
 import listTreePeople from "./tools/list-tree-people";
 import listUpcomingEvents from "./tools/list-upcoming-events";
@@ -8,7 +7,7 @@ import createEvent from "./tools/create-event";
 
 // The OAuth issuer must be the direct Supabase host; the project ref is the only
 // value that survives publish unchanged, and Vite inlines it at build time.
-const projectRef = import.meta.env['VITE_SUPABASE_PROJECT_ID'] ?? "project-ref-unset";
+const projectRef = import.meta.env["VITE_SUPABASE_PROJECT_ID"] ?? "project-ref-unset";
 
 export default defineMcp({
   name: "remix-of-eternalmemorys",

@@ -100,9 +100,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
 
     const owners = (members ?? []).filter((m) => m.role === "owner");
     const target = (members ?? []).find((m) => m.user_id === data.userId);
-    const callerIsOwner = (members ?? []).some(
-      (m) => m.user_id === userId && m.role === "owner",
-    );
+    const callerIsOwner = (members ?? []).some((m) => m.user_id === userId && m.role === "owner");
     if (!target) throw new Error("That person is not in this family.");
     if ((data.role === "owner" || target.role === "owner") && !callerIsOwner) {
       throw new Error("Only the family owner can hand over or take away ownership.");
@@ -136,9 +134,7 @@ export const removeMember = createServerFn({ method: "POST" })
 
     const owners = (members ?? []).filter((m) => m.role === "owner");
     const target = (members ?? []).find((m) => m.user_id === data.userId);
-    const callerIsOwner = (members ?? []).some(
-      (m) => m.user_id === userId && m.role === "owner",
-    );
+    const callerIsOwner = (members ?? []).some((m) => m.user_id === userId && m.role === "owner");
     if (!target) return { ok: true };
     if (target.role === "owner" && data.userId !== userId && !callerIsOwner) {
       throw new Error("Only the family owner can remove another owner.");

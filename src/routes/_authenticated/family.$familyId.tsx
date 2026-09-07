@@ -102,13 +102,18 @@ function FamilyProfilePage() {
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
           <h2 className="font-display text-xl font-semibold">Members of this family</h2>
-          {members.isLoading && <p className="mt-4 text-sm text-muted-foreground">Loading members…</p>}
+          {members.isLoading && (
+            <p className="mt-4 text-sm text-muted-foreground">Loading members…</p>
+          )}
           {members.data && members.data.length === 0 && (
             <p className="mt-4 text-sm text-muted-foreground">Nobody else has joined yet.</p>
           )}
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {(members.data ?? []).map((m) => (
-              <li key={m.userId} className="flex items-center gap-3 rounded-lg border border-border p-3">
+              <li
+                key={m.userId}
+                className="flex items-center gap-3 rounded-lg border border-border p-3"
+              >
                 <Avatar className="size-10">
                   {m.avatarUrl && <AvatarImage src={m.avatarUrl} alt="" />}
                   <AvatarFallback>{m.name.slice(0, 1).toUpperCase()}</AvatarFallback>
@@ -145,10 +150,15 @@ function FamilyProfilePage() {
           <ul className="mt-4 space-y-3">
             {(data?.events ?? []).map((e) => (
               <li key={e.id} className="rounded-lg border border-border p-3">
-                <Badge variant="secondary" className="capitalize">{e.category}</Badge>
+                <Badge variant="secondary" className="capitalize">
+                  {e.category}
+                </Badge>
                 <p className="mt-2 text-sm font-medium">{e.title}</p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(e.startsAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                  {new Date(e.startsAt).toLocaleString(undefined, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
                 </p>
                 {e.location && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">

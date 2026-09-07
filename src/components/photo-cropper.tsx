@@ -104,7 +104,9 @@ export function PhotoCropper({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>Drag the photo to reposition it, then zoom to frame it.</DialogDescription>
+          <DialogDescription>
+            Drag the photo to reposition it, then zoom to frame it.
+          </DialogDescription>
         </DialogHeader>
 
         <div

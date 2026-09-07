@@ -14,7 +14,12 @@ export default defineTool({
     endsAt: z.string().optional().describe("Optional end time as an ISO 8601 timestamp."),
     location: z.string().trim().max(200).optional().describe("Optional location."),
     description: z.string().trim().max(2000).optional().describe("Optional details."),
-    category: z.string().trim().max(40).optional().describe("Optional category, e.g. birthday or reunion."),
+    category: z
+      .string()
+      .trim()
+      .max(40)
+      .optional()
+      .describe("Optional category, e.g. birthday or reunion."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
@@ -24,11 +29,17 @@ export default defineTool({
     if (!(await scopeAllowed(ctx, "events"))) return scopeDeniedResult("events");
     const startsAt = new Date(input.startsAt);
     if (Number.isNaN(startsAt.getTime())) {
-      return { content: [{ type: "text", text: "startsAt is not a valid timestamp" }], isError: true };
+      return {
+        content: [{ type: "text", text: "startsAt is not a valid timestamp" }],
+        isError: true,
+      };
     }
     const endsAt = input.endsAt ? new Date(input.endsAt) : null;
     if (endsAt && Number.isNaN(endsAt.getTime())) {
-      return { content: [{ type: "text", text: "endsAt is not a valid timestamp" }], isError: true };
+      return {
+        content: [{ type: "text", text: "endsAt is not a valid timestamp" }],
+        isError: true,
+      };
     }
 
     const supabase = supabaseForUser(ctx);

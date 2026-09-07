@@ -27,60 +27,58 @@ export type GalleryItem = {
 export const listGallery = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ familyId: z.string().uuid() }).parse(input))
-  .handler(
-    async ({ data, context }): Promise<{ albums: GalleryAlbum[]; items: GalleryItem[] }> => {
-      const { supabase } = context;
-      const [{ data: albums, error }, { data: media, error: mediaError }] = await Promise.all([
-        supabase
-          .from("albums")
-          .select("id, name, description, year")
-          .eq("family_id", data.familyId)
-          .order("year", { ascending: false, nullsFirst: false }),
-        supabase
-          .from("media_items")
-          .select(
-            "id, album_id, caption, storage_path, external_url, media_mime, taken_at, uploaded_by_name, ai_tags, transcript",
-          )
-          .eq("family_id", data.familyId)
-          .order("taken_at", { ascending: false })
-          .limit(300),
-      ]);
-      if (error) throw new Error(error.message);
-      if (mediaError) throw new Error(mediaError.message);
+  .handler(async ({ data, context }): Promise<{ albums: GalleryAlbum[]; items: GalleryItem[] }> => {
+    const { supabase } = context;
+    const [{ data: albums, error }, { data: media, error: mediaError }] = await Promise.all([
+      supabase
+        .from("albums")
+        .select("id, name, description, year")
+        .eq("family_id", data.familyId)
+        .order("year", { ascending: false, nullsFirst: false }),
+      supabase
+        .from("media_items")
+        .select(
+          "id, album_id, caption, storage_path, external_url, media_mime, taken_at, uploaded_by_name, ai_tags, transcript",
+        )
+        .eq("family_id", data.familyId)
+        .order("taken_at", { ascending: false })
+        .limit(300),
+    ]);
+    if (error) throw new Error(error.message);
+    if (mediaError) throw new Error(mediaError.message);
 
-      const paths = (media ?? []).map((m) => m.storage_path).filter((p): p is string => !!p);
-      const signedByPath = new Map<string, string>();
-      if (paths.length > 0) {
-        const { data: signed } = await supabase.storage.from("memories").createSignedUrls(paths, 900);
-        for (const entry of signed ?? []) {
-          if (entry.path && entry.signedUrl) signedByPath.set(entry.path, entry.signedUrl);
-        }
+    const paths = (media ?? []).map((m) => m.storage_path).filter((p): p is string => !!p);
+    const signedByPath = new Map<string, string>();
+    if (paths.length > 0) {
+      const { data: signed } = await supabase.storage.from("memories").createSignedUrls(paths, 900);
+      for (const entry of signed ?? []) {
+        if (entry.path && entry.signedUrl) signedByPath.set(entry.path, entry.signedUrl);
       }
+    }
 
-      const items: GalleryItem[] = (media ?? []).map((m) => ({
-        id: m.id,
-        albumId: m.album_id,
-        caption: m.caption,
-        url: m.storage_path ? (signedByPath.get(m.storage_path) ?? null) : m.external_url,
-        mime: m.media_mime,
-        takenAt: m.taken_at,
-        uploadedByName: m.uploaded_by_name,
-        aiTags: m.ai_tags ?? [],
-        transcript: m.transcript,
-      }));
+    const items: GalleryItem[] = (media ?? []).map((m) => ({
+      id: m.id,
+      albumId: m.album_id,
+      caption: m.caption,
+      url: m.storage_path ? (signedByPath.get(m.storage_path) ?? null) : m.external_url,
+      mime: m.media_mime,
+      takenAt: m.taken_at,
+      uploadedByName: m.uploaded_by_name,
+      aiTags: m.ai_tags ?? [],
+      transcript: m.transcript,
+    }));
 
-      return {
-        albums: (albums ?? []).map((a) => ({
-          id: a.id,
-          name: a.name,
-          description: a.description,
-          year: a.year,
-          count: items.filter((i) => i.albumId === a.id).length,
-        })),
-        items,
-      };
-    },
-  );
+    return {
+      albums: (albums ?? []).map((a) => ({
+        id: a.id,
+        name: a.name,
+        description: a.description,
+        year: a.year,
+        count: items.filter((i) => i.albumId === a.id).length,
+      })),
+      items,
+    };
+  });
 
 /** Creates an album. */
 export const createAlbum = createServerFn({ method: "POST" })
@@ -97,7 +95,10 @@ export const createAlbum = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const id = crypto.randomUUID();
-    const slug = `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${id.slice(0, 6)}`;
+    const slug = `${data.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")}-${id.slice(0, 6)}`;
     const { error } = await context.supabase.from("albums").insert({
       id,
       family_id: data.familyId,

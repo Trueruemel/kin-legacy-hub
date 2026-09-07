@@ -114,7 +114,11 @@ export function RealForums({ familyId }: { familyId: string }) {
         ))}
       </div>
 
-      {threads.isLoading && <Card className="p-8 text-center text-sm text-muted-foreground">Loading conversations…</Card>}
+      {threads.isLoading && (
+        <Card className="p-8 text-center text-sm text-muted-foreground">
+          Loading conversations…
+        </Card>
+      )}
 
       {!threads.isLoading && rows.length === 0 && (
         <Card className="p-8 text-center text-sm text-muted-foreground">
@@ -134,9 +138,12 @@ export function RealForums({ familyId }: { familyId: string }) {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   {thread.pinned && <Pin className="size-3.5 text-gold" />}
-                  <Badge variant="secondary" className="capitalize">{thread.category}</Badge>
+                  <Badge variant="secondary" className="capitalize">
+                    {thread.category}
+                  </Badge>
                   <span className="text-xs text-muted-foreground">
-                    started by {thread.authorName ?? "a family member"} · {relative(thread.createdAt)}
+                    started by {thread.authorName ?? "a family member"} ·{" "}
+                    {relative(thread.createdAt)}
                   </span>
                 </div>
                 <h2 className="mt-2 truncate font-display text-lg font-semibold">{thread.title}</h2>
@@ -199,7 +206,9 @@ export function RealForums({ familyId }: { familyId: string }) {
             </Button>
             <Button
               disabled={
-                createMutation.isPending || form.title.trim().length < 3 || form.body.trim().length < 2
+                createMutation.isPending ||
+                form.title.trim().length < 3 ||
+                form.body.trim().length < 2
               }
               onClick={() => createMutation.mutate()}
             >

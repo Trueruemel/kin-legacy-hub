@@ -13,9 +13,15 @@ export const Route = createFileRoute("/_authenticated/invite/$token")({
   head: () => ({
     meta: [
       { title: "Family invitation — Eternal — Memories" },
-      { name: "description", content: "Accept your invitation and join your family's private archive." },
+      {
+        name: "description",
+        content: "Accept your invitation and join your family's private archive.",
+      },
       { property: "og:title", content: "Family invitation — Eternal — Memories" },
-      { property: "og:description", content: "Someone kept a place for you in their family archive." },
+      {
+        property: "og:description",
+        content: "Someone kept a place for you in their family archive.",
+      },
     ],
   }),
   component: InvitePage,

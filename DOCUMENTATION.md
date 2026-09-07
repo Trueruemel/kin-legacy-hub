@@ -29,23 +29,23 @@ rendern alle Seiten die realen Komponenten (`*-real.tsx`).
 
 ## 2. Technischer Stack
 
-| Bereich | Umsetzung |
-| --- | --- |
-| Framework | TanStack Start v1 (React 19, SSR, Edge/Worker-Runtime) |
-| Routing | TanStack Router, dateibasiert unter `src/routes` |
-| Build | Vite 8 |
-| Styling | Tailwind CSS v4 (`src/styles.css`, semantische oklch-Tokens) |
-| UI | shadcn/ui + Radix, `lucide-react` |
-| Server-Logik | `createServerFn` (typisierte RPCs, Zod-validiert) |
-| Datenbank | Cloud-PostgreSQL, 26 Tabellen, durchgängig Row Level Security |
-| Object Storage | privater Bucket `memories`, kurzlebige signierte URLs |
-| Auth | E-Mail + Passwort, Google OAuth, HIBP-Check, Bereich `_authenticated/` |
-| E-Mail | React-Email-Templates, Versand über `notify.eternalmemorys.enterprises` |
-| Client-State | TanStack Query (echt) + Zustand (Demo) |
-| AI | Lovable AI Gateway (`google/gemini-2.5-flash`) für Vault-Stories |
-| Assistenten | `@lovable.dev/mcp-js` v2, OAuth 2.1 Resource Server unter `/mcp` |
-| Desktop | optionaler Electron-Wrapper (`electron/`), PWA-Manifest |
-| Sprache | TypeScript, Zod |
+| Bereich        | Umsetzung                                                               |
+| -------------- | ----------------------------------------------------------------------- |
+| Framework      | TanStack Start v1 (React 19, SSR, Edge/Worker-Runtime)                  |
+| Routing        | TanStack Router, dateibasiert unter `src/routes`                        |
+| Build          | Vite 8                                                                  |
+| Styling        | Tailwind CSS v4 (`src/styles.css`, semantische oklch-Tokens)            |
+| UI             | shadcn/ui + Radix, `lucide-react`                                       |
+| Server-Logik   | `createServerFn` (typisierte RPCs, Zod-validiert)                       |
+| Datenbank      | Cloud-PostgreSQL, 26 Tabellen, durchgängig Row Level Security           |
+| Object Storage | privater Bucket `memories`, kurzlebige signierte URLs                   |
+| Auth           | E-Mail + Passwort, Google OAuth, HIBP-Check, Bereich `_authenticated/`  |
+| E-Mail         | React-Email-Templates, Versand über `notify.eternalmemorys.enterprises` |
+| Client-State   | TanStack Query (echt) + Zustand (Demo)                                  |
+| AI             | Lovable AI Gateway (`google/gemini-2.5-flash`) für Vault-Stories        |
+| Assistenten    | `@lovable.dev/mcp-js` v2, OAuth 2.1 Resource Server unter `/mcp`        |
+| Desktop        | optionaler Electron-Wrapper (`electron/`), PWA-Manifest                 |
+| Sprache        | TypeScript, Zod                                                         |
 
 ---
 
@@ -78,11 +78,11 @@ Handler gelesen, niemals auf Modulebene.
 
 ### Ausstehende DNS-Einträge für den Mailversand (Zone `eternalmemorys.com`)
 
-| Typ | Name | Wert |
-| --- | --- | --- |
+| Typ | Name             | Wert                                                                                    |
+| --- | ---------------- | --------------------------------------------------------------------------------------- |
 | TXT | `_lovable-email` | `lovable_email_verify=75bd3763f2bd889ab60a9102afece4794af801bb5661f0686703754f28aabff1` |
-| NS | `notify` | `ns3.lovable.cloud` |
-| NS | `notify` | `ns4.lovable.cloud` |
+| NS  | `notify`         | `ns3.lovable.cloud`                                                                     |
+| NS  | `notify`         | `ns4.lovable.cloud`                                                                     |
 
 Solange diese Einträge fehlen, wird jede Mail (Einladung, Willkommen, Termin) korrekt erzeugt und
 protokolliert, aber nicht ausgeliefert.
@@ -139,18 +139,18 @@ bewusst öffentlichen RPCs für `authenticated`.
 
 ## 6. Datenmodell (26 Tabellen, `public`)
 
-| Bereich | Tabellen |
-| --- | --- |
-| Identität | `profiles`, `user_roles` |
-| Familie | `families`, `family_members`, `family_invitations` |
-| Stammbaum | `persons`, `relationships` |
-| Feed | `posts`, `post_comments`, `post_reactions`, `memories`, `memory_persons` |
-| Medien | `albums`, `media_items` |
-| Kalender | `events`, `event_rsvps` |
-| Kommunikation | `chats`, `chat_members`, `chat_messages`, `notifications` |
-| Community | `forum_threads`, `forum_posts`, `recipes` |
-| Nachlass | `vault_entries` |
-| Freigaben | `member_visibility`, `assistant_scopes` |
+| Bereich       | Tabellen                                                                 |
+| ------------- | ------------------------------------------------------------------------ |
+| Identität     | `profiles`, `user_roles`                                                 |
+| Familie       | `families`, `family_members`, `family_invitations`                       |
+| Stammbaum     | `persons`, `relationships`                                               |
+| Feed          | `posts`, `post_comments`, `post_reactions`, `memories`, `memory_persons` |
+| Medien        | `albums`, `media_items`                                                  |
+| Kalender      | `events`, `event_rsvps`                                                  |
+| Kommunikation | `chats`, `chat_members`, `chat_messages`, `notifications`                |
+| Community     | `forum_threads`, `forum_posts`, `recipes`                                |
+| Nachlass      | `vault_entries`                                                          |
+| Freigaben     | `member_visibility`, `assistant_scopes`                                  |
 
 Für jede Tabelle gilt: `GRANT` in derselben Migration, RLS aktiviert, Policies rollen- und
 familienbezogen. Zeitabhängige Regeln (z. B. Vault-Freigabedatum) laufen über Trigger, nicht über
@@ -160,22 +160,22 @@ CHECK-Constraints.
 
 ## 7. Funktionsumfang (echte Familien)
 
-| Route | Kernmodule | Funktion |
-| --- | --- | --- |
-| `/dashboard` | `lib/dashboard.functions.ts` | Übersicht: Mitglieder, Personen im Baum, Fotos, nächste Termine, letzte Beiträge, signierte Vorschaubilder |
-| `/setup` | `routes/_authenticated/setup.tsx` | Familien-Wizard: gründen, einladen, Personen + Fotos |
-| `/feed` | `components/feed-real.tsx`, `lib/feed.functions.ts` | Beiträge, Foto-Upload (privat, 15 MB), Reaktionen, Kommentare |
-| `/tree` | `components/tree-real.tsx`, `lib/tree.functions.ts` | Personen anlegen, Eltern-/Partner-Beziehungen, Porträt-Upload mit Zuschnitt |
-| `/gallery` | `components/gallery-real.tsx`, `lib/gallery.functions.ts` | Alben, Uploads bis 25 MB, Anzeige über signierte URLs, Lightbox |
-| `/calendar`, `/events/$id` | `components/calendar-real.tsx`, `lib/events.functions.ts` | Termine anlegen, bearbeiten, löschen, RSVP, „Teilen & erinnern" mit E-Mail |
-| `/vault` | `components/vault-real.tsx`, `lib/vault.functions.ts` | Zeitversiegelte Nachrichten mit Anhang, Countdown, Freigabe, AI-Story |
-| `/messages` | `components/messages-real.tsx`, `lib/messages.functions.ts` | Gruppen-/Direktchats, Polling (8 s), Mitgliedschaftsprüfung serverseitig |
-| `/forums`, `/forums/$id` | `components/forums-real.tsx`, `forum-thread-real.tsx` | Kategorien, Threads, Beiträge |
-| `/recipes` | `components/recipes-real.tsx`, `lib/recipes.functions.ts` | Familienrezepte mit Herkunftsgeschichte und Foto |
-| `/members` | `lib/members.functions.ts`, `components/member-visibility.tsx` | Mitglieder, Rollen, Einladungen, Sichtbarkeit pro Angehörigem |
-| `/settings` | `components/settings-real.tsx`, `lib/profile.functions.ts` | Profil, Anzeigename, Foto, Familienangaben |
-| `/profile/$userId` | `routes/_authenticated/profile.$userId.tsx` | Profilseite mit Lebenszeitleiste |
-| `/invite/$token` | `lib/invites.functions.ts` | Einladung ansehen und annehmen, Willkommensmail |
+| Route                      | Kernmodule                                                     | Funktion                                                                                                   |
+| -------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/dashboard`               | `lib/dashboard.functions.ts`                                   | Übersicht: Mitglieder, Personen im Baum, Fotos, nächste Termine, letzte Beiträge, signierte Vorschaubilder |
+| `/setup`                   | `routes/_authenticated/setup.tsx`                              | Familien-Wizard: gründen, einladen, Personen + Fotos                                                       |
+| `/feed`                    | `components/feed-real.tsx`, `lib/feed.functions.ts`            | Beiträge, Foto-Upload (privat, 15 MB), Reaktionen, Kommentare                                              |
+| `/tree`                    | `components/tree-real.tsx`, `lib/tree.functions.ts`            | Personen anlegen, Eltern-/Partner-Beziehungen, Porträt-Upload mit Zuschnitt                                |
+| `/gallery`                 | `components/gallery-real.tsx`, `lib/gallery.functions.ts`      | Alben, Uploads bis 25 MB, Anzeige über signierte URLs, Lightbox                                            |
+| `/calendar`, `/events/$id` | `components/calendar-real.tsx`, `lib/events.functions.ts`      | Termine anlegen, bearbeiten, löschen, RSVP, „Teilen & erinnern" mit E-Mail                                 |
+| `/vault`                   | `components/vault-real.tsx`, `lib/vault.functions.ts`          | Zeitversiegelte Nachrichten mit Anhang, Countdown, Freigabe, AI-Story                                      |
+| `/messages`                | `components/messages-real.tsx`, `lib/messages.functions.ts`    | Gruppen-/Direktchats, Polling (8 s), Mitgliedschaftsprüfung serverseitig                                   |
+| `/forums`, `/forums/$id`   | `components/forums-real.tsx`, `forum-thread-real.tsx`          | Kategorien, Threads, Beiträge                                                                              |
+| `/recipes`                 | `components/recipes-real.tsx`, `lib/recipes.functions.ts`      | Familienrezepte mit Herkunftsgeschichte und Foto                                                           |
+| `/members`                 | `lib/members.functions.ts`, `components/member-visibility.tsx` | Mitglieder, Rollen, Einladungen, Sichtbarkeit pro Angehörigem                                              |
+| `/settings`                | `components/settings-real.tsx`, `lib/profile.functions.ts`     | Profil, Anzeigename, Foto, Familienangaben                                                                 |
+| `/profile/$userId`         | `routes/_authenticated/profile.$userId.tsx`                    | Profilseite mit Lebenszeitleiste                                                                           |
+| `/invite/$token`           | `lib/invites.functions.ts`                                     | Einladung ansehen und annehmen, Willkommensmail                                                            |
 
 Gemeinsame Hilfsmittel: `components/photo-cropper.tsx` (Zuschnitt vor dem Upload),
 `lib/file-upload.ts`, `components/lightbox.tsx`, `components/install-app.tsx` (PWA-Installation).
@@ -206,16 +206,16 @@ Acht gebrandete Templates unter `src/lib/email-templates/`. Die sechs Auth-Templ
 `src/routes/lovable/email/auth/webhook.ts` gerendert; die zwei transaktionalen Templates (`family-welcome`,
 `event-invite`) sind in `registry.ts` registriert und werden über `send-email.ts` versendet:
 
-| Template | Auslöser |
-| --- | --- |
-| `signup` | Registrierung bestätigen |
-| `magic-link` | Anmeldelink |
-| `recovery` | Passwort zurücksetzen |
-| `email-change` | E-Mail-Adresse ändern |
-| `reauthentication` | erneute Bestätigung |
-| `invite` | Familieneinladung |
-| `family-welcome` | neues Mitglied ist beigetreten (Links zu Baum und Kalender) |
-| `event-invite` | Termin-Einladung und Erinnerung |
+| Template           | Auslöser                                                    |
+| ------------------ | ----------------------------------------------------------- |
+| `signup`           | Registrierung bestätigen                                    |
+| `magic-link`       | Anmeldelink                                                 |
+| `recovery`         | Passwort zurücksetzen                                       |
+| `email-change`     | E-Mail-Adresse ändern                                       |
+| `reauthentication` | erneute Bestätigung                                         |
+| `invite`           | Familieneinladung                                           |
+| `family-welcome`   | neues Mitglied ist beigetreten (Links zu Baum und Kalender) |
+| `event-invite`     | Termin-Einladung und Erinnerung                             |
 
 Ablauf einer Einladung: Erstellung auf `/members` mit Adresse und Rolle → persönlicher Token-Link,
 30 Tage gültig, fest an die Adresse gebunden → „Copy link" oder Versand per Mail → Annahme über
@@ -240,12 +240,12 @@ Massen-Adressauflösung über Profile, weil Mitglieder untereinander keine E-Mai
   als angemeldete Person. Kein Service-Role-Key im MCP-Pfad.
 - Tools:
 
-| Tool | Zweck |
-| --- | --- |
-| `list_families` | Familien der angemeldeten Person |
-| `list_tree_people` | Personen im Stammbaum (Freigabe „Baum" nötig) |
-| `list_upcoming_events` | kommende Termine (Freigabe „Termine" nötig) |
-| `create_event` | neuen Termin anlegen (Freigabe „Termine" nötig) |
+| Tool                   | Zweck                                           |
+| ---------------------- | ----------------------------------------------- |
+| `list_families`        | Familien der angemeldeten Person                |
+| `list_tree_people`     | Personen im Stammbaum (Freigabe „Baum" nötig)   |
+| `list_upcoming_events` | kommende Termine (Freigabe „Termine" nötig)     |
+| `create_event`         | neuen Termin anlegen (Freigabe „Termine" nötig) |
 
 Verifiziert: `/mcp` ohne Token → 401, Consent- und Discovery-Route → 200. Nutzbar für Claude,
 ChatGPT & Co., sobald die App veröffentlicht ist.

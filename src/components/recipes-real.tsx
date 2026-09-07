@@ -111,7 +111,11 @@ export function RealRecipes({ familyId }: { familyId: string }) {
         }
       />
       <p role="status" aria-live="polite" className="sr-only">
-        {createMutation.isPending ? "Saving recipe" : deleteMutation.isPending ? "Deleting recipe" : ""}
+        {createMutation.isPending
+          ? "Saving recipe"
+          : deleteMutation.isPending
+            ? "Deleting recipe"
+            : ""}
       </p>
 
       {recipes.isLoading && (

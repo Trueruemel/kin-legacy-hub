@@ -30,9 +30,15 @@ export const Route = createFileRoute("/_authenticated/gallery")({
   head: () => ({
     meta: [
       { title: "Media Gallery — Eternal — Memories" },
-      { name: "description", content: "Albums of family photos, scanned archives and everyday moments in one place." },
+      {
+        name: "description",
+        content: "Albums of family photos, scanned archives and everyday moments in one place.",
+      },
       { property: "og:title", content: "Media Gallery — Eternal — Memories" },
-      { property: "og:description", content: "Browse the family photo archive by album, year and storyteller." },
+      {
+        property: "og:description",
+        content: "Browse the family photo archive by album, year and storyteller.",
+      },
     ],
   }),
   component: GalleryPage,
@@ -71,7 +77,10 @@ function DemoGallery() {
   const generateStory = useAppStore((s) => s.generateStory);
 
   const albums = useMemo(() => allAlbums.filter((a) => a.familyId === familyId), [familyId]);
-  const media = useMemo(() => allMedia.filter((m) => m.familyId === familyId), [allMedia, familyId]);
+  const media = useMemo(
+    () => allMedia.filter((m) => m.familyId === familyId),
+    [allMedia, familyId],
+  );
 
   const [albumId, setAlbumId] = useState<string | null>(null);
   const [index, setIndex] = useState<number | null>(null);
@@ -138,7 +147,11 @@ function DemoGallery() {
       />
 
       <div className="mb-6 flex flex-wrap gap-2">
-        <Button variant={albumId === null ? "default" : "outline"} size="sm" onClick={() => setAlbumId(null)}>
+        <Button
+          variant={albumId === null ? "default" : "outline"}
+          size="sm"
+          onClick={() => setAlbumId(null)}
+        >
           All media
         </Button>
         {albums.map((album) => (
@@ -192,7 +205,9 @@ function DemoGallery() {
                 </p>
                 {item.url && <audio controls src={item.url} className="mt-3 w-full" />}
                 {item.transcript && (
-                  <p className="mt-3 line-clamp-4 text-xs text-muted-foreground">{item.transcript}</p>
+                  <p className="mt-3 line-clamp-4 text-xs text-muted-foreground">
+                    {item.transcript}
+                  </p>
                 )}
               </Card>
             );
@@ -241,7 +256,9 @@ function DemoGallery() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display text-xl">The story of this collection</DialogTitle>
-            <DialogDescription>Written by AI from the captions, tags and voice memos in the archive.</DialogDescription>
+            <DialogDescription>
+              Written by AI from the captions, tags and voice memos in the archive.
+            </DialogDescription>
           </DialogHeader>
           <div className="whitespace-pre-line rounded-xl border bg-muted/40 p-5 text-sm leading-relaxed">
             {story}
@@ -277,7 +294,9 @@ function DemoGallery() {
                 onChange={(e) => {
                   const selected = e.target.files?.[0] ?? null;
                   if (selected && selected.size > MAX_MEDIA_BYTES) {
-                    toast.error(`That file is ${formatBytes(selected.size)} — the demo limit is 6 MB.`);
+                    toast.error(
+                      `That file is ${formatBytes(selected.size)} — the demo limit is 6 MB.`,
+                    );
                     e.target.value = "";
                     return;
                   }
@@ -285,7 +304,9 @@ function DemoGallery() {
                 }}
               />
               <p className="text-xs text-muted-foreground">
-                {file ? `${file.name} · ${formatBytes(file.size)}` : "Up to 6 MB. Stored privately, never public."}
+                {file
+                  ? `${file.name} · ${formatBytes(file.size)}`
+                  : "Up to 6 MB. Stored privately, never public."}
               </p>
             </div>
             {albumId && (
@@ -295,7 +316,9 @@ function DemoGallery() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setUploadOpen(false)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => setUploadOpen(false)}>
+              Cancel
+            </Button>
             <Button disabled={uploading || !file} onClick={runUpload}>
               {uploading ? "Uploading & analysing…" : "Upload"}
             </Button>

@@ -129,7 +129,11 @@ export const acceptInvite = createServerFn({ method: "POST" })
       const origin = new URL(getRequest()!.url).origin;
 
       const [{ data: family }, { data: profile }] = await Promise.all([
-        context.supabase.from("families").select("name").eq("id", familyId as string).maybeSingle(),
+        context.supabase
+          .from("families")
+          .select("name")
+          .eq("id", familyId as string)
+          .maybeSingle(),
         context.supabase
           .from("profiles")
           .select("display_name")
@@ -158,4 +162,3 @@ export const acceptInvite = createServerFn({ method: "POST" })
 
     return { familyId: familyId as string };
   });
-

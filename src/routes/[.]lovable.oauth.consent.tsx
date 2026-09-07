@@ -33,7 +33,8 @@ function oauth(): OAuthNamespace {
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>) => ({
-    authorization_id: typeof search['authorization_id'] === "string" ? search['authorization_id'] : "",
+    authorization_id:
+      typeof search["authorization_id"] === "string" ? search["authorization_id"] : "",
   }),
   beforeLoad: async ({ search, location }) => {
     if (!search.authorization_id) throw new Error("Missing authorization_id");
@@ -63,9 +64,21 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
 });
 
 const AREAS = [
-  { key: "tree" as const, label: "Family tree", hint: "Names, birth dates and places of the people in your tree." },
-  { key: "photos" as const, label: "Photos", hint: "Captions and details of photos in your gallery." },
-  { key: "events" as const, label: "Calendar & events", hint: "Upcoming gatherings, and adding new ones for you." },
+  {
+    key: "tree" as const,
+    label: "Family tree",
+    hint: "Names, birth dates and places of the people in your tree.",
+  },
+  {
+    key: "photos" as const,
+    label: "Photos",
+    hint: "Captions and details of photos in your gallery.",
+  },
+  {
+    key: "events" as const,
+    label: "Calendar & events",
+    hint: "Upcoming gatherings, and adding new ones for you.",
+  },
 ];
 
 function Consent() {

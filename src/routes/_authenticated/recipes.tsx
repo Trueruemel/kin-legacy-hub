@@ -19,9 +19,15 @@ export const Route = createFileRoute("/_authenticated/recipes")({
   head: () => ({
     meta: [
       { title: "Family Recipes — Eternal — Memories" },
-      { name: "description", content: "Handwritten family recipes with the stories behind each one." },
+      {
+        name: "description",
+        content: "Handwritten family recipes with the stories behind each one.",
+      },
       { property: "og:title", content: "Family Recipes — Eternal — Memories" },
-      { property: "og:description", content: "The dishes that make your family a family, written down at last." },
+      {
+        property: "og:description",
+        content: "The dishes that make your family a family, written down at last.",
+      },
     ],
   }),
   component: RecipesPage,
@@ -32,7 +38,9 @@ function RecipesPage() {
   if (loading) {
     return (
       <AppLayout>
-        <p className="py-24 text-center text-sm text-muted-foreground">Opening the family kitchen…</p>
+        <p className="py-24 text-center text-sm text-muted-foreground">
+          Opening the family kitchen…
+        </p>
       </AppLayout>
     );
   }
@@ -45,7 +53,6 @@ function RecipesPage() {
   }
   return <DemoRecipesPage />;
 }
-
 
 function DemoRecipesPage() {
   const familyId = useAppStore((s) => s.activeFamilyId);
@@ -73,14 +80,25 @@ function DemoRecipesPage() {
               className="card-lift cursor-pointer overflow-hidden p-0"
               onClick={() => setOpen(recipe)}
             >
-              <img src={recipe.photoUrl} alt={recipe.title} loading="lazy" className="aspect-4/3 w-full object-cover" />
+              <img
+                src={recipe.photoUrl}
+                alt={recipe.title}
+                loading="lazy"
+                className="aspect-4/3 w-full object-cover"
+              />
               <div className="p-4">
                 <h2 className="font-display text-lg font-semibold">{recipe.title}</h2>
                 <p className="text-xs text-muted-foreground">From {author.displayName}</p>
                 <p className="mt-2 line-clamp-2 text-sm text-foreground/85">{recipe.originStory}</p>
                 <div className="mt-3 flex gap-2">
-                  <Badge variant="secondary"><Clock className="mr-1 size-3" />{recipe.minutes} min</Badge>
-                  <Badge variant="secondary"><Users className="mr-1 size-3" />Serves {recipe.servings}</Badge>
+                  <Badge variant="secondary">
+                    <Clock className="mr-1 size-3" />
+                    {recipe.minutes} min
+                  </Badge>
+                  <Badge variant="secondary">
+                    <Users className="mr-1 size-3" />
+                    Serves {recipe.servings}
+                  </Badge>
                 </div>
               </div>
             </Card>
@@ -95,7 +113,11 @@ function DemoRecipesPage() {
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl">{open.title}</DialogTitle>
               </DialogHeader>
-              <img src={open.photoUrl} alt={open.title} className="aspect-16/9 w-full rounded-lg object-cover" />
+              <img
+                src={open.photoUrl}
+                alt={open.title}
+                className="aspect-16/9 w-full rounded-lg object-cover"
+              />
               <p className="rounded-lg bg-muted/60 p-4 text-sm italic leading-relaxed text-foreground/85">
                 {open.originStory}
               </p>
@@ -122,7 +144,10 @@ function DemoRecipesPage() {
                   </ol>
                 </div>
               </div>
-              <Button variant="outline" onClick={() => toast.success("Recipe card sent to printer")}>
+              <Button
+                variant="outline"
+                onClick={() => toast.success("Recipe card sent to printer")}
+              >
                 <Printer className="size-4" /> Print recipe card
               </Button>
             </>

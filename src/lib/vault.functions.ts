@@ -170,7 +170,9 @@ export const vaultStory = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ story: string }> => {
     const { data: entry, error } = await context.supabase
       .from("vault_entries")
-      .select("title, content, transcript, release_rule, release_on, released, sealed_by_name, recipient_names")
+      .select(
+        "title, content, transcript, release_rule, release_on, released, sealed_by_name, recipient_names",
+      )
       .eq("id", data.entryId)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -208,7 +210,8 @@ export const vaultStory = createServerFn({ method: "POST" })
         ],
       }),
     });
-    if (response.status === 429) throw new Error("Too many requests right now — try again in a minute.");
+    if (response.status === 429)
+      throw new Error("Too many requests right now — try again in a minute.");
     if (!response.ok) throw new Error("The story writer is unavailable.");
     const payload = (await response.json()) as {
       choices?: { message?: { content?: string } }[];

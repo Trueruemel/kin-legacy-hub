@@ -54,10 +54,7 @@ export const listFeed = createServerFn({ method: "GET" })
     ]);
 
     const authorIds = [
-      ...new Set([
-        ...posts.map((p) => p.author_id),
-        ...(comments ?? []).map((c) => c.author_id),
-      ]),
+      ...new Set([...posts.map((p) => p.author_id), ...(comments ?? []).map((c) => c.author_id)]),
     ];
     const { data: profiles } = await supabase
       .from("profiles")

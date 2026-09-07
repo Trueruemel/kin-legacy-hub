@@ -18,15 +18,35 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <svg viewBox="0 0 120 120" className="mx-auto size-32 text-muted-foreground" aria-hidden="true">
-          <circle cx="60" cy="60" r="46" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.3" />
-          <path d="M60 96V44M60 44l-18-14M60 44l18-14M60 66l-22-16M60 66l22-16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.55" />
+        <svg
+          viewBox="0 0 120 120"
+          className="mx-auto size-32 text-muted-foreground"
+          aria-hidden="true"
+        >
+          <circle
+            cx="60"
+            cy="60"
+            r="46"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            opacity="0.3"
+          />
+          <path
+            d="M60 96V44M60 44l-18-14M60 44l18-14M60 66l-22-16M60 66l22-16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity="0.55"
+          />
         </svg>
         <h1 className="mt-6 font-display text-3xl font-semibold text-foreground">
           This memory couldn't be found
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for isn't in the archive — it may have been moved or never existed.
+          The page you're looking for isn't in the archive — it may have been moved or never
+          existed.
         </p>
         <div className="mt-6">
           <Link
@@ -134,8 +154,7 @@ function RootComponent() {
   useEffect(() => {
     const stored = window.localStorage.getItem("em.theme");
     const prefersDark =
-      stored === "dark" ||
-      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
     setTheme(prefersDark ? "dark" : "light");
   }, [setTheme]);
 

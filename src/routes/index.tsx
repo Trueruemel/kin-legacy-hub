@@ -29,9 +29,21 @@ export const Route = createFileRoute("/")({
 });
 
 const marketing = [
-  { icon: Users2, title: "A living family tree", text: "Four generations, one canvas — every branch clickable, every story attached." },
-  { icon: Heart, title: "Memories that stay warm", text: "A private feed built for grandparents and grandchildren alike." },
-  { icon: LockKeyhole, title: "Time-locked legacy vault", text: "Seal letters and videos to open on a birthday, a wedding, or after you're gone." },
+  {
+    icon: Users2,
+    title: "A living family tree",
+    text: "Four generations, one canvas — every branch clickable, every story attached.",
+  },
+  {
+    icon: Heart,
+    title: "Memories that stay warm",
+    text: "A private feed built for grandparents and grandchildren alike.",
+  },
+  {
+    icon: LockKeyhole,
+    title: "Time-locked legacy vault",
+    text: "Seal letters and videos to open on a birthday, a wedding, or after you're gone.",
+  },
 ];
 
 function LandingPage() {
@@ -60,8 +72,8 @@ function LandingPage() {
               Your family's story, preserved forever.
             </h1>
             <p className="mt-4 text-lg text-white/75">
-              Private by design. Invite-only. Built so the youngest and the oldest in your family can
-              both find their way around.
+              Private by design. Invite-only. Built so the youngest and the oldest in your family
+              can both find their way around.
             </p>
             <ul className="mt-10 space-y-5">
               {marketing.map(({ icon: Icon, title, text }) => (
@@ -94,9 +106,7 @@ function LandingPage() {
 
           <Card className="mt-8 p-6 lg:mt-0">
             <h2 className="font-display text-2xl font-semibold">Welcome back</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Sign in to your family archive.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Sign in to your family archive.</p>
             <div className="mt-6 space-y-3">
               <Button className="w-full" onClick={() => void navigate({ to: "/auth" })}>
                 Sign in

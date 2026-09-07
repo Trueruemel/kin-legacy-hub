@@ -14,9 +14,15 @@ export const Route = createFileRoute("/_authenticated/forums/")({
   head: () => ({
     meta: [
       { title: "Family Forums — Eternal — Memories" },
-      { name: "description", content: "Recipes, traditions, genealogy research and advice from the elders." },
+      {
+        name: "description",
+        content: "Recipes, traditions, genealogy research and advice from the elders.",
+      },
       { property: "og:title", content: "Family Forums — Eternal — Memories" },
-      { property: "og:description", content: "The family knowledge base: recipes, traditions, research and advice." },
+      {
+        property: "og:description",
+        content: "The family knowledge base: recipes, traditions, research and advice.",
+      },
     ],
   }),
   component: ForumsPage,
@@ -42,7 +48,6 @@ function ForumsPage() {
   }
   return <DemoForumsPage />;
 }
-
 
 function DemoForumsPage() {
   const familyId = useAppStore((s) => s.activeFamilyId);
@@ -88,7 +93,8 @@ function DemoForumsPage() {
                       <span className="min-w-0 flex-1">
                         <span className="block font-medium">{thread.title}</span>
                         <span className="block text-xs text-muted-foreground">
-                          Started by {author.displayName} · last reply {relativeTime(last.createdAt)}
+                          Started by {author.displayName} · last reply{" "}
+                          {relativeTime(last.createdAt)}
                         </span>
                       </span>
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">

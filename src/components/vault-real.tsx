@@ -1,6 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, FileText, LockKeyhole, Mic, Paperclip, Plus, Sparkles, Unlock, Video, X } from "lucide-react";
+import {
+  Download,
+  FileText,
+  LockKeyhole,
+  Mic,
+  Paperclip,
+  Plus,
+  Sparkles,
+  Unlock,
+  Video,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -135,7 +146,12 @@ function VaultStory({ item }: { item: RealVaultItem }) {
           {text}
         </div>
       ) : (
-        <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={mutation.isPending}
+          onClick={() => mutation.mutate()}
+        >
           <Sparkles className="size-4" /> {mutation.isPending ? "Writing…" : "Retell as a story"}
         </Button>
       )}
@@ -144,7 +160,6 @@ function VaultStory({ item }: { item: RealVaultItem }) {
 }
 
 export function RealVault({
-
   familyId,
   sealedByName,
   currentUserId,
@@ -207,9 +222,10 @@ export function RealVault({
       if (file) {
         const safeName = file.name.replace(/[^\w.\-]+/g, "_");
         const path = `${familyId}/vault/${id}/${safeName}`;
-        const { error } = await supabase.storage
-          .from("memories")
-          .upload(path, file, { contentType: file.type || "application/octet-stream", upsert: false });
+        const { error } = await supabase.storage.from("memories").upload(path, file, {
+          contentType: file.type || "application/octet-stream",
+          upsert: false,
+        });
         if (error) throw new Error(error.message);
         media = {
           path,
@@ -225,7 +241,11 @@ export function RealVault({
           title: form.title.trim(),
           content: form.content.trim(),
           releaseOn: form.releaseOn,
-          recipients: recipients.split(",").map((r) => r.trim()).filter(Boolean).slice(0, 10),
+          recipients: recipients
+            .split(",")
+            .map((r) => r.trim())
+            .filter(Boolean)
+            .slice(0, 10),
           sealedByName,
           media,
         },
@@ -275,7 +295,10 @@ export function RealVault({
           Stored in your family's private archive. Files and words are unreadable — even to us —
           until the moment you chose.
         </p>
-        <Button className="mt-6 bg-gold text-gold-foreground hover:bg-gold/90" onClick={() => setOpen(true)}>
+        <Button
+          className="mt-6 bg-gold text-gold-foreground hover:bg-gold/90"
+          onClick={() => setOpen(true)}
+        >
           <Plus className="size-4" /> Create a sealed item
         </Button>
       </div>
@@ -395,7 +418,6 @@ export function RealVault({
                   <VaultStory item={detail} />
                 </>
               ) : (
-
                 <div className="rounded-xl border border-gold/40 bg-gold/5 p-6 text-center">
                   <LockKeyhole className="mx-auto size-8 text-gold" />
                   <p className="mt-3 font-display text-lg">
@@ -403,7 +425,9 @@ export function RealVault({
                   </p>
                   {detail.releaseOn && (
                     <>
-                      <p className="mt-1 text-sm text-muted-foreground">{countdown(detail.releaseOn)}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {countdown(detail.releaseOn)}
+                      </p>
                       <p className="mt-1 font-mono text-lg tabular-nums text-gold">
                         {remaining(detail.releaseOn, now)}
                       </p>
@@ -428,10 +452,11 @@ export function RealVault({
 
               <AttachmentView item={detail} />
 
-
               <div className="text-sm">
                 <p className="font-medium">Recipients</p>
-                <p className="text-muted-foreground">{detail.recipients.join(", ") || "The family"}</p>
+                <p className="text-muted-foreground">
+                  {detail.recipients.join(", ") || "The family"}
+                </p>
               </div>
             </>
           )}
@@ -441,7 +466,9 @@ export function RealVault({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="font-display text-xl">Seal something for the future</DialogTitle>
+            <DialogTitle className="font-display text-xl">
+              Seal something for the future
+            </DialogTitle>
             <DialogDescription>Choose the moment it should open.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -509,7 +536,9 @@ export function RealVault({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
             <Button
               className="bg-gold text-gold-foreground hover:bg-gold/90"
               disabled={sealing}

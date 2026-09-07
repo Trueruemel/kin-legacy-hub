@@ -75,7 +75,6 @@ export const listTree = createServerFn({ method: "GET" })
     },
   );
 
-
 /** Adds a person to the family tree. */
 export const addPerson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -85,8 +84,14 @@ export const addPerson = createServerFn({ method: "POST" })
         familyId: z.string().uuid(),
         firstName: z.string().trim().min(1).max(80),
         lastName: z.string().trim().max(80).optional(),
-        birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-        deathDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        birthDate: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional(),
+        deathDate: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional(),
         birthPlace: z.string().trim().max(120).optional(),
         bio: z.string().trim().max(2000).optional(),
       })

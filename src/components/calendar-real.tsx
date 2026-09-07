@@ -37,7 +37,6 @@ import {
   type FamilyEvent,
 } from "@/lib/events.functions";
 
-
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const CATEGORIES = ["gathering", "birthday", "anniversary", "memorial", "trip", "other"] as const;
 
@@ -82,7 +81,6 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
   const remove = useServerFn(deleteEvent);
   const sendEmail = useServerFn(sendEventEmail);
   const rsvp = useServerFn(setEventRsvp);
-
 
   const calendar = useQuery({
     queryKey: ["events", familyId],
@@ -148,7 +146,9 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
       setEditingId(null);
       setForm(EMPTY_FORM);
       void invalidate();
-      toast.success(edited ? "Event updated for everyone." : "Event added to your family calendar.");
+      toast.success(
+        edited ? "Event updated for everyone." : "Event added to your family calendar.",
+      );
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -181,7 +181,6 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
     onError: (e: Error) => toast.error(e.message),
   });
 
-
   const rsvpMutation = useMutation({
     mutationFn: (vars: { eventId: string; response: "going" | "maybe" | "no" }) =>
       rsvp({ data: { familyId, ...vars } }),
@@ -194,7 +193,10 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  const cells = [
+    ...Array(firstDay).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
 
   const dayFor = (day: number) => {
     const target = new Date(year, month, day).toDateString();
@@ -231,7 +233,6 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               : ""}
       </p>
 
-
       <Tabs defaultValue="upcoming">
         <TabsList>
           <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
@@ -248,7 +249,9 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
           {events.map((event) => (
             <Card key={event.id} className="p-5">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="secondary" className="capitalize">{event.category}</Badge>
+                <Badge variant="secondary" className="capitalize">
+                  {event.category}
+                </Badge>
                 <span className="text-xs text-muted-foreground">
                   {new Date(event.startsAt).toLocaleString(undefined, {
                     dateStyle: "medium",
@@ -264,7 +267,9 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
                   <MapPin className="size-3.5" /> {event.location}
                 </p>
               )}
-              {event.description && <p className="mt-2 text-sm text-foreground/85">{event.description}</p>}
+              {event.description && (
+                <p className="mt-2 text-sm text-foreground/85">{event.description}</p>
+              )}
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 {(["going", "maybe", "no"] as const).map((r) => (
                   <Button
@@ -320,7 +325,9 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
             </div>
             <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                <div key={d} className="py-2">{d}</div>
+                <div key={d} className="py-2">
+                  {d}
+                </div>
               ))}
             </div>
             <div className="grid grid-cols-7 gap-1">
@@ -328,7 +335,10 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
                 if (day === null) return <div key={`empty-${i}`} className="min-h-20 rounded-lg" />;
                 const { events: evs, birthdays: bds } = dayFor(day);
                 return (
-                  <div key={day} className="min-h-20 rounded-lg border border-border p-1.5 text-left">
+                  <div
+                    key={day}
+                    className="min-h-20 rounded-lg border border-border p-1.5 text-left"
+                  >
                     <span className="text-xs font-medium text-muted-foreground">{day}</span>
                     {bds.map((b) => (
                       <span
@@ -374,7 +384,8 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
       </Tabs>
 
       <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-        <CalendarDays className="size-3.5" /> Events and RSVPs are shared privately with your family.
+        <CalendarDays className="size-3.5" /> Events and RSVPs are shared privately with your
+        family.
       </p>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -425,7 +436,9 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               <Label htmlFor="ev-category">Occasion</Label>
               <Select
                 value={form.category}
-                onValueChange={(value) => setForm({ ...form, category: value as (typeof CATEGORIES)[number] })}
+                onValueChange={(value) =>
+                  setForm({ ...form, category: value as (typeof CATEGORIES)[number] })
+                }
               >
                 <SelectTrigger id="ev-category">
                   <SelectValue />
@@ -471,8 +484,8 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              We email one relative at a time from notify.eternalmemorys.enterprises, with the date, place and a link
-              to this calendar.
+              We email one relative at a time from notify.eternalmemorys.enterprises, with the date,
+              place and a link to this calendar.
             </p>
             <div className="grid gap-2">
               <Label htmlFor="share-email">Their email</Label>
@@ -506,7 +519,11 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
               onClick={() => emailMutation.mutate()}
             >
               <Send className="size-4" />
-              {emailMutation.isPending ? "Sending…" : shareKind === "reminder" ? "Send reminder" : "Send invitation"}
+              {emailMutation.isPending
+                ? "Sending…"
+                : shareKind === "reminder"
+                  ? "Send reminder"
+                  : "Send invitation"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -514,4 +531,3 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
     </>
   );
 }
-

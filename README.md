@@ -10,14 +10,14 @@ Seed-Daten.
 
 ## Auf einen Blick
 
-| | |
-| --- | --- |
-| Stack | TanStack Start v1 (React 19, SSR), Vite 8, Tailwind v4, shadcn/ui |
-| Backend | Cloud-PostgreSQL mit RLS (26 Tabellen), privater Storage-Bucket `memories` |
-| Auth | E-Mail + Passwort, Google OAuth, HIBP-Check, geschützter Bereich `_authenticated/` |
-| E-Mail | 8 gebrandete Templates, Absenderdomain `notify.eternalmemorys.enterprises` |
-| Assistenten | `/mcp` mit OAuth 2.1 und 4 Tools, Freigabe pro Bereich |
-| Domain | `eternalmemorys.enterprises` |
+|             |                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------- |
+| Stack       | TanStack Start v1 (React 19, SSR), Vite 8, Tailwind v4, shadcn/ui                  |
+| Backend     | Cloud-PostgreSQL mit RLS (26 Tabellen), privater Storage-Bucket `memories`         |
+| Auth        | E-Mail + Passwort, Google OAuth, HIBP-Check, geschützter Bereich `_authenticated/` |
+| E-Mail      | 8 gebrandete Templates, Absenderdomain `notify.eternalmemorys.enterprises`         |
+| Assistenten | `/mcp` mit OAuth 2.1 und 4 Tools, Freigabe pro Bereich                             |
+| Domain      | `eternalmemorys.enterprises`                                                       |
 
 ## Kernbereiche
 

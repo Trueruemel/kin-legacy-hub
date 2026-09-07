@@ -1,16 +1,15 @@
-import type { ComponentType } from 'react'
+import type { ComponentType } from "react";
 
-import { template as eventInviteTemplate } from './event-invite'
-import { template as familyWelcomeTemplate } from './family-welcome'
-
+import { template as eventInviteTemplate } from "./event-invite";
+import { template as familyWelcomeTemplate } from "./family-welcome";
 
 export interface TemplateEntry {
-  component: ComponentType<any>
-  subject: string | ((data: Record<string, any>) => string)
-  displayName?: string
-  previewData?: Record<string, any>
+  component: ComponentType<any>;
+  subject: string | ((data: Record<string, any>) => string);
+  displayName?: string;
+  previewData?: Record<string, any>;
   /** Fixed recipient — overrides caller-provided recipientEmail when set. */
-  to?: string
+  to?: string;
 }
 
 /**
@@ -23,7 +22,6 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   // Add templates here as they are created, e.g.:
-  'family-welcome': familyWelcomeTemplate,
-  'event-invite': eventInviteTemplate,
-}
-
+  "family-welcome": familyWelcomeTemplate,
+  "event-invite": eventInviteTemplate,
+};

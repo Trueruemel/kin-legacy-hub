@@ -29,58 +29,60 @@ const RESPONSES = ["going", "maybe", "no"] as const;
 export const listEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ familyId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }): Promise<{ events: FamilyEvent[]; birthdays: BirthdayEntry[] }> => {
-    const { supabase, userId } = context;
-    const [{ data: events, error }, { data: rsvps, error: rsvpError }, { data: persons }] =
-      await Promise.all([
-        supabase
-          .from("events")
-          .select("id, title, description, starts_at, ends_at, location, category")
-          .eq("family_id", data.familyId)
-          .order("starts_at", { ascending: true }),
-        supabase
-          .from("event_rsvps")
-          .select("event_id, user_id, response")
-          .eq("family_id", data.familyId),
-        supabase
-          .from("persons")
-          .select("id, first_name, last_name, birth_date, death_date")
-          .eq("family_id", data.familyId)
-          .not("birth_date", "is", null)
-          .is("death_date", null),
-      ]);
-    if (error) throw new Error(error.message);
-    if (rsvpError) throw new Error(rsvpError.message);
+  .handler(
+    async ({ data, context }): Promise<{ events: FamilyEvent[]; birthdays: BirthdayEntry[] }> => {
+      const { supabase, userId } = context;
+      const [{ data: events, error }, { data: rsvps, error: rsvpError }, { data: persons }] =
+        await Promise.all([
+          supabase
+            .from("events")
+            .select("id, title, description, starts_at, ends_at, location, category")
+            .eq("family_id", data.familyId)
+            .order("starts_at", { ascending: true }),
+          supabase
+            .from("event_rsvps")
+            .select("event_id, user_id, response")
+            .eq("family_id", data.familyId),
+          supabase
+            .from("persons")
+            .select("id, first_name, last_name, birth_date, death_date")
+            .eq("family_id", data.familyId)
+            .not("birth_date", "is", null)
+            .is("death_date", null),
+        ]);
+      if (error) throw new Error(error.message);
+      if (rsvpError) throw new Error(rsvpError.message);
 
-    const all = rsvps ?? [];
-    return {
-      events: (events ?? []).map((e) => {
-        const mine = all.find((r) => r.event_id === e.id && r.user_id === userId);
-        const count = (response: string) =>
-          all.filter((r) => r.event_id === e.id && r.response === response).length;
-        return {
-          id: e.id,
-          title: e.title,
-          description: e.description,
-          startsAt: e.starts_at,
-          endsAt: e.ends_at,
-          location: e.location,
-          category: e.category ?? "gathering",
-          going: count("going"),
-          maybe: count("maybe"),
-          declined: count("no"),
-          myResponse: (mine?.response as "going" | "maybe" | "no" | undefined) ?? null,
-        };
-      }),
-      birthdays: (persons ?? [])
-        .filter((p): p is typeof p & { birth_date: string } => !!p.birth_date)
-        .map((p) => ({
-          personId: p.id,
-          name: [p.first_name, p.last_name].filter(Boolean).join(" "),
-          birthDate: p.birth_date,
-        })),
-    };
-  });
+      const all = rsvps ?? [];
+      return {
+        events: (events ?? []).map((e) => {
+          const mine = all.find((r) => r.event_id === e.id && r.user_id === userId);
+          const count = (response: string) =>
+            all.filter((r) => r.event_id === e.id && r.response === response).length;
+          return {
+            id: e.id,
+            title: e.title,
+            description: e.description,
+            startsAt: e.starts_at,
+            endsAt: e.ends_at,
+            location: e.location,
+            category: e.category ?? "gathering",
+            going: count("going"),
+            maybe: count("maybe"),
+            declined: count("no"),
+            myResponse: (mine?.response as "going" | "maybe" | "no" | undefined) ?? null,
+          };
+        }),
+        birthdays: (persons ?? [])
+          .filter((p): p is typeof p & { birth_date: string } => !!p.birth_date)
+          .map((p) => ({
+            personId: p.id,
+            name: [p.first_name, p.last_name].filter(Boolean).join(" "),
+            birthDate: p.birth_date,
+          })),
+      };
+    },
+  );
 
 /** Creates an event for the family. */
 export const createEvent = createServerFn({ method: "POST" })
@@ -259,4 +261,3 @@ export const sendEventEmail = createServerFn({ method: "POST" })
 
     return result.sent ? { sent: true } : { sent: false, reason: result.reason };
   });
-
