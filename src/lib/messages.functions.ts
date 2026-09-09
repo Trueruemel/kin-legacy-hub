@@ -129,7 +129,11 @@ export const createChat = createServerFn({ method: "POST" })
     const { error: memberError } = await supabase
       .from("chat_members")
       .insert(requested.map((id) => ({ chat_id: chatId, family_id: data.familyId, user_id: id })));
-    if (memberError) throwSafe(memberError, "createChat");
+    if (memberError) {
+      // Don't leave an empty, unusable chat behind when adding people fails.
+      await supabase.from("chats").delete().eq("id", chatId);
+      throwSafe(memberError, "createChat");
+    }
     return { id: chatId };
   });
 
