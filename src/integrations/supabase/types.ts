@@ -1202,6 +1202,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_chat_creator: { Args: { _chat_id: string }; Returns: boolean }
       is_chat_member: { Args: { _chat_id: string }; Returns: boolean }
       is_demo_family: { Args: { _family_id: string }; Returns: boolean }
       is_family_creator: { Args: { _family_id: string }; Returns: boolean }
