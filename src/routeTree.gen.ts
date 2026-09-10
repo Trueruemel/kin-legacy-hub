@@ -29,6 +29,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as AuthenticatedTreeRouteImport } from './routes/_authenticated/tree'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFamilyFamilyIdRouteImport } from './routes/_authenticated/family.$familyId'
@@ -142,6 +143,11 @@ const AuthenticatedVaultRoute = AuthenticatedVaultRouteImport.update({
   path: '/vault',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
@@ -226,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/vault': typeof AuthenticatedVaultRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/family/$familyId': typeof AuthenticatedFamilyFamilyIdRoute
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
   '/vault': typeof AuthenticatedVaultRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/family/$familyId': typeof AuthenticatedFamilyFamilyIdRoute
@@ -292,6 +300,7 @@ export interface FileRoutesById {
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/_authenticated/tree': typeof AuthenticatedTreeRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/family/$familyId': typeof AuthenticatedFamilyFamilyIdRoute
@@ -326,6 +335,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/tree'
     | '/vault'
+    | '/checkout/return'
     | '/.lovable/oauth/consent'
     | '/events/$eventId'
     | '/family/$familyId'
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/tree'
     | '/vault'
+    | '/checkout/return'
     | '/.lovable/oauth/consent'
     | '/events/$eventId'
     | '/family/$familyId'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/_authenticated/setup'
     | '/_authenticated/tree'
     | '/_authenticated/vault'
+    | '/checkout/return'
     | '/.lovable/oauth/consent'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/family/$familyId'
@@ -412,6 +424,7 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -561,6 +574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVaultRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
@@ -697,6 +717,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
