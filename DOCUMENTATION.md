@@ -164,22 +164,23 @@ CHECK-Constraints.
 
 ## 7. Funktionsumfang (echte Familien)
 
-| Route                      | Kernmodule                                                     | Funktion                                                                                                   |
-| -------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `/dashboard`               | `lib/dashboard.functions.ts`                                   | Übersicht: Mitglieder, Personen im Baum, Fotos, nächste Termine, letzte Beiträge, signierte Vorschaubilder |
-| `/setup`                   | `routes/_authenticated/setup.tsx`                              | Familien-Wizard: gründen, einladen, Personen + Fotos                                                       |
-| `/feed`                    | `components/feed-real.tsx`, `lib/feed.functions.ts`            | Beiträge, Foto-Upload (privat, 15 MB), Reaktionen, Kommentare                                              |
-| `/tree`                    | `components/tree-real.tsx`, `lib/tree.functions.ts`            | Personen anlegen, Eltern-/Partner-Beziehungen, Porträt-Upload mit Zuschnitt                                |
-| `/gallery`                 | `components/gallery-real.tsx`, `lib/gallery.functions.ts`      | Alben, Uploads bis 25 MB, Anzeige über signierte URLs, Lightbox                                            |
-| `/calendar`, `/events/$id` | `components/calendar-real.tsx`, `lib/events.functions.ts`      | Termine anlegen, bearbeiten, löschen, RSVP, „Teilen & erinnern" mit E-Mail                                 |
-| `/vault`                   | `components/vault-real.tsx`, `lib/vault.functions.ts`          | Zeitversiegelte Nachrichten mit Anhang, Countdown, Freigabe, AI-Story                                      |
-| `/messages`                | `components/messages-real.tsx`, `lib/messages.functions.ts`    | Gruppen-/Direktchats, Polling (8 s), Mitgliedschaftsprüfung serverseitig                                   |
-| `/forums`, `/forums/$id`   | `components/forums-real.tsx`, `forum-thread-real.tsx`          | Kategorien, Threads, Beiträge                                                                              |
-| `/recipes`                 | `components/recipes-real.tsx`, `lib/recipes.functions.ts`      | Familienrezepte mit Herkunftsgeschichte und Foto                                                           |
-| `/members`                 | `lib/members.functions.ts`, `components/member-visibility.tsx` | Mitglieder, Rollen, Einladungen, Sichtbarkeit pro Angehörigem                                              |
-| `/settings`                | `components/settings-real.tsx`, `lib/profile.functions.ts`     | Profil, Anzeigename, Foto, Familienangaben                                                                 |
-| `/profile/$userId`         | `routes/_authenticated/profile.$userId.tsx`                    | Profilseite mit Lebenszeitleiste                                                                           |
-| `/invite/$token`           | `lib/invites.functions.ts`                                     | Einladung ansehen und annehmen, Willkommensmail                                                            |
+| Route                      | Kernmodule                                                           | Funktion                                                                                                       |
+| -------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `/dashboard`               | `lib/dashboard.functions.ts`                                         | Übersicht: Mitglieder, Personen im Baum, Fotos, nächste Termine, letzte Beiträge, signierte Vorschaubilder     |
+| `/setup`                   | `routes/_authenticated/setup.tsx`                                    | Familien-Wizard: gründen, einladen, Personen + Fotos                                                           |
+| `/create-memory`           | `routes/_authenticated/create-memory.tsx`, `lib/memory.functions.ts` | Erste Erinnerung: Frage → Antwort (Text/Stimme) → Kontext → Speichern in `memories`, danach optional Einladung |
+| `/feed`                    | `components/feed-real.tsx`, `lib/feed.functions.ts`                  | Beiträge, Foto-Upload (privat, 15 MB), Reaktionen, Kommentare                                                  |
+| `/tree`                    | `components/tree-real.tsx`, `lib/tree.functions.ts`                  | Personen anlegen, Eltern-/Partner-Beziehungen, Porträt-Upload mit Zuschnitt                                    |
+| `/gallery`                 | `components/gallery-real.tsx`, `lib/gallery.functions.ts`            | Alben, Uploads bis 25 MB, Anzeige über signierte URLs, Lightbox                                                |
+| `/calendar`, `/events/$id` | `components/calendar-real.tsx`, `lib/events.functions.ts`            | Termine anlegen, bearbeiten, löschen, RSVP, „Teilen & erinnern" mit E-Mail                                     |
+| `/vault`                   | `components/vault-real.tsx`, `lib/vault.functions.ts`                | Zeitversiegelte Nachrichten mit Anhang, Countdown, Freigabe, AI-Story                                          |
+| `/messages`                | `components/messages-real.tsx`, `lib/messages.functions.ts`          | Gruppen-/Direktchats, Polling (8 s), Mitgliedschaftsprüfung serverseitig                                       |
+| `/forums`, `/forums/$id`   | `components/forums-real.tsx`, `forum-thread-real.tsx`                | Kategorien, Threads, Beiträge                                                                                  |
+| `/recipes`                 | `components/recipes-real.tsx`, `lib/recipes.functions.ts`            | Familienrezepte mit Herkunftsgeschichte und Foto                                                               |
+| `/members`                 | `lib/members.functions.ts`, `components/member-visibility.tsx`       | Mitglieder, Rollen, Einladungen, Sichtbarkeit pro Angehörigem                                                  |
+| `/settings`                | `components/settings-real.tsx`, `lib/profile.functions.ts`           | Profil, Anzeigename, Foto, Familienangaben                                                                     |
+| `/profile/$userId`         | `routes/_authenticated/profile.$userId.tsx`                          | Profilseite mit Lebenszeitleiste                                                                               |
+| `/invite/$token`           | `lib/invites.functions.ts`                                           | Einladung ansehen und annehmen, Willkommensmail                                                                |
 
 Gemeinsame Hilfsmittel: `components/photo-cropper.tsx` (Zuschnitt vor dem Upload),
 `lib/file-upload.ts`, `components/lightbox.tsx`, `components/install-app.tsx` (PWA-Installation).

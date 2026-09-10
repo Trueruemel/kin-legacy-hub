@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { lovable } from "@/integrations/lovable/index";
-import { isBetaAllowed } from "@/lib/access";
+import { BETA_LOCKED, isBetaAllowed } from "@/lib/access";
+import { AUTH_COPY } from "@/lib/eternal-copy";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -105,7 +106,8 @@ export function AuthPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/feed`,
+        // `next` is already restricted to an internal path by `sanitizeNext`.
+        emailRedirectTo: `${window.location.origin}${next ?? "/feed"}`,
         data: { display_name: displayName },
       },
     });
@@ -125,10 +127,16 @@ export function AuthPage() {
           <Wordmark className="text-primary dark:text-gold" />
         </Link>
 
-        <h1 className="mt-6 font-display text-2xl font-semibold">Sign in to Eternal — Memories</h1>
+        <h1 className="mt-6 font-display text-2xl font-semibold">{AUTH_COPY.signInTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Your family's private archive of memories, stories and heirlooms.
+          Your family's private archive of memories, stories and heirlooms. {AUTH_COPY.footnote}
         </p>
+
+        {BETA_LOCKED && !denied && (
+          <p className="mt-4 rounded-lg border border-border bg-muted/60 p-3 text-sm text-muted-foreground">
+            {AUTH_COPY.closedPreview}
+          </p>
+        )}
 
         {denied && (
           <p
@@ -202,7 +210,7 @@ export function AuthPage() {
             </TabsContent>
 
             <TabsContent value="signup" className="mt-6 space-y-4">
-              <h2 className="font-display text-2xl font-semibold">Start your archive</h2>
+              <h2 className="font-display text-xl font-semibold">{AUTH_COPY.signUpTitle}</h2>
               <form
                 className="space-y-4"
                 onSubmit={(e) => {
