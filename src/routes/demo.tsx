@@ -13,7 +13,9 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { Wordmark } from "@/components/brand";
+import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
+import { useInView } from "@/hooks/use-in-view";
 import {
   DEMO_FAMILY,
   DEMO_GENERATIONS,
@@ -55,6 +57,8 @@ const KIND_ICONS: Record<DemoMemory["kind"], LucideIcon> = {
 };
 
 export function DemoArchivePage() {
+  const cover = useInView<HTMLImageElement>();
+
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <a
@@ -95,9 +99,11 @@ export function DemoArchivePage() {
           aria-labelledby="demo-title"
         >
           <img
+            ref={cover.ref}
+            data-inview={cover.inView ? "true" : "false"}
             src={DEMO_FAMILY.coverUrl}
             alt={DEMO_FAMILY.coverAlt}
-            className="absolute inset-0 size-full object-cover opacity-30"
+            className="reveal-zoom absolute inset-0 size-full object-cover [--reveal-opacity:0.3]"
             width={1600}
             height={1067}
           />
@@ -105,7 +111,7 @@ export function DemoArchivePage() {
             className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/80 to-navy-deep/40"
             aria-hidden="true"
           />
-          <div className="relative px-6 py-14 sm:px-12 lg:px-20 lg:py-20">
+          <Reveal effect="fade" className="relative px-6 py-14 sm:px-12 lg:px-20 lg:py-20">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
               <LockKeyhole className="size-4" aria-hidden="true" /> Private family archive preview
             </p>
@@ -133,7 +139,7 @@ export function DemoArchivePage() {
               Everything on this page is invented for the demo: the Johnsons, their dates, their
               recipe and their recordings. No real family&apos;s content is shown here.
             </p>
-          </div>
+          </Reveal>
         </section>
 
         {/* Generations ---------------------------------------------------- */}
@@ -141,13 +147,20 @@ export function DemoArchivePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
             Who is in the archive
           </p>
-          <h2
+          <Reveal
+            as="h2"
+            effect="wipe"
             id="generations-title"
             className="mt-3 font-display text-3xl font-semibold sm:text-4xl"
           >
             Four generations, one table
-          </h2>
-          <ol className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          </Reveal>
+          <Reveal
+            as="ol"
+            effect="fade"
+            delay={150}
+            className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {DEMO_GENERATIONS.map((generation, index) => (
               <li
                 key={generation.label}
@@ -165,7 +178,7 @@ export function DemoArchivePage() {
                 <span className="mt-2 block text-xs text-foreground/75">{generation.years}</span>
               </li>
             ))}
-          </ol>
+          </Reveal>
         </section>
 
         {/* Memories ------------------------------------------------------ */}
@@ -175,20 +188,27 @@ export function DemoArchivePage() {
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
                 A living collection
               </p>
-              <h2
+              <Reveal
+                as="h2"
+                effect="wipe"
                 id="memories-title"
                 className="mt-3 font-display text-3xl font-semibold sm:text-5xl"
               >
                 Recent memories
-              </h2>
+              </Reveal>
             </div>
-            <p className="max-w-sm text-sm leading-6 text-foreground/75">
+            <Reveal
+              as="p"
+              effect="fade"
+              delay={120}
+              className="max-w-sm text-sm leading-6 text-foreground/75"
+            >
               Each memory keeps the question it answers, who it is about, when and where it happened
               — the context that makes it findable later.
-            </p>
+            </Reveal>
           </div>
 
-          <ul className="mt-9 grid gap-5 md:grid-cols-3">
+          <Reveal as="ul" effect="fade" delay={200} className="mt-9 grid gap-5 md:grid-cols-3">
             {DEMO_MEMORIES.map((memory) => {
               const Icon = KIND_ICONS[memory.kind];
               return (
@@ -233,11 +253,15 @@ export function DemoArchivePage() {
                 </li>
               );
             })}
-          </ul>
+          </Reveal>
         </section>
 
         {/* Quote --------------------------------------------------------- */}
-        <figure className="flex gap-6 border-l-4 border-gold bg-secondary px-6 py-10 sm:px-12">
+        <Reveal
+          as="figure"
+          effect="fade"
+          className="flex gap-6 border-l-4 border-gold bg-secondary px-6 py-10 sm:px-12"
+        >
           <span
             className="font-display text-6xl leading-none text-primary dark:text-gold"
             aria-hidden="true"
@@ -252,10 +276,12 @@ export function DemoArchivePage() {
               — {DEMO_QUOTE.attribution}
             </figcaption>
           </div>
-        </figure>
+        </Reveal>
 
         {/* Next steps ---------------------------------------------------- */}
-        <section
+        <Reveal
+          as="section"
+          effect="fade"
           className="mt-16 grid gap-6 rounded-2xl bg-primary p-8 text-primary-foreground sm:p-10 lg:grid-cols-[1fr_auto] lg:items-center"
           aria-labelledby="demo-cta-title"
         >
@@ -263,9 +289,14 @@ export function DemoArchivePage() {
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">
               Your family archive can start small
             </p>
-            <h2 id="demo-cta-title" className="mt-3 font-display text-3xl sm:text-4xl">
+            <Reveal
+              as="h2"
+              effect="wipe"
+              id="demo-cta-title"
+              className="mt-3 font-display text-3xl sm:text-4xl"
+            >
               Begin with one question.
-            </h2>
+            </Reveal>
             <p className="mt-3 max-w-xl text-sm leading-6 text-primary-foreground/80">
               Capture one answer today. Add the rest when you&apos;re ready. Signing in comes first;
               nothing is saved from this demo page.
@@ -279,7 +310,7 @@ export function DemoArchivePage() {
               {BRAND.primaryCta} <ArrowRight aria-hidden="true" />
             </Link>
           </Button>
-        </section>
+        </Reveal>
       </main>
 
       <footer className="mx-auto flex max-w-6xl flex-col gap-3 border-t border-border px-5 py-6 text-xs text-foreground/75 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
@@ -296,12 +327,15 @@ export function DemoArchivePage() {
 }
 
 function MemoryVisual({ memory }: { memory: DemoMemory }) {
+  const image = useInView<HTMLImageElement>();
   if (memory.kind === "photo" && memory.imageUrl) {
     return (
       <img
+        ref={image.ref}
+        data-inview={image.inView ? "true" : "false"}
         src={memory.imageUrl}
         alt={memory.imageAlt ?? ""}
-        className="h-44 w-full object-cover"
+        className="reveal-zoom h-44 w-full object-cover"
         loading="lazy"
         width={1200}
         height={800}

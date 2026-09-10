@@ -84,6 +84,18 @@ describe("homepage — structure", () => {
     }
   });
 
+  it("keeps every scroll-reveal element visible when IntersectionObserver is missing", () => {
+    // jsdom has no IntersectionObserver — exactly the no-JS / old-browser case.
+    const { container } = render(<LandingPage />);
+    const revealed = container.querySelectorAll("[data-inview]");
+    expect(revealed.length).toBeGreaterThan(10);
+    for (const el of revealed) expect(el).toHaveAttribute("data-inview", "true");
+    // Headings are one element each — the wipe never splits text into spans.
+    for (const h2 of container.querySelectorAll("h2.reveal-wipe")) {
+      expect(h2.childNodes).toHaveLength(1);
+    }
+  });
+
   it("does not touch auth or the database", () => {
     // The page must stay static: the only side effect is navigation on click.
     render(<LandingPage />);

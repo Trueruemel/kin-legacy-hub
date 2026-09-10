@@ -205,3 +205,60 @@
     box-shadow: 0 24px 44px -26px oklch(0.24 0.05 250 / 0.45);
   }
 }
+
+/*
+ * Scroll reveal — progressive enhancement.
+ * Elements render fully visible on the server and stay visible without JS.
+ * The client sets data-inview="false" while an element is off screen and
+ * flips it back on every enter, so effects build up and down while scrolling.
+ * Headings are revealed as one element (clip-path), never split into spans.
+ */
+@layer utilities {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-wipe[data-inview] {
+      transition: clip-path 650ms ease-out;
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .reveal-wipe[data-inview="false"] {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    .reveal-zoom[data-inview] {
+      transition:
+        scale 800ms ease-out,
+        opacity 800ms ease-out;
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .reveal-zoom[data-inview="true"] {
+      scale: 1;
+      opacity: var(--reveal-opacity, 1);
+    }
+    .reveal-zoom[data-inview="false"] {
+      scale: 1.08;
+      opacity: 0;
+    }
+
+    .reveal-fade[data-inview] {
+      transition:
+        opacity 450ms ease-out,
+        translate 450ms ease-out;
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .reveal-fade[data-inview="false"] {
+      opacity: 0;
+      translate: 0 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :is(.reveal-wipe, .reveal-zoom, .reveal-fade)[data-inview] {
+      transition: opacity 200ms ease-out;
+    }
+    .reveal-zoom[data-inview="true"] {
+      opacity: var(--reveal-opacity, 1);
+    }
+    :is(.reveal-wipe, .reveal-zoom, .reveal-fade)[data-inview="false"] {
+      opacity: 0;
+    }
+  }
+}
