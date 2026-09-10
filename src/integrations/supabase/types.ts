@@ -1179,6 +1179,7 @@ export type Database = {
       accept_family_invitation: { Args: { _token: string }; Returns: string }
       can_admin_family: { Args: { _family_id: string }; Returns: boolean }
       can_edit_family: { Args: { _family_id: string }; Returns: boolean }
+      family_has_owner: { Args: { _family_id: string }; Returns: boolean }
       family_invitation_preview: {
         Args: { _token: string }
         Returns: {
