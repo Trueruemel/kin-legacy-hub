@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedCreateMemoryRouteImport } from './routes/_authenticated/create-memory'
@@ -28,6 +29,7 @@ import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as AuthenticatedTreeRouteImport } from './routes/_authenticated/tree'
+import { Route as AuthenticatedUpgradeRouteImport } from './routes/_authenticated/upgrade'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -69,6 +71,11 @@ const McpRoute = McpRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -136,6 +143,11 @@ const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
 const AuthenticatedTreeRoute = AuthenticatedTreeRouteImport.update({
   id: '/tree',
   path: '/tree',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedUpgradeRoute = AuthenticatedUpgradeRouteImport.update({
+  id: '/upgrade',
+  path: '/upgrade',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedVaultRoute = AuthenticatedVaultRouteImport.update({
@@ -218,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRoute
   '/mcp': typeof McpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/create-memory': typeof AuthenticatedCreateMemoryRoute
@@ -231,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
+  '/upgrade': typeof AuthenticatedUpgradeRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -251,6 +265,7 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/mcp': typeof McpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/create-memory': typeof AuthenticatedCreateMemoryRoute
@@ -264,6 +279,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/tree': typeof AuthenticatedTreeRoute
+  '/upgrade': typeof AuthenticatedUpgradeRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -286,6 +302,7 @@ export interface FileRoutesById {
   '/demo': typeof DemoRoute
   '/mcp': typeof McpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/create-memory': typeof AuthenticatedCreateMemoryRoute
@@ -299,6 +316,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/_authenticated/tree': typeof AuthenticatedTreeRoute
+  '/_authenticated/upgrade': typeof AuthenticatedUpgradeRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -321,6 +339,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/mcp'
     | '/sitemap.xml'
+    | '/support'
     | '/.well-known/oauth-protected-resource'
     | '/calendar'
     | '/create-memory'
@@ -334,6 +353,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/tree'
+    | '/upgrade'
     | '/vault'
     | '/checkout/return'
     | '/.lovable/oauth/consent'
@@ -354,6 +374,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/mcp'
     | '/sitemap.xml'
+    | '/support'
     | '/.well-known/oauth-protected-resource'
     | '/calendar'
     | '/create-memory'
@@ -367,6 +388,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/tree'
+    | '/upgrade'
     | '/vault'
     | '/checkout/return'
     | '/.lovable/oauth/consent'
@@ -388,6 +410,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/mcp'
     | '/sitemap.xml'
+    | '/support'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/calendar'
     | '/_authenticated/create-memory'
@@ -401,6 +424,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/setup'
     | '/_authenticated/tree'
+    | '/_authenticated/upgrade'
     | '/_authenticated/vault'
     | '/checkout/return'
     | '/.lovable/oauth/consent'
@@ -423,6 +447,7 @@ export interface RootRouteChildren {
   DemoRoute: typeof DemoRoute
   McpRoute: typeof McpRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SupportRoute: typeof SupportRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -474,6 +499,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource': {
@@ -565,6 +597,13 @@ declare module '@tanstack/react-router' {
       path: '/tree'
       fullPath: '/tree'
       preLoaderRoute: typeof AuthenticatedTreeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/upgrade': {
+      id: '/_authenticated/upgrade'
+      path: '/upgrade'
+      fullPath: '/upgrade'
+      preLoaderRoute: typeof AuthenticatedUpgradeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/vault': {
@@ -674,6 +713,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSetupRoute: typeof AuthenticatedSetupRoute
   AuthenticatedTreeRoute: typeof AuthenticatedTreeRoute
+  AuthenticatedUpgradeRoute: typeof AuthenticatedUpgradeRoute
   AuthenticatedVaultRoute: typeof AuthenticatedVaultRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFamilyFamilyIdRoute: typeof AuthenticatedFamilyFamilyIdRoute
@@ -696,6 +736,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSetupRoute: AuthenticatedSetupRoute,
   AuthenticatedTreeRoute: AuthenticatedTreeRoute,
+  AuthenticatedUpgradeRoute: AuthenticatedUpgradeRoute,
   AuthenticatedVaultRoute: AuthenticatedVaultRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFamilyFamilyIdRoute: AuthenticatedFamilyFamilyIdRoute,
@@ -715,6 +756,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoRoute: DemoRoute,
   McpRoute: McpRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SupportRoute: SupportRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
