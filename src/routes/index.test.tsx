@@ -48,9 +48,9 @@ describe("homepage — structure", () => {
     render(<LandingPage />);
     const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
     expect(headings).toEqual([
-      "You do not need to organise everything today.",
       "Capture. Give context. Pass it on.",
       "The story behind a photograph deserves to be asked for.",
+      "You do not need to organise everything today.",
       "A place to begin. Room to grow.",
       "Private by default. Clear by design.",
     ]);

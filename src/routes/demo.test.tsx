@@ -1,12 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const navigate = vi.fn();
 
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (opts: Record<string, unknown>) => opts,
-  useNavigate: () => navigate,
   Link: ({
     to,
     search,
@@ -24,12 +20,8 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 const { DemoArchivePage } = await import("./demo");
-const { useAppStore } = await import("@/lib/store");
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  useAppStore.getState().signOut();
-});
+beforeEach(() => vi.clearAllMocks());
 
 describe("public demo archive", () => {
   it("is clearly labelled as fictitious and links back home", () => {
@@ -75,11 +67,9 @@ describe("public demo archive", () => {
     );
   });
 
-  it("can open the existing in-memory interactive demo without a backend", async () => {
+  it("offers no entry into the legacy mock demo", () => {
     render(<DemoArchivePage />);
-    expect(useAppStore.getState().signedIn).toBe(false);
-    await userEvent.click(screen.getByRole("button", { name: /Open the interactive demo/ }));
-    expect(useAppStore.getState().signedIn).toBe(true);
-    expect(navigate).toHaveBeenCalledWith({ to: "/feed" });
+    expect(screen.queryByRole("button", { name: /interactive demo/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/interactive demo/i)).not.toBeInTheDocument();
   });
 });

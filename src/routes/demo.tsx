@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,7 +11,6 @@ import {
   UsersRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useState } from "react";
 
 import { Wordmark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
@@ -23,14 +22,12 @@ import {
   type DemoMemory,
 } from "@/lib/demo-data";
 import { BRAND } from "@/lib/eternal-copy";
-import { useAppStore } from "@/lib/store";
 
 /**
  * Public, fictional demo archive.
  *
- * Deliberately has no Supabase import and no server function: every word and
- * picture comes from `src/lib/demo-data.ts`. The optional "interactive demo"
- * below opens the existing in-memory investor demo (mock data only).
+ * Deliberately has no Supabase import, no server function and no app state:
+ * every word and picture comes from `src/lib/demo-data.ts`.
  */
 export const Route = createFileRoute("/demo")({
   head: () => ({
@@ -58,16 +55,6 @@ const KIND_ICONS: Record<DemoMemory["kind"], LucideIcon> = {
 };
 
 export function DemoArchivePage() {
-  const navigate = useNavigate();
-  const enterInteractiveDemo = useAppStore((s) => s.signIn);
-  const [opening, setOpening] = useState(false);
-
-  const openInteractiveDemo = () => {
-    setOpening(true);
-    enterInteractiveDemo();
-    void navigate({ to: "/feed" });
-  };
-
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <a
@@ -284,32 +271,19 @@ export function DemoArchivePage() {
               nothing is saved from this demo page.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-            <Button
-              asChild
-              className="min-h-11 bg-gold text-gold-foreground hover:bg-gold/90 focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <Link to="/auth" search={{ next: "/create-memory" }}>
-                {BRAND.primaryCta} <ArrowRight aria-hidden="true" />
-              </Link>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11 border-white/40 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-white"
-              onClick={openInteractiveDemo}
-              disabled={opening}
-            >
-              {opening ? "Opening the interactive demo…" : "Open the interactive demo"}
-            </Button>
-          </div>
+          <Button
+            asChild
+            className="min-h-11 shrink-0 bg-gold text-gold-foreground hover:bg-gold/90 focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <Link to="/auth" search={{ next: "/create-memory" }}>
+              {BRAND.primaryCta} <ArrowRight aria-hidden="true" />
+            </Link>
+          </Button>
         </section>
       </main>
 
       <footer className="mx-auto flex max-w-6xl flex-col gap-3 border-t border-border px-5 py-6 text-xs text-foreground/75 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
-        <span>
-          Demo content is entirely fictional. The interactive demo runs on sample data only.
-        </span>
+        <span>Demo content is entirely fictional. Nothing on this page is stored.</span>
         <Link
           to="/"
           className="inline-flex min-h-11 items-center font-semibold text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-gold"

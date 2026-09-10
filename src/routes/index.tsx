@@ -242,6 +242,109 @@ export function LandingPage() {
         </section>
 
         {/* -------------------------------------------------------------- */}
+        {/* Three steps                                                     */}
+        {/* -------------------------------------------------------------- */}
+        <section
+          id="how-it-works"
+          className="scroll-mt-20 bg-secondary px-5 py-20 sm:px-8 lg:px-10 lg:py-32"
+          aria-labelledby="journey-title"
+        >
+          <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
+                A simple beginning
+              </p>
+              <h2
+                id="journey-title"
+                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
+              >
+                Capture. Give context. Pass it on.
+              </h2>
+              <p className="mt-5 text-base leading-7 text-foreground/80">
+                The value isn&apos;t in storing more. It&apos;s in making the memories you already
+                have easier to understand, find, and share.
+              </p>
+            </div>
+            <ol className="mt-14 grid gap-4 md:grid-cols-3">
+              {FIRST_STEPS.map(({ number, label, title, body }) => {
+                const Icon = STEP_ICONS[label];
+                return (
+                  <li
+                    key={number}
+                    className="rounded-2xl border border-border bg-background p-7 shadow-sm motion-safe:transition-transform motion-safe:hover:-translate-y-1"
+                  >
+                    <div className="mb-9 flex items-center justify-between">
+                      <span className="font-display text-2xl text-foreground/45" aria-hidden="true">
+                        {number}
+                      </span>
+                      <span className="grid size-11 place-items-center rounded-full bg-gold/15 text-primary dark:text-gold">
+                        <Icon className="size-5" aria-hidden="true" />
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
+                      {label}
+                    </p>
+                    <h3 className="mt-2 font-display text-2xl sm:text-3xl">{title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-foreground/80">{body}</p>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------------------- */}
+        {/* Why Eternal Memories exists                                     */}
+        {/* -------------------------------------------------------------- */}
+        <section
+          id="why-em"
+          className="scroll-mt-20 bg-primary px-5 py-20 text-primary-foreground sm:px-8 lg:px-10 lg:py-28"
+          aria-labelledby="origin-title"
+        >
+          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[80px_minmax(0,600px)_1fr] lg:gap-14">
+            <div
+              className="grid size-14 place-items-center rounded-full border border-gold/50 text-gold"
+              aria-hidden="true"
+            >
+              <Heart className="size-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
+                Why Eternal Memories exists
+              </p>
+              <h2
+                id="origin-title"
+                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
+              >
+                The story behind a photograph deserves to be asked for.
+              </h2>
+              <p className="mt-6 max-w-xl text-base leading-7 text-primary-foreground/80">
+                Eternal Memories began with a simple observation: a photograph can sit in a drawer
+                for decades, while the voice, the names and the small details around it are rarely
+                written down — not from neglect, but because nobody thought to ask.
+              </p>
+              <p className="mt-4 max-w-xl text-base leading-7 text-primary-foreground/80">
+                We believe families should be able to start earlier, in their own words and in their
+                own time. The family stays in control. We simply make the first question easier to
+                ask.
+              </p>
+              <a
+                className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                href="#privacy"
+              >
+                Read our approach to privacy <ArrowRight className="size-4" aria-hidden="true" />
+              </a>
+            </div>
+            <div className="hidden self-center text-center lg:block" aria-hidden="true">
+              <span className="font-display text-9xl text-white/10">EM</span>
+              <span className="block text-xs uppercase tracking-[0.16em] text-gold">
+                made for passing on
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------------------- */}
         {/* First-memory preview                                            */}
         {/* -------------------------------------------------------------- */}
         <section
@@ -357,109 +460,6 @@ export function LandingPage() {
                   You sign in first. Your first memory stays private until you choose to share it.
                 </p>
               </form>
-            </div>
-          </div>
-        </section>
-
-        {/* -------------------------------------------------------------- */}
-        {/* Three steps                                                     */}
-        {/* -------------------------------------------------------------- */}
-        <section
-          id="how-it-works"
-          className="scroll-mt-20 bg-secondary px-5 py-20 sm:px-8 lg:px-10 lg:py-32"
-          aria-labelledby="journey-title"
-        >
-          <div className="mx-auto max-w-6xl">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
-                A simple beginning
-              </p>
-              <h2
-                id="journey-title"
-                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
-              >
-                Capture. Give context. Pass it on.
-              </h2>
-              <p className="mt-5 text-base leading-7 text-foreground/80">
-                The value isn&apos;t in storing more. It&apos;s in making the memories you already
-                have easier to understand, find, and share.
-              </p>
-            </div>
-            <ol className="mt-14 grid gap-4 md:grid-cols-3">
-              {FIRST_STEPS.map(({ number, label, title, body }) => {
-                const Icon = STEP_ICONS[label];
-                return (
-                  <li
-                    key={number}
-                    className="rounded-2xl border border-border bg-background p-7 shadow-sm motion-safe:transition-transform motion-safe:hover:-translate-y-1"
-                  >
-                    <div className="mb-9 flex items-center justify-between">
-                      <span className="font-display text-2xl text-foreground/45" aria-hidden="true">
-                        {number}
-                      </span>
-                      <span className="grid size-11 place-items-center rounded-full bg-gold/15 text-primary dark:text-gold">
-                        <Icon className="size-5" aria-hidden="true" />
-                      </span>
-                    </div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
-                      {label}
-                    </p>
-                    <h3 className="mt-2 font-display text-2xl sm:text-3xl">{title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-foreground/80">{body}</p>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        </section>
-
-        {/* -------------------------------------------------------------- */}
-        {/* Why Eternal Memories exists                                     */}
-        {/* -------------------------------------------------------------- */}
-        <section
-          id="why-em"
-          className="scroll-mt-20 bg-primary px-5 py-20 text-primary-foreground sm:px-8 lg:px-10 lg:py-28"
-          aria-labelledby="origin-title"
-        >
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[80px_minmax(0,600px)_1fr] lg:gap-14">
-            <div
-              className="grid size-14 place-items-center rounded-full border border-gold/50 text-gold"
-              aria-hidden="true"
-            >
-              <Heart className="size-6" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
-                Why Eternal Memories exists
-              </p>
-              <h2
-                id="origin-title"
-                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
-              >
-                The story behind a photograph deserves to be asked for.
-              </h2>
-              <p className="mt-6 max-w-xl text-base leading-7 text-primary-foreground/80">
-                Eternal Memories began with a simple observation: a photograph can sit in a drawer
-                for decades, while the voice, the names and the small details around it are rarely
-                written down — not from neglect, but because nobody thought to ask.
-              </p>
-              <p className="mt-4 max-w-xl text-base leading-7 text-primary-foreground/80">
-                We believe families should be able to start earlier, in their own words and in their
-                own time. The family stays in control. We simply make the first question easier to
-                ask.
-              </p>
-              <a
-                className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                href="#privacy"
-              >
-                Read our approach to privacy <ArrowRight className="size-4" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="hidden self-center text-center lg:block" aria-hidden="true">
-              <span className="font-display text-9xl text-white/10">EM</span>
-              <span className="block text-xs uppercase tracking-[0.16em] text-gold">
-                made for passing on
-              </span>
             </div>
           </div>
         </section>
