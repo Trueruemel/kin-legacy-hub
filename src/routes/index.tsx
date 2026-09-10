@@ -493,8 +493,21 @@ export function LandingPage() {
               {FAMILY_JOURNEY.map(({ number, name, detail }, index) => (
                 <li
                   key={number}
+                  tabIndex={0}
+                  data-journey-card
                   className={cn(
-                    "border-b border-border p-5 md:border-b-0 md:border-r",
+                    "group relative border-b border-border p-5 md:border-b-0 md:border-r",
+                    // Hover and keyboard focus behave identically: lift, scale, lighter
+                    // surface, shadow. Stacked above neighbours so the scaled card is
+                    // never clipped by the next cell.
+                    "transition duration-200 ease-out",
+                    "hover:z-10 hover:-translate-y-[3px] hover:scale-[1.06] hover:bg-card hover:shadow-xl hover:shadow-navy-deep/15",
+                    "focus-visible:z-10 focus-visible:-translate-y-[3px] focus-visible:scale-[1.06] focus-visible:bg-card focus-visible:shadow-xl focus-visible:shadow-navy-deep/15",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    // Reduced motion: no movement, only a short colour transition.
+                    "motion-reduce:transition-colors motion-reduce:duration-150",
+                    "motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100 motion-reduce:hover:shadow-none",
+                    "motion-reduce:focus-visible:translate-y-0 motion-reduce:focus-visible:scale-100 motion-reduce:focus-visible:shadow-none",
                     index === 0 && "border-t-4 border-t-gold bg-secondary md:border-l",
                   )}
                 >
@@ -504,7 +517,13 @@ export function LandingPage() {
                   <span className="mt-8 block font-display text-2xl font-semibold">{name}</span>
                   <span className="mt-2 block text-xs leading-5 text-foreground/75">{detail}</span>
                   <ChevronRight
-                    className="ml-auto mt-7 size-4 text-primary dark:text-gold"
+                    className={cn(
+                      "ml-auto mt-7 size-4 text-primary dark:text-gold",
+                      "transition duration-200 ease-out",
+                      "group-hover:translate-x-[3px] group-hover:text-gold",
+                      "group-focus-visible:translate-x-[3px] group-focus-visible:text-gold",
+                      "motion-reduce:transition-colors motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0",
+                    )}
                     aria-hidden="true"
                   />
                 </li>

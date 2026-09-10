@@ -72,6 +72,18 @@ describe("homepage — structure", () => {
     expect(screen.getByRole("navigation", { name: "Primary" })).toBeVisible();
   });
 
+  it("makes the five journey cards reachable by keyboard so focus gets the hover treatment", () => {
+    const { container } = render(<LandingPage />);
+    const cards = container.querySelectorAll("[data-journey-card]");
+    expect(cards).toHaveLength(5);
+    for (const card of cards) {
+      expect(card).toHaveAttribute("tabindex", "0");
+      expect(card.className).toMatch(/focus-visible:scale-\[1\.06\]/);
+      expect(card.className).toMatch(/hover:scale-\[1\.06\]/);
+      expect(card.className).toMatch(/motion-reduce:hover:scale-100/);
+    }
+  });
+
   it("does not touch auth or the database", () => {
     // The page must stay static: the only side effect is navigation on click.
     render(<LandingPage />);
