@@ -732,6 +732,14 @@ export function LandingPage() {
                   Demo
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/support"
+                  className="inline-flex min-h-11 items-center hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  Support us
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

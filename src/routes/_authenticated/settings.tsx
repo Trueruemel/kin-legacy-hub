@@ -1,6 +1,6 @@
 import { RealSettings } from "@/components/settings-real";
 import { useActiveFamily } from "@/hooks/use-active-family";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, HardDrive, Moon, Shield, Sun } from "lucide-react";
 import { toast } from "sonner";
 
@@ -124,12 +124,8 @@ function DemoSettingsPage() {
               </p>
               <Progress value={storagePct} />
             </div>
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => toast.info("Plan upgrades open after the demo")}
-            >
-              Upgrade plan
+            <Button asChild variant="outline" className="mt-4">
+              <Link to="/upgrade">Add extra storage</Link>
             </Button>
           </Card>
 
