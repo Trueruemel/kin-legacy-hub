@@ -124,12 +124,8 @@ function DemoSettingsPage() {
               </p>
               <Progress value={storagePct} />
             </div>
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => toast.info("Plan upgrades open after the demo")}
-            >
-              Upgrade plan
+            <Button asChild variant="outline" className="mt-4">
+              <Link to="/upgrade">Add extra storage</Link>
             </Button>
           </Card>
 
