@@ -48,9 +48,9 @@ describe("homepage — structure", () => {
     render(<LandingPage />);
     const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
     expect(headings).toEqual([
-      "You do not need to organise everything today.",
       "Capture. Give context. Pass it on.",
       "The story behind a photograph deserves to be asked for.",
+      "You do not need to organise everything today.",
       "A place to begin. Room to grow.",
       "Private by default. Clear by design.",
     ]);
@@ -70,6 +70,30 @@ describe("homepage — structure", () => {
       "true",
     );
     expect(screen.getByRole("navigation", { name: "Primary" })).toBeVisible();
+  });
+
+  it("makes the five journey cards reachable by keyboard so focus gets the hover treatment", () => {
+    const { container } = render(<LandingPage />);
+    const cards = container.querySelectorAll("[data-journey-card]");
+    expect(cards).toHaveLength(5);
+    for (const card of cards) {
+      expect(card).toHaveAttribute("tabindex", "0");
+      expect(card.className).toMatch(/focus-visible:scale-\[1\.06\]/);
+      expect(card.className).toMatch(/hover:scale-\[1\.06\]/);
+      expect(card.className).toMatch(/motion-reduce:hover:scale-100/);
+    }
+  });
+
+  it("keeps every scroll-reveal element visible when IntersectionObserver is missing", () => {
+    // jsdom has no IntersectionObserver — exactly the no-JS / old-browser case.
+    const { container } = render(<LandingPage />);
+    const revealed = container.querySelectorAll("[data-inview]");
+    expect(revealed.length).toBeGreaterThan(10);
+    for (const el of revealed) expect(el).toHaveAttribute("data-inview", "true");
+    // Headings are one element each — the wipe never splits text into spans.
+    for (const h2 of container.querySelectorAll("h2.reveal-wipe")) {
+      expect(h2.childNodes).toHaveLength(1);
+    }
   });
 
   it("does not touch auth or the database", () => {

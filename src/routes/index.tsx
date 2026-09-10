@@ -16,7 +16,10 @@ import type { LucideIcon } from "lucide-react";
 import { useId, useState } from "react";
 
 import { Wordmark } from "@/components/brand";
+import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
+import { useInView } from "@/hooks/use-in-view";
+import { useParallax } from "@/hooks/use-parallax";
 import { BETA_LOCKED } from "@/lib/access";
 import {
   AUTH_COPY,
@@ -75,6 +78,10 @@ export function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navId = useId();
   const promptLegendId = useId();
+  // Hero photograph: scale/opacity reveal on enter, plus a gentle parallax
+  // (one rAF-throttled scroll listener; off under prefers-reduced-motion).
+  const heroImage = useInView<HTMLImageElement>();
+  useParallax(heroImage.ref, 0.2);
 
   const startWithQuestion = () => {
     void navigate({ to: "/auth", search: { next: createMemoryNext(promptId) } });
@@ -176,7 +183,7 @@ export function LandingPage() {
           aria-labelledby="hero-title"
         >
           <div className="relative z-10 flex items-center px-5 pb-16 pt-28 sm:px-8 sm:pt-32 lg:ml-auto lg:max-w-2xl lg:pr-14">
-            <div>
+            <Reveal effect="fade">
               <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-gold">
                 <span className="h-px w-10 bg-gold" aria-hidden="true" />A living archive for the
                 people you love
@@ -215,14 +222,17 @@ export function LandingPage() {
                   <UsersRound className="size-4 text-gold" aria-hidden="true" /> Invite-only access
                 </li>
               </ul>
-            </div>
+            </Reveal>
           </div>
 
           <div className="relative min-h-[320px] overflow-hidden sm:min-h-[430px] lg:min-h-[720px]">
+            {/* 120% tall and shifted up so the parallax never exposes the container edge. */}
             <img
+              ref={heroImage.ref}
+              data-inview={heroImage.inView ? "true" : "false"}
               src={photo(photoPool[0]!, 1600)}
               alt="Four generations of a family gathered around a long table at a reunion"
-              className="absolute inset-0 size-full object-cover opacity-85"
+              className="reveal-zoom absolute inset-x-0 -top-[20%] h-[120%] w-full object-cover [--reveal-opacity:0.85]"
               width={1600}
               height={1067}
             />
@@ -242,6 +252,128 @@ export function LandingPage() {
         </section>
 
         {/* -------------------------------------------------------------- */}
+        {/* Three steps                                                     */}
+        {/* -------------------------------------------------------------- */}
+        <section
+          id="how-it-works"
+          className="scroll-mt-20 bg-secondary px-5 py-20 sm:px-8 lg:px-10 lg:py-32"
+          aria-labelledby="journey-title"
+        >
+          <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
+                A simple beginning
+              </p>
+              <Reveal
+                as="h2"
+                effect="wipe"
+                id="journey-title"
+                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
+              >
+                Capture. Give context. Pass it on.
+              </Reveal>
+              <Reveal
+                as="p"
+                effect="fade"
+                delay={120}
+                className="mt-5 text-base leading-7 text-foreground/80"
+              >
+                The value isn&apos;t in storing more. It&apos;s in making the memories you already
+                have easier to understand, find, and share.
+              </Reveal>
+            </div>
+            <Reveal as="ol" effect="fade" delay={200} className="mt-14 grid gap-4 md:grid-cols-3">
+              {FIRST_STEPS.map(({ number, label, title, body }) => {
+                const Icon = STEP_ICONS[label];
+                return (
+                  <li
+                    key={number}
+                    className="rounded-2xl border border-border bg-background p-7 shadow-sm motion-safe:transition-transform motion-safe:hover:-translate-y-1"
+                  >
+                    <div className="mb-9 flex items-center justify-between">
+                      <span className="font-display text-2xl text-foreground/45" aria-hidden="true">
+                        {number}
+                      </span>
+                      <span className="grid size-11 place-items-center rounded-full bg-gold/15 text-primary dark:text-gold">
+                        <Icon className="size-5" aria-hidden="true" />
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
+                      {label}
+                    </p>
+                    <h3 className="mt-2 font-display text-2xl sm:text-3xl">{title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-foreground/80">{body}</p>
+                  </li>
+                );
+              })}
+            </Reveal>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------------------- */}
+        {/* Why Eternal Memories exists                                     */}
+        {/* -------------------------------------------------------------- */}
+        <section
+          id="why-em"
+          className="scroll-mt-20 bg-primary px-5 py-20 text-primary-foreground sm:px-8 lg:px-10 lg:py-28"
+          aria-labelledby="origin-title"
+        >
+          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[80px_minmax(0,600px)_1fr] lg:gap-14">
+            <div
+              className="grid size-14 place-items-center rounded-full border border-gold/50 text-gold"
+              aria-hidden="true"
+            >
+              <Heart className="size-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
+                Why Eternal Memories exists
+              </p>
+              <Reveal
+                as="h2"
+                effect="wipe"
+                id="origin-title"
+                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
+              >
+                The story behind a photograph deserves to be asked for.
+              </Reveal>
+              <Reveal
+                as="p"
+                effect="fade"
+                delay={120}
+                className="mt-6 max-w-xl text-base leading-7 text-primary-foreground/80"
+              >
+                Eternal Memories began with a simple observation: a photograph can sit in a drawer
+                for decades, while the voice, the names and the small details around it are rarely
+                written down — not from neglect, but because nobody thought to ask.
+              </Reveal>
+              <Reveal
+                as="p"
+                effect="fade"
+                delay={200}
+                className="mt-4 max-w-xl text-base leading-7 text-primary-foreground/80"
+              >
+                We believe families should be able to start earlier, in their own words and in their
+                own time. The family stays in control. We simply make the first question easier to
+                ask.
+              </Reveal>
+              <a
+                className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                href="#privacy"
+              >
+                Read our approach to privacy <ArrowRight className="size-4" aria-hidden="true" />
+              </a>
+            </div>
+            <div className="hidden self-center text-center lg:block" aria-hidden="true">
+              <span className="font-display text-9xl text-white/10">EM</span>
+              <span className="block text-xs uppercase tracking-[0.16em] text-gold">
+                made for passing on
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------------------- */}
         {/* First-memory preview                                            */}
         {/* -------------------------------------------------------------- */}
         <section
@@ -255,17 +387,29 @@ export function LandingPage() {
             </p>
             <div className="grid items-start gap-12 lg:grid-cols-[.85fr_1.15fr] lg:gap-24">
               <div>
-                <h2
+                <Reveal
+                  as="h2"
+                  effect="wipe"
                   id="start-title"
                   className="max-w-xl font-display text-3xl font-semibold leading-tight sm:text-5xl"
                 >
                   {BRAND.reassurance}
-                </h2>
-                <p className="mt-6 max-w-lg text-lg leading-8 text-foreground/80">
+                </Reveal>
+                <Reveal
+                  as="p"
+                  effect="fade"
+                  delay={120}
+                  className="mt-6 max-w-lg text-lg leading-8 text-foreground/80"
+                >
                   Begin with one question. The rest of your family archive can grow around it, at
                   your pace.
-                </p>
-                <ol className="mt-8 space-y-3 text-sm text-foreground/80">
+                </Reveal>
+                <Reveal
+                  as="ol"
+                  effect="fade"
+                  delay={200}
+                  className="mt-8 space-y-3 text-sm text-foreground/80"
+                >
                   {[
                     "Choose a question.",
                     "Answer it in writing or in your own voice.",
@@ -282,10 +426,13 @@ export function LandingPage() {
                       <span>{step}</span>
                     </li>
                   ))}
-                </ol>
+                </Reveal>
               </div>
 
-              <form
+              <Reveal
+                as="form"
+                effect="fade"
+                delay={160}
                 className="rounded-2xl border border-border bg-card p-6 shadow-xl shadow-navy-deep/10 sm:p-8"
                 onSubmit={(event) => {
                   event.preventDefault();
@@ -356,110 +503,7 @@ export function LandingPage() {
                   />
                   You sign in first. Your first memory stays private until you choose to share it.
                 </p>
-              </form>
-            </div>
-          </div>
-        </section>
-
-        {/* -------------------------------------------------------------- */}
-        {/* Three steps                                                     */}
-        {/* -------------------------------------------------------------- */}
-        <section
-          id="how-it-works"
-          className="scroll-mt-20 bg-secondary px-5 py-20 sm:px-8 lg:px-10 lg:py-32"
-          aria-labelledby="journey-title"
-        >
-          <div className="mx-auto max-w-6xl">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
-                A simple beginning
-              </p>
-              <h2
-                id="journey-title"
-                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
-              >
-                Capture. Give context. Pass it on.
-              </h2>
-              <p className="mt-5 text-base leading-7 text-foreground/80">
-                The value isn&apos;t in storing more. It&apos;s in making the memories you already
-                have easier to understand, find, and share.
-              </p>
-            </div>
-            <ol className="mt-14 grid gap-4 md:grid-cols-3">
-              {FIRST_STEPS.map(({ number, label, title, body }) => {
-                const Icon = STEP_ICONS[label];
-                return (
-                  <li
-                    key={number}
-                    className="rounded-2xl border border-border bg-background p-7 shadow-sm motion-safe:transition-transform motion-safe:hover:-translate-y-1"
-                  >
-                    <div className="mb-9 flex items-center justify-between">
-                      <span className="font-display text-2xl text-foreground/45" aria-hidden="true">
-                        {number}
-                      </span>
-                      <span className="grid size-11 place-items-center rounded-full bg-gold/15 text-primary dark:text-gold">
-                        <Icon className="size-5" aria-hidden="true" />
-                      </span>
-                    </div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
-                      {label}
-                    </p>
-                    <h3 className="mt-2 font-display text-2xl sm:text-3xl">{title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-foreground/80">{body}</p>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        </section>
-
-        {/* -------------------------------------------------------------- */}
-        {/* Why Eternal Memories exists                                     */}
-        {/* -------------------------------------------------------------- */}
-        <section
-          id="why-em"
-          className="scroll-mt-20 bg-primary px-5 py-20 text-primary-foreground sm:px-8 lg:px-10 lg:py-28"
-          aria-labelledby="origin-title"
-        >
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[80px_minmax(0,600px)_1fr] lg:gap-14">
-            <div
-              className="grid size-14 place-items-center rounded-full border border-gold/50 text-gold"
-              aria-hidden="true"
-            >
-              <Heart className="size-6" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
-                Why Eternal Memories exists
-              </p>
-              <h2
-                id="origin-title"
-                className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl"
-              >
-                The story behind a photograph deserves to be asked for.
-              </h2>
-              <p className="mt-6 max-w-xl text-base leading-7 text-primary-foreground/80">
-                Eternal Memories began with a simple observation: a photograph can sit in a drawer
-                for decades, while the voice, the names and the small details around it are rarely
-                written down — not from neglect, but because nobody thought to ask.
-              </p>
-              <p className="mt-4 max-w-xl text-base leading-7 text-primary-foreground/80">
-                We believe families should be able to start earlier, in their own words and in their
-                own time. The family stays in control. We simply make the first question easier to
-                ask.
-              </p>
-              <a
-                className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                href="#privacy"
-              >
-                Read our approach to privacy <ArrowRight className="size-4" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="hidden self-center text-center lg:block" aria-hidden="true">
-              <span className="font-display text-9xl text-white/10">EM</span>
-              <span className="block text-xs uppercase tracking-[0.16em] text-gold">
-                made for passing on
-              </span>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -477,24 +521,49 @@ export function LandingPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
                   The family journey
                 </p>
-                <h2
+                <Reveal
+                  as="h2"
+                  effect="wipe"
                   id="stages-title"
                   className="mt-4 font-display text-3xl font-semibold sm:text-5xl"
                 >
                   A place to begin. Room to grow.
-                </h2>
+                </Reveal>
               </div>
-              <p className="text-base leading-7 text-foreground/80">
+              <Reveal
+                as="p"
+                effect="fade"
+                delay={120}
+                className="text-base leading-7 text-foreground/80"
+              >
                 Start with one story today. Add photographs, voices, context, and shared rituals as
                 your family&apos;s archive takes shape.
-              </p>
+              </Reveal>
             </div>
-            <ol className="mt-14 grid border-y border-border md:grid-cols-5">
+            <Reveal
+              as="ol"
+              effect="fade"
+              delay={200}
+              className="mt-14 grid border-y border-border md:grid-cols-5"
+            >
               {FAMILY_JOURNEY.map(({ number, name, detail }, index) => (
                 <li
                   key={number}
+                  tabIndex={0}
+                  data-journey-card
                   className={cn(
-                    "border-b border-border p-5 md:border-b-0 md:border-r",
+                    "group relative border-b border-border p-5 md:border-b-0 md:border-r",
+                    // Hover and keyboard focus behave identically: lift, scale, lighter
+                    // surface, shadow. Stacked above neighbours so the scaled card is
+                    // never clipped by the next cell.
+                    "transition duration-200 ease-out",
+                    "hover:z-10 hover:-translate-y-[3px] hover:scale-[1.06] hover:bg-card hover:shadow-xl hover:shadow-navy-deep/15",
+                    "focus-visible:z-10 focus-visible:-translate-y-[3px] focus-visible:scale-[1.06] focus-visible:bg-card focus-visible:shadow-xl focus-visible:shadow-navy-deep/15",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    // Reduced motion: no movement, only a short colour transition.
+                    "motion-reduce:transition-colors motion-reduce:duration-150",
+                    "motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100 motion-reduce:hover:shadow-none",
+                    "motion-reduce:focus-visible:translate-y-0 motion-reduce:focus-visible:scale-100 motion-reduce:focus-visible:shadow-none",
                     index === 0 && "border-t-4 border-t-gold bg-secondary md:border-l",
                   )}
                 >
@@ -504,13 +573,22 @@ export function LandingPage() {
                   <span className="mt-8 block font-display text-2xl font-semibold">{name}</span>
                   <span className="mt-2 block text-xs leading-5 text-foreground/75">{detail}</span>
                   <ChevronRight
-                    className="ml-auto mt-7 size-4 text-primary dark:text-gold"
+                    className={cn(
+                      "ml-auto mt-7 size-4 text-primary dark:text-gold",
+                      "transition duration-200 ease-out",
+                      "group-hover:translate-x-[3px] group-hover:text-gold",
+                      "group-focus-visible:translate-x-[3px] group-focus-visible:text-gold",
+                      "motion-reduce:transition-colors motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0",
+                    )}
                     aria-hidden="true"
                   />
                 </li>
               ))}
-            </ol>
-            <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-2xl bg-secondary p-7 sm:flex-row sm:items-center">
+            </Reveal>
+            <Reveal
+              effect="fade"
+              className="mt-10 flex flex-col items-start justify-between gap-5 rounded-2xl bg-secondary p-7 sm:flex-row sm:items-center"
+            >
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
                   Explore the demo family
@@ -524,7 +602,7 @@ export function LandingPage() {
                   Open demo archive <ArrowRight aria-hidden="true" />
                 </Link>
               </Button>
-            </div>
+            </Reveal>
           </div>
         </section>
 
@@ -547,16 +625,23 @@ export function LandingPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
                 Built around your family&apos;s control
               </p>
-              <h2
+              <Reveal
+                as="h2"
+                effect="wipe"
                 id="trust-title"
                 className="mt-4 max-w-xl font-display text-3xl font-semibold leading-tight sm:text-5xl"
               >
                 Private by default. Clear by design.
-              </h2>
-              <p className="mt-6 max-w-xl text-base leading-7 text-foreground/80">
+              </Reveal>
+              <Reveal
+                as="p"
+                effect="fade"
+                delay={120}
+                className="mt-6 max-w-xl text-base leading-7 text-foreground/80"
+              >
                 For memories this personal, trust can&apos;t be a footnote. Here is what the archive
                 does today — and nothing it doesn&apos;t.
-              </p>
+              </Reveal>
               {BETA_LOCKED && (
                 <p className="mt-6 max-w-xl rounded-lg border border-gold/40 bg-gold/10 p-4 text-sm leading-6 text-foreground">
                   {AUTH_COPY.closedPreview}
@@ -571,7 +656,7 @@ export function LandingPage() {
                 the oldest in a family should both find their way around.
               </p>
             </div>
-            <ul className="border-t border-border lg:mt-16">
+            <Reveal as="ul" effect="fade" delay={200} className="border-t border-border lg:mt-16">
               {TRUST_POINTS.map(({ title, text }) => (
                 <li key={title} className="flex gap-4 border-b border-border py-5">
                   <Check
@@ -584,7 +669,7 @@ export function LandingPage() {
                   </span>
                 </li>
               ))}
-            </ul>
+            </Reveal>
           </div>
         </section>
       </main>
