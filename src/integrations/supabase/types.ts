@@ -1244,6 +1244,14 @@ export type Database = {
         Args: { _family_id: string }
         Returns: Database["public"]["Enums"]["family_role"]
       }
+      family_storage_limit_bytes: {
+        Args: { _env?: string; _family_id: string }
+        Returns: number
+      }
+      family_storage_usage_bytes: {
+        Args: { _family_id: string }
+        Returns: number
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
