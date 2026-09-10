@@ -13,11 +13,12 @@ const signOut = vi.fn();
 const signInWithOAuth = vi.fn();
 const toastError = vi.fn();
 const toastSuccess = vi.fn();
+const search = vi.hoisted(() => ({ value: {} as { next?: string; denied?: boolean } }));
 
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (opts: Record<string, unknown>) => ({
     ...opts,
-    useSearch: () => ({}),
+    useSearch: () => search.value,
   }),
   useNavigate: () => navigate,
   Link: ({ children, ...rest }: { children?: React.ReactNode }) => <a {...rest}>{children}</a>,
@@ -37,6 +38,7 @@ const { AuthPage, sanitizeNext } = await import("./auth");
 
 beforeEach(() => {
   vi.clearAllMocks();
+  search.value = {};
   getSession.mockResolvedValue({ data: { session: null } });
   getUser.mockResolvedValue({ data: { user: { email: "dev1@eternalmemorys.enterprises" } } });
   signInWithPassword.mockResolvedValue({ error: null });
@@ -134,6 +136,46 @@ describe("sign-up tab", () => {
 
     await waitFor(() => expect(signUp).toHaveBeenCalled());
     expect(signUp.mock.calls[0]?.[0].options.data).toEqual({ display_name: "Tristan" });
+  });
+});
+
+describe("first-memory handoff (?next=/create-memory)", () => {
+  it("lands on the first-memory route after sign-in instead of the onboarding default", async () => {
+    search.value = { next: "/create-memory?prompt=still-see" };
+    const location = { href: "", origin: "http://localhost" };
+    vi.stubGlobal("location", location);
+
+    render(<AuthPage />);
+    await userEvent.type(screen.getByLabelText("Email"), "dev1@eternalmemorys.enterprises");
+    await userEvent.type(screen.getByLabelText("Password"), "correct-horse");
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+
+    await waitFor(() => expect(location.href).toBe("/create-memory?prompt=still-see"));
+    expect(navigate).not.toHaveBeenCalledWith({ to: "/onboarding" });
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps the sign-up confirmation link on the same internal next path", async () => {
+    search.value = { next: "/create-memory" };
+    vi.stubGlobal("location", { href: "", origin: "http://localhost" });
+
+    render(<AuthPage />);
+    await userEvent.click(screen.getByRole("tab", { name: "Create account" }));
+    await userEvent.type(screen.getByLabelText("Your name"), "Tristan");
+    await userEvent.type(screen.getByLabelText("Email"), "dev2@eternalmemorys.enterprises");
+    await userEvent.type(screen.getByLabelText("Password"), "long-enough-pass");
+    await userEvent.click(screen.getByRole("button", { name: "Create account" }));
+
+    await waitFor(() => expect(signUp).toHaveBeenCalled());
+    expect(signUp.mock.calls[0]?.[0].options.emailRedirectTo).toBe(
+      "http://localhost/create-memory",
+    );
+    vi.unstubAllGlobals();
+  });
+
+  it("shows the closed-preview note so nobody mistakes it for open registration", () => {
+    render(<AuthPage />);
+    expect(screen.getByText(/closed preview/i)).toBeInTheDocument();
   });
 });
 
