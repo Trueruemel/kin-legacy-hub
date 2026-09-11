@@ -12,9 +12,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { useActiveFamily } from "@/hooks/use-active-family";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { getFamilyStorage } from "@/lib/storage-quota.functions";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
+
+function formatGb(bytes: number): string {
+  const gb = bytes / (1024 * 1024 * 1024);
+  if (gb < 0.1) return `${Math.max(1, Math.round(bytes / (1024 * 1024)))} MB`;
+  return `${gb.toFixed(1)} GB`;
+}
 
 const STORAGE_PRICE_ID = "extra_storage_30gb_monthly";
 
