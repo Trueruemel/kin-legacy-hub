@@ -73,6 +73,7 @@ const footer = {
 const StorageReceiptEmail = ({
   amount = "$3.99 per month",
   renewsOn,
+  paidOn,
   settingsUrl,
 }: StorageReceiptProps) => (
   <Html lang="en" dir="ltr">
