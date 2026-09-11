@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 
 import { template as eventInviteTemplate } from "./event-invite";
 import { template as familyWelcomeTemplate } from "./family-welcome";
+import { template as paymentReceiptTemplate } from "./payment-receipt";
 import { template as storageReceiptTemplate } from "./storage-receipt";
 
 /** Untyped template model — each template validates its own props at render time. */
@@ -33,4 +34,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "family-welcome": familyWelcomeTemplate,
   "event-invite": eventInviteTemplate,
   "storage-receipt": storageReceiptTemplate,
+  "payment-receipt": paymentReceiptTemplate,
 };
