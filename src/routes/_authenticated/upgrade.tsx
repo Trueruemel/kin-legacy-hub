@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { HardDrive } from "lucide-react";
 import { useState } from "react";
 
+import { useServerFn } from "@tanstack/react-start";
+
 import { AppLayout, PageHeader } from "@/components/app-layout";
 import { PaymentTestModeBanner } from "@/components/payment-test-mode-banner";
 import { StripeCheckoutForm } from "@/components/stripe-embedded-checkout";
@@ -10,9 +12,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { useActiveFamily } from "@/hooks/use-active-family";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { getFamilyStorage } from "@/lib/storage-quota.functions";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
+
+function formatGb(bytes: number): string {
+  const gb = bytes / (1024 * 1024 * 1024);
+  if (gb < 0.1) return `${Math.max(1, Math.round(bytes / (1024 * 1024)))} MB`;
+  return `${gb.toFixed(1)} GB`;
+}
 
 const STORAGE_PRICE_ID = "extra_storage_30gb_monthly";
 
@@ -60,6 +71,19 @@ function UpgradePage() {
   const isActive =
     !!active && ["active", "trialing", "past_due"].includes(active.status as string);
 
+  const { family } = useActiveFamily();
+  const fetchStorage = useServerFn(getFamilyStorage);
+  const { data: storage } = useQuery({
+    queryKey: ["family-storage", family?.id, active?.status],
+    enabled: !!family,
+    queryFn: () =>
+      fetchStorage({ data: { familyId: family!.id, environment: getStripeEnvironment() } }),
+  });
+
+  const usedPercent = storage
+    ? Math.min(100, Math.round((storage.usedBytes / Math.max(1, storage.limitBytes)) * 100))
+    : 0;
+
   return (
     <AppLayout>
       <PaymentTestModeBanner />
@@ -67,6 +91,22 @@ function UpgradePage() {
         title="Extra storage"
         description="More room for the photos, recordings and documents your family keeps."
       />
+
+      {storage ? (
+        <Card className="mb-6 max-w-xl p-6">
+          <h2 className="font-display text-lg font-semibold">Your family's room</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {formatGb(storage.usedBytes)} of {formatGb(storage.limitBytes)} used
+            {storage.extraActive ? " — includes your extra 30 GB" : ""}
+          </p>
+          <Progress
+            value={usedPercent}
+            className="mt-4"
+            aria-label={`Storage used: ${usedPercent} percent`}
+          />
+        </Card>
+      ) : null}
+
 
       <Card className="max-w-xl p-6">
         <div className="flex items-start justify-between gap-4">

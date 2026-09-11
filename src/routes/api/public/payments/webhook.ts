@@ -47,6 +47,46 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
     );
 }
 
+const STORAGE_PRICE_ID = "extra_storage_30gb_monthly";
+
+/** Thanks the buyer for extra storage. Never lets an email failure fail the webhook. */
+async function sendStorageReceipt(subscription: any, env: StripeEnv) {
+  try {
+    const item = subscription.items?.data?.[0];
+    if (priceKey(item) !== STORAGE_PRICE_ID) return;
+
+    const userId = subscription.metadata?.userId;
+    if (!userId) return;
+
+    const { data: userData } = await getSupabase().auth.admin.getUserById(userId);
+    const email = userData?.user?.email;
+    if (!email) return;
+
+    const periodEnd = item?.current_period_end ?? subscription.current_period_end;
+    const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "https://eternalmemorys.enterprises";
+
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("storage-receipt", email, {
+      idempotencyKey: `storage-receipt:${env}:${subscription.id}`,
+      templateData: {
+        amount: "$3.99 per month",
+        ...(periodEnd
+          ? {
+              renewsOn: new Date(periodEnd * 1000).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+            }
+          : {}),
+        settingsUrl: `${siteUrl}/upgrade`,
+      },
+    });
+  } catch (error) {
+    console.error("Storage receipt email failed:", error);
+  }
+}
+
 async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
   const item = subscription.items?.data?.[0];
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
@@ -81,6 +121,7 @@ async function handleWebhook(req: Request, env: StripeEnv) {
   switch (event.type) {
     case "customer.subscription.created":
       await handleSubscriptionCreated(event.data.object, env);
+      await sendStorageReceipt(event.data.object, env);
       break;
     case "customer.subscription.updated":
       await handleSubscriptionUpdated(event.data.object, env);
