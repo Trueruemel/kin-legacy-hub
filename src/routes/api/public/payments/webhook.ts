@@ -121,6 +121,7 @@ async function handleWebhook(req: Request, env: StripeEnv) {
   switch (event.type) {
     case "customer.subscription.created":
       await handleSubscriptionCreated(event.data.object, env);
+      await sendStorageReceipt(event.data.object, env);
       break;
     case "customer.subscription.updated":
       await handleSubscriptionUpdated(event.data.object, env);
