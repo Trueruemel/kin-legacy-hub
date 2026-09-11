@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 
 import { template as eventInviteTemplate } from "./event-invite";
 import { template as familyWelcomeTemplate } from "./family-welcome";
+import { template as storageReceiptTemplate } from "./storage-receipt";
 
 /** Untyped template model — each template validates its own props at render time. */
 export type TemplateData = Record<string, unknown>;
