@@ -1240,6 +1240,14 @@ export type Database = {
           role: Database["public"]["Enums"]["family_role"]
         }[]
       }
+      family_plan_status: {
+        Args: { _env?: string; _family_id: string }
+        Returns: {
+          cancel_at_period_end: boolean
+          is_paid: boolean
+          next_payment_at: string
+        }[]
+      }
       family_role_of: {
         Args: { _family_id: string }
         Returns: Database["public"]["Enums"]["family_role"]

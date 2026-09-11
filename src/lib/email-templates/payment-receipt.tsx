@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -14,11 +13,11 @@ import {
 
 import type { TemplateData, TemplateEntry } from "./registry";
 
-interface StorageReceiptProps {
+interface PaymentReceiptProps {
+  description?: string;
   amount?: string;
-  renewsOn?: string;
   paidOn?: string;
-  settingsUrl?: string;
+  reference?: string;
 }
 
 const navy = "#132238";
@@ -51,16 +50,6 @@ const card = {
   margin: "20px 0",
   backgroundColor: "#fbf9f5",
 };
-const button = {
-  backgroundColor: navy,
-  color: "#ffffff",
-  borderRadius: "999px",
-  padding: "13px 26px",
-  fontSize: "15px",
-  fontFamily: "Arial, sans-serif",
-  textDecoration: "none",
-  display: "inline-block",
-};
 const hr = { borderColor: "#e6e1d7", margin: "28px 0 16px" };
 const footer = {
   margin: 0,
@@ -70,44 +59,36 @@ const footer = {
   fontFamily: "Arial, sans-serif",
 };
 
-const StorageReceiptEmail = ({
-  amount = "$3.99 per month",
-  renewsOn,
+const PaymentReceiptEmail = ({
+  description = "Your payment",
+  amount = "",
   paidOn,
-  settingsUrl,
-}: StorageReceiptProps) => (
+  reference,
+}: PaymentReceiptProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your family archive now has 30 GB of extra room</Preview>
+    <Preview>Your receipt from Eternal — Memories</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={kicker}>Eternal — Memories</Text>
-        <Heading style={heading}>Thank you — your extra storage is on</Heading>
+        <Heading style={heading}>Thank you — here is your receipt</Heading>
         <Text style={text}>
-          Your family archive just gained 30 GB of extra private room for photos, recordings and
-          documents. It is available right away.
+          We have received your payment. Please keep this email as your receipt.
         </Text>
 
         <Section style={card}>
           <Text style={detail}>
-            <strong>30 GB extra storage</strong>
+            <strong>{description}</strong>
           </Text>
-          <Text style={detail}>{amount}</Text>
-          {renewsOn ? <Text style={detail}>Renews {renewsOn}</Text> : null}
+          {amount ? <Text style={detail}>Amount: {amount}</Text> : null}
+          {paidOn ? <Text style={detail}>Paid on: {paidOn}</Text> : null}
+          {reference ? <Text style={detail}>Reference: {reference}</Text> : null}
         </Section>
 
         <Text style={text}>
-          You can stop it whenever you like. If you do, the extra room stays available until the
-          month you have already paid for has ended — nothing is deleted.
+          If anything about this payment looks wrong, simply reply to this email and we will look
+          into it.
         </Text>
-
-        {settingsUrl ? (
-          <Section style={{ margin: "20px 0" }}>
-            <Button href={settingsUrl} style={button}>
-              See your storage
-            </Button>
-          </Section>
-        ) : null}
 
         <Hr style={hr} />
         <Text style={footer}>Sent from your private archive on Eternal — Memories.</Text>
@@ -117,12 +98,13 @@ const StorageReceiptEmail = ({
 );
 
 export const template = {
-  component: StorageReceiptEmail,
-  subject: "Your extra storage is active — Eternal — Memories",
-  displayName: "Extra storage receipt",
+  component: PaymentReceiptEmail,
+  subject: "Your receipt — Eternal — Memories",
+  displayName: "Payment receipt",
   previewData: {
-    amount: "$3.99 per month",
-    renewsOn: "October 10, 2026",
-    settingsUrl: "https://eternalmemorys.enterprises/upgrade",
+    description: "Support us contribution",
+    amount: "$25.00 USD",
+    paidOn: "September 11, 2026",
+    reference: "cs_test_123",
   } satisfies TemplateData,
 } satisfies TemplateEntry;
