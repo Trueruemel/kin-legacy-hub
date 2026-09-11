@@ -71,6 +71,19 @@ function UpgradePage() {
   const isActive =
     !!active && ["active", "trialing", "past_due"].includes(active.status as string);
 
+  const { family } = useActiveFamily();
+  const fetchStorage = useServerFn(getFamilyStorage);
+  const { data: storage } = useQuery({
+    queryKey: ["family-storage", family?.id, active?.status],
+    enabled: !!family,
+    queryFn: () =>
+      fetchStorage({ data: { familyId: family!.id, environment: getStripeEnvironment() } }),
+  });
+
+  const usedPercent = storage
+    ? Math.min(100, Math.round((storage.usedBytes / Math.max(1, storage.limitBytes)) * 100))
+    : 0;
+
   return (
     <AppLayout>
       <PaymentTestModeBanner />
@@ -78,6 +91,22 @@ function UpgradePage() {
         title="Extra storage"
         description="More room for the photos, recordings and documents your family keeps."
       />
+
+      {storage ? (
+        <Card className="mb-6 max-w-xl p-6">
+          <h2 className="font-display text-lg font-semibold">Your family's room</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {formatGb(storage.usedBytes)} of {formatGb(storage.limitBytes)} used
+            {storage.extraActive ? " — includes your extra 30 GB" : ""}
+          </p>
+          <Progress
+            value={usedPercent}
+            className="mt-4"
+            aria-label={`Storage used: ${usedPercent} percent`}
+          />
+        </Card>
+      ) : null}
+
 
       <Card className="max-w-xl p-6">
         <div className="flex items-start justify-between gap-4">
