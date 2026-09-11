@@ -17,6 +17,7 @@ import type { TemplateData, TemplateEntry } from "./registry";
 interface StorageReceiptProps {
   amount?: string;
   renewsOn?: string;
+  paidOn?: string;
   settingsUrl?: string;
 }
 
