@@ -104,17 +104,15 @@ describe("login form — submission", () => {
     expect(navigate).not.toHaveBeenCalledWith({ to: "/onboarding" });
   });
 
-  it("signs the user back out when they are outside the closed preview", async () => {
+  it("lets any confirmed account in now that registration is open", async () => {
     getUser.mockResolvedValue({ data: { user: { email: "stranger@example.com" } } });
     render(<AuthPage />);
     await userEvent.type(screen.getByLabelText("Email"), "stranger@example.com");
     await userEvent.type(screen.getByLabelText("Password"), "whatever");
     await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
 
-    await waitFor(() => expect(signOut).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith({ to: "/auth", search: { denied: true } }),
-    );
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: "/onboarding" }));
+    expect(signOut).not.toHaveBeenCalled();
   });
 
   it("keeps the Google button working through the shared post-auth check", async () => {
