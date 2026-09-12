@@ -213,6 +213,8 @@ function Overview({ familyId }: { familyId: string }) {
         </Card>
       </div>
 
+      <PaidFamilies />
+
       <Card className="mt-6 p-5">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-xl font-semibold">Latest photos uploaded</h2>
