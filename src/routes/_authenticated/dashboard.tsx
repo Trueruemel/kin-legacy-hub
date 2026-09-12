@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { useActiveFamily } from "@/hooks/use-active-family";
 import { getFamilyOverview } from "@/lib/dashboard.functions";
 import { getFamilyPlans } from "@/lib/plans.functions";
-import { getStripeEnvironment } from "@/lib/stripe";
+import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -246,8 +246,10 @@ function Overview({ familyId }: { familyId: string }) {
 /** Which of my families are on a paid plan, and when their next payment is due. */
 function PaidFamilies() {
   const load = useServerFn(getFamilyPlans);
+  const configured = paymentsConfigured();
   const { data, isLoading } = useQuery({
-    queryKey: ["family-plans", getStripeEnvironment()],
+    queryKey: ["family-plans", configured],
+    enabled: configured,
     queryFn: () => load({ data: { environment: getStripeEnvironment() } }),
   });
 
