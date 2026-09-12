@@ -93,6 +93,7 @@ const StorageReceiptEmail = ({
             <strong>30 GB extra storage</strong>
           </Text>
           <Text style={detail}>{amount}</Text>
+          {paidOn ? <Text style={detail}>Paid on {paidOn}</Text> : null}
           {renewsOn ? <Text style={detail}>Renews {renewsOn}</Text> : null}
         </Section>
 
@@ -122,6 +123,7 @@ export const template = {
   displayName: "Extra storage receipt",
   previewData: {
     amount: "$3.99 per month",
+    paidOn: "September 10, 2026",
     renewsOn: "October 10, 2026",
     settingsUrl: "https://eternalmemorys.enterprises/upgrade",
   } satisfies TemplateData,
