@@ -242,3 +242,62 @@ function Overview({ familyId }: { familyId: string }) {
     </AppLayout>
   );
 }
+
+/** Which of my families are on a paid plan, and when their next payment is due. */
+function PaidFamilies() {
+  const load = useServerFn(getFamilyPlans);
+  const { data, isLoading } = useQuery({
+    queryKey: ["family-plans", getStripeEnvironment()],
+    queryFn: () => load({ data: { environment: getStripeEnvironment() } }),
+  });
+
+  const paid = (data ?? []).filter((p) => p.isPaid);
+
+  return (
+    <Card className="mt-6 p-5">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-xl font-semibold">Families on a paid plan</h2>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/upgrade">Manage storage</Link>
+        </Button>
+      </div>
+
+      {isLoading && <p className="mt-4 text-sm text-muted-foreground">Checking your plans…</p>}
+
+      {!isLoading && paid.length === 0 && (
+        <p className="mt-4 text-sm text-muted-foreground">
+          None of your families has extra storage yet. Every family starts with 5 GB.
+        </p>
+      )}
+
+      <ul className="mt-4 space-y-3">
+        {paid.map((plan) => (
+          <li
+            key={plan.familyId}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+          >
+            <span className="min-w-0">
+              <Link
+                to="/family/$familyId"
+                params={{ familyId: plan.familyId }}
+                className="block truncate text-sm font-medium hover:underline"
+              >
+                {plan.familyName}
+              </Link>
+              <span className="text-xs text-muted-foreground">
+                {plan.nextPaymentAt
+                  ? plan.stopsAtPeriodEnd
+                    ? `Ends ${new Date(plan.nextPaymentAt).toLocaleDateString()}`
+                    : `Next payment ${new Date(plan.nextPaymentAt).toLocaleDateString()}`
+                  : "Next payment date not available yet"}
+              </span>
+            </span>
+            <Badge variant={plan.stopsAtPeriodEnd ? "secondary" : "default"}>
+              {plan.stopsAtPeriodEnd ? "Ending" : "Paid plan"}
+            </Badge>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
