@@ -171,9 +171,10 @@ describe("first-memory handoff (?next=/create-memory)", () => {
     vi.unstubAllGlobals();
   });
 
-  it("shows the closed-preview note so nobody mistakes it for open registration", () => {
+  it("offers open registration without a closed-preview note", () => {
     render(<AuthPage />);
-    expect(screen.getByText(/closed preview/i)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Create account" })).toBeInTheDocument();
+    expect(screen.queryByText(/closed preview/i)).not.toBeInTheDocument();
   });
 });
 
