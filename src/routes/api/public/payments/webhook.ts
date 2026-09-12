@@ -165,6 +165,9 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     case "customer.subscription.deleted":
       await handleSubscriptionDeleted(event.data.object, env);
       break;
+    case "checkout.session.completed":
+      await sendCheckoutReceipt(event.data.object, env);
+      break;
     default:
       console.log("Unhandled payment event:", event.type);
   }

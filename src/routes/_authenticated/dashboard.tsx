@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useActiveFamily } from "@/hooks/use-active-family";
 import { getFamilyOverview } from "@/lib/dashboard.functions";
+import { getFamilyPlans } from "@/lib/plans.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
