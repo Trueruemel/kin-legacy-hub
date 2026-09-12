@@ -63,6 +63,7 @@ async function sendStorageReceipt(subscription: any, env: StripeEnv) {
     if (!email) return;
 
     const periodEnd = item?.current_period_end ?? subscription.current_period_end;
+    const paidAt = subscription.start_date ?? subscription.created;
     const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "https://eternalmemorys.enterprises";
 
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
@@ -70,20 +71,55 @@ async function sendStorageReceipt(subscription: any, env: StripeEnv) {
       idempotencyKey: `storage-receipt:${env}:${subscription.id}`,
       templateData: {
         amount: "$3.99 per month",
-        ...(periodEnd
-          ? {
-              renewsOn: new Date(periodEnd * 1000).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }),
-            }
-          : {}),
+        paidOn: formatDate(paidAt) ?? formatDate(Date.now() / 1000)!,
+        ...(periodEnd ? { renewsOn: formatDate(periodEnd) } : {}),
         settingsUrl: `${siteUrl}/upgrade`,
       },
     });
   } catch (error) {
     console.error("Storage receipt email failed:", error);
+  }
+}
+
+function formatDate(unixSeconds: number | null | undefined): string | undefined {
+  if (!unixSeconds) return undefined;
+  return new Date(unixSeconds * 1000).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function formatMoney(amount: number | null | undefined, currency: string | null | undefined) {
+  if (amount == null) return "";
+  const code = (currency ?? "usd").toUpperCase();
+  return `${(amount / 100).toFixed(2)} ${code}`;
+}
+
+/**
+ * Receipt for one-off payments (the "Support us" contribution). Subscriptions
+ * get their own storage receipt, so those checkout sessions are skipped here.
+ */
+async function sendCheckoutReceipt(session: any, env: StripeEnv) {
+  try {
+    if (session.mode !== "payment") return;
+    if (session.payment_status !== "paid") return;
+
+    const email = session.customer_details?.email || session.customer_email;
+    if (!email) return;
+
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("payment-receipt", email, {
+      idempotencyKey: `payment-receipt:${env}:${session.id}`,
+      templateData: {
+        description: "Support us contribution",
+        amount: formatMoney(session.amount_total, session.currency),
+        paidOn: formatDate(session.created) ?? formatDate(Date.now() / 1000)!,
+        reference: session.id,
+      },
+    });
+  } catch (error) {
+    console.error("Payment receipt email failed:", error);
   }
 }
 
@@ -128,6 +164,9 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       break;
     case "customer.subscription.deleted":
       await handleSubscriptionDeleted(event.data.object, env);
+      break;
+    case "checkout.session.completed":
+      await sendCheckoutReceipt(event.data.object, env);
       break;
     default:
       console.log("Unhandled payment event:", event.type);
