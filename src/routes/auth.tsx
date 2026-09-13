@@ -306,7 +306,16 @@ export function AuthPage() {
                   {busy ? "Opening the archive…" : "Sign in"}
                 </Button>
               </form>
+              <button
+                type="button"
+                className="text-xs text-muted-foreground underline underline-offset-4"
+                disabled={busy}
+                onClick={() => void sendPasswordReset()}
+              >
+                Forgot your password?
+              </button>
             </TabsContent>
+
 
             <TabsContent value="signup" className="mt-6 space-y-4">
               <h2 className="font-display text-xl font-semibold">{AUTH_COPY.signUpTitle}</h2>
