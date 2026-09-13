@@ -52,6 +52,42 @@ export function AuthPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState<string | null>(null);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+
+  const confirmationRedirect = () => `${window.location.origin}${next ?? "/feed"}`;
+
+  const resendConfirmation = async (address: string) => {
+    setBusy(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: address,
+      options: { emailRedirectTo: confirmationRedirect() },
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("We sent the confirmation link again. Please check your inbox.");
+  };
+
+  const sendPasswordReset = async () => {
+    if (!email) {
+      toast.error("Please enter your email address first.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Password reset link sent. Please check your inbox.");
+  };
 
   const afterAuth = async () => {
     const { data } = await supabase.auth.getUser();
@@ -91,9 +127,18 @@ export function AuthPage() {
 
   const signIn = async () => {
     setBusy(true);
+    setNeedsConfirmation(false);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) {
+      const unconfirmed =
+        (error as { code?: string }).code === "email_not_confirmed" ||
+        /not confirmed/i.test(error.message);
+      if (unconfirmed) {
+        setNeedsConfirmation(true);
+        toast.error("Your email address isn't confirmed yet. Please open the link we sent you.");
+        return;
+      }
       toast.error(error.message);
       return;
     }
@@ -101,22 +146,33 @@ export function AuthPage() {
   };
 
   const signUp = async () => {
+    if (password.length < 8) {
+      toast.error("Please choose a password with at least 8 characters.");
+      return;
+    }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const result = await supabase.auth.signUp({
       email,
       password,
       options: {
         // `next` is already restricted to an internal path by `sanitizeNext`.
-        emailRedirectTo: `${window.location.origin}${next ?? "/feed"}`,
+        emailRedirectTo: confirmationRedirect(),
         data: { display_name: displayName },
       },
     });
     setBusy(false);
-    if (error) {
-      toast.error(error.message);
+    if (result.error) {
+      toast.error(result.error.message);
       return;
     }
-    toast.success("Account created. Check your inbox if confirmation is required.");
+    // With email confirmation switched on, sign-up returns no session. Sending
+    // the person to a protected page would bounce them straight back here, so
+    // we show a "check your inbox" screen instead.
+    if (!result.data?.session) {
+      setAwaitingConfirmation(email);
+      return;
+    }
+    toast.success("Account created.");
     await afterAuth();
   };
 
@@ -136,6 +192,49 @@ export function AuthPage() {
           <p className="mt-4 rounded-lg border border-border bg-muted/60 p-3 text-sm text-muted-foreground">
             {AUTH_COPY.closedPreview}
           </p>
+        )}
+
+        {awaitingConfirmation && (
+          <div
+            role="status"
+            className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-4 text-sm text-foreground"
+          >
+            <p className="font-medium">Almost there — please confirm your email</p>
+            <p className="mt-1 text-muted-foreground">
+              We sent a confirmation link to {awaitingConfirmation}. Open it and you can sign in
+              right away.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3 w-full"
+              disabled={busy}
+              onClick={() => void resendConfirmation(awaitingConfirmation)}
+            >
+              Send the link again
+            </Button>
+          </div>
+        )}
+
+        {needsConfirmation && (
+          <div
+            role="alert"
+            className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-4 text-sm text-foreground"
+          >
+            <p>
+              Your email address isn't confirmed yet. Open the link we sent you, or request a new
+              one.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3 w-full"
+              disabled={busy || !email}
+              onClick={() => void resendConfirmation(email)}
+            >
+              Send the confirmation link again
+            </Button>
+          </div>
         )}
 
         {denied && (
@@ -207,7 +306,16 @@ export function AuthPage() {
                   {busy ? "Opening the archive…" : "Sign in"}
                 </Button>
               </form>
+              <button
+                type="button"
+                className="text-xs text-muted-foreground underline underline-offset-4"
+                disabled={busy}
+                onClick={() => void sendPasswordReset()}
+              >
+                Forgot your password?
+              </button>
             </TabsContent>
+
 
             <TabsContent value="signup" className="mt-6 space-y-4">
               <h2 className="font-display text-xl font-semibold">{AUTH_COPY.signUpTitle}</h2>
