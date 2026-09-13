@@ -127,9 +127,18 @@ export function AuthPage() {
 
   const signIn = async () => {
     setBusy(true);
+    setNeedsConfirmation(false);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) {
+      const unconfirmed =
+        (error as { code?: string }).code === "email_not_confirmed" ||
+        /not confirmed/i.test(error.message);
+      if (unconfirmed) {
+        setNeedsConfirmation(true);
+        toast.error("Your email address isn't confirmed yet. Please open the link we sent you.");
+        return;
+      }
       toast.error(error.message);
       return;
     }
@@ -137,22 +146,33 @@ export function AuthPage() {
   };
 
   const signUp = async () => {
+    if (password.length < 8) {
+      toast.error("Please choose a password with at least 8 characters.");
+      return;
+    }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const result = await supabase.auth.signUp({
       email,
       password,
       options: {
         // `next` is already restricted to an internal path by `sanitizeNext`.
-        emailRedirectTo: `${window.location.origin}${next ?? "/feed"}`,
+        emailRedirectTo: confirmationRedirect(),
         data: { display_name: displayName },
       },
     });
     setBusy(false);
-    if (error) {
-      toast.error(error.message);
+    if (result.error) {
+      toast.error(result.error.message);
       return;
     }
-    toast.success("Account created. Check your inbox if confirmation is required.");
+    // With email confirmation switched on, sign-up returns no session. Sending
+    // the person to a protected page would bounce them straight back here, so
+    // we show a "check your inbox" screen instead.
+    if (!result.data?.session) {
+      setAwaitingConfirmation(email);
+      return;
+    }
+    toast.success("Account created.");
     await afterAuth();
   };
 
