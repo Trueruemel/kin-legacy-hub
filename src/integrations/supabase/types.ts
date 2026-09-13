@@ -1316,6 +1316,7 @@ export type Database = {
         }[]
       }
       vault_object_readable: { Args: { _name: string }; Returns: boolean }
+      vault_object_writable: { Args: { _name: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
