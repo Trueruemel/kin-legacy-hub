@@ -52,6 +52,42 @@ export function AuthPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState<string | null>(null);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+
+  const confirmationRedirect = () => `${window.location.origin}${next ?? "/feed"}`;
+
+  const resendConfirmation = async (address: string) => {
+    setBusy(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: address,
+      options: { emailRedirectTo: confirmationRedirect() },
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("We sent the confirmation link again. Please check your inbox.");
+  };
+
+  const sendPasswordReset = async () => {
+    if (!email) {
+      toast.error("Please enter your email address first.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Password reset link sent. Please check your inbox.");
+  };
 
   const afterAuth = async () => {
     const { data } = await supabase.auth.getUser();
