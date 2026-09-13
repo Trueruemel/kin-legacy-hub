@@ -194,6 +194,49 @@ export function AuthPage() {
           </p>
         )}
 
+        {awaitingConfirmation && (
+          <div
+            role="status"
+            className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-4 text-sm text-foreground"
+          >
+            <p className="font-medium">Almost there — please confirm your email</p>
+            <p className="mt-1 text-muted-foreground">
+              We sent a confirmation link to {awaitingConfirmation}. Open it and you can sign in
+              right away.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3 w-full"
+              disabled={busy}
+              onClick={() => void resendConfirmation(awaitingConfirmation)}
+            >
+              Send the link again
+            </Button>
+          </div>
+        )}
+
+        {needsConfirmation && (
+          <div
+            role="alert"
+            className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-4 text-sm text-foreground"
+          >
+            <p>
+              Your email address isn't confirmed yet. Open the link we sent you, or request a new
+              one.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3 w-full"
+              disabled={busy || !email}
+              onClick={() => void resendConfirmation(email)}
+            >
+              Send the confirmation link again
+            </Button>
+          </div>
+        )}
+
         {denied && (
           <p
             role="alert"
