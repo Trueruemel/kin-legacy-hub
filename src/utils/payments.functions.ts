@@ -354,11 +354,147 @@ export const cancelMySubscription = createServerFn({ method: "POST" })
     try {
       const stripe = createStripeClient(data.environment);
       await assertOwnSubscription(stripe, data.subscriptionId, context.userId);
-      await stripe.subscriptions.update(data.subscriptionId, { cancel_at_period_end: true });
+      const updated = await stripe.subscriptions.update(data.subscriptionId, {
+        cancel_at_period_end: true,
+      });
+
+      // Confirm the cancellation in writing, with the exact end date. An email
+      // problem must never make the cancellation itself look like it failed.
+      try {
+        const email =
+          typeof context.claims["email"] === "string"
+            ? (context.claims["email"] as string)
+            : undefined;
+        const item = updated.items?.data?.[0];
+        const endsAt =
+          item?.current_period_end ??
+          (updated as unknown as { current_period_end?: number }).current_period_end;
+        if (email) {
+          const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+          await sendTemplateEmail("subscription-cancelled", email, {
+            idempotencyKey: `subscription-cancelled:${data.environment}:${updated.id}:${endsAt ?? 0}`,
+            templateData: {
+              ...(endsAt
+                ? {
+                    endsOn: new Date(endsAt * 1000).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }),
+                  }
+                : {}),
+              ...(money(item?.price?.unit_amount, item?.price?.currency)
+                ? { amount: money(item?.price?.unit_amount, item?.price?.currency) as string }
+                : {}),
+              billingUrl: `${process.env["PUBLIC_SITE_URL"] ?? "https://eternalmemorys.enterprises"}/upgrade`,
+            },
+          });
+        }
+      } catch (emailError) {
+        console.error("Cancellation email could not be sent:", emailError);
+      }
+
       return { ok: true };
     } catch (error) {
       return { error: getStripeErrorMessage(error) };
     }
+  });
+
+/**
+ * Opens the payment provider's own secure page, where a family can change the
+ * card on file, download invoices or stop a plan.
+ */
+export const createPortalSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { returnUrl?: string; environment: StripeEnv }) => data)
+  .handler(async ({ data, context }): Promise<{ url: string } | { error: string }> => {
+    try {
+      const stripe = createStripeClient(data.environment);
+      const found = await stripe.customers.search({
+        query: `metadata['userId']:'${context.userId}'`,
+        limit: 1,
+      });
+      const customerId = found.data[0]?.id;
+      if (!customerId) {
+        return { error: "There are no payments on your account yet." };
+      }
+      const portal = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        ...(data.returnUrl && { return_url: data.returnUrl }),
+      });
+      return { url: portal.url };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });
+
+export type PurchaseSyncResult = { synced: number } | { error: string };
+
+/**
+ * Re-checks the signed-in person's purchases directly with the payment provider
+ * and repairs our own record. This is the safety net for a notification that
+ * never arrived — without it a paid family could stay on the small allowance.
+ */
+export const syncMyPurchases = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { environment: StripeEnv }) => data)
+  .handler(async ({ data, context }): Promise<PurchaseSyncResult> => {
+    let rows: Record<string, unknown>[] = [];
+    try {
+      const stripe = createStripeClient(data.environment);
+      const found = await stripe.customers.search({
+        query: `metadata['userId']:'${context.userId}'`,
+        limit: 10,
+      });
+      if (found.data.length === 0) return { synced: 0 };
+
+      for (const customer of found.data) {
+        const subs = await stripe.subscriptions.list({
+          customer: customer.id,
+          status: "all",
+          limit: 20,
+        });
+        for (const sub of subs.data) {
+          if (sub.status === "incomplete_expired") continue;
+          const item = sub.items?.data?.[0];
+          const periodStart =
+            item?.current_period_start ??
+            (sub as unknown as { current_period_start?: number }).current_period_start;
+          const periodEnd =
+            item?.current_period_end ??
+            (sub as unknown as { current_period_end?: number }).current_period_end;
+          const productId =
+            typeof item?.price?.product === "string"
+              ? item.price.product
+              : (item?.price?.product?.id ?? "");
+          rows.push({
+            user_id: context.userId,
+            stripe_subscription_id: sub.id,
+            stripe_customer_id: customer.id,
+            product_id: productId,
+            price_id: priceKeyOf(item?.price) ?? "",
+            status: sub.status,
+            current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
+            current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+            cancel_at_period_end: sub.cancel_at_period_end ?? false,
+            environment: data.environment,
+            updated_at: new Date().toISOString(),
+          });
+        }
+      }
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+
+    if (rows.length === 0) return { synced: 0 };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("subscriptions")
+      .upsert(rows as never, { onConflict: "stripe_subscription_id" });
+    if (error) return { error: error.message };
+
+    return { synced: rows.length };
   });
 
 /** Undoes a cancellation while the paid month is still running. */

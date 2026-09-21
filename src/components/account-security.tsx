@@ -18,6 +18,7 @@ export function AccountSecurity() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmText, setConfirmText] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const deleteFn = useServerFn(deleteMyAccount);
 
   const changePassword = useMutation({
@@ -59,8 +60,58 @@ export function AccountSecurity() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const changeEmail = useMutation({
+    mutationFn: async () => {
+      const next = newEmail.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(next)) {
+        throw new Error("Please enter a valid email address.");
+      }
+      if (next === user?.email?.toLowerCase()) {
+        throw new Error("That is already your sign-in address.");
+      }
+      const { error } = await supabase.auth.updateUser(
+        { email: next },
+        { emailRedirectTo: `${window.location.origin}/auth` },
+      );
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Check your new address for a confirmation link. Until then, keep signing in with your current address.");
+      setNewEmail("");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   return (
     <>
+      <Card className="mt-6 p-6">
+        <h2 className="font-display text-xl font-semibold">Email address</h2>
+        <Separator className="my-4" />
+        <div className="grid max-w-md gap-4">
+          <p className="text-sm text-muted-foreground">
+            You sign in with <span className="font-medium">{user?.email ?? "—"}</span>. A new address
+            only takes effect once you confirm it from your inbox.
+          </p>
+          <div className="grid gap-2">
+            <Label htmlFor="new-email">New email address</Label>
+            <Input
+              id="new-email"
+              type="email"
+              autoComplete="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+            />
+          </div>
+          <Button
+            className="justify-self-start"
+            disabled={!newEmail || changeEmail.isPending}
+            onClick={() => changeEmail.mutate()}
+          >
+            {changeEmail.isPending ? "Sending…" : "Send confirmation link"}
+          </Button>
+        </div>
+      </Card>
+
       <Card className="mt-6 p-6">
         <h2 className="font-display text-xl font-semibold">Password</h2>
         <Separator className="my-4" />
