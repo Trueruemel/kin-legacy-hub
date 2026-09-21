@@ -290,11 +290,20 @@ export const getMyBilling = createServerFn({ method: "POST" })
 
         const list = await stripe.invoices.list({ customer: customerId, limit: 20 });
         for (const inv of list.data) {
+          const line = inv.lines?.data?.[0];
+          const period = line?.period;
+          const cents = inv.amount_paid || inv.amount_due || 0;
           invoices.push({
             id: inv.id ?? "",
+            number: inv.number ?? null,
             status: inv.status ?? null,
-            amount: money(inv.amount_paid || inv.amount_due, inv.currency) ?? "",
+            amount: money(cents, inv.currency) ?? "",
+            amountCents: cents,
+            currency: (inv.currency ?? "usd").toUpperCase(),
             paidOn: inv.created ? new Date(inv.created * 1000).toISOString() : null,
+            periodStart: period?.start ? new Date(period.start * 1000).toISOString() : null,
+            periodEnd: period?.end ? new Date(period.end * 1000).toISOString() : null,
+            description: line?.description ?? null,
             pdfUrl: inv.invoice_pdf ?? null,
             hostedUrl: inv.hosted_invoice_url ?? null,
           });
