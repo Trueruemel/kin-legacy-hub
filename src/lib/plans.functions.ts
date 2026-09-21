@@ -46,6 +46,7 @@ export const getFamilyPlans = createServerFn({ method: "GET" })
               is_paid: boolean | null;
               next_payment_at: string | null;
               cancel_at_period_end: boolean | null;
+              last_payment_at: string | null;
             }
           | undefined;
 
@@ -55,6 +56,7 @@ export const getFamilyPlans = createServerFn({ method: "GET" })
           isPaid: !!row?.is_paid,
           nextPaymentAt: row?.next_payment_at ?? null,
           stopsAtPeriodEnd: !!row?.cancel_at_period_end,
+          lastPaymentAt: row?.last_payment_at ?? null,
         };
       }),
     );
