@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 
 import { template as eventInviteTemplate } from "./event-invite";
 import { template as familyWelcomeTemplate } from "./family-welcome";
+import { template as paymentFailedTemplate } from "./payment-failed";
 import { template as paymentReceiptTemplate } from "./payment-receipt";
 import { template as storageReceiptTemplate } from "./storage-receipt";
 
