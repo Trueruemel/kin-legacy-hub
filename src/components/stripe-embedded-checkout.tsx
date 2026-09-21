@@ -4,14 +4,9 @@ import { useMemo } from "react";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
 import { createCheckoutSession, createDonationCheckout } from "@/utils/payments.functions";
 
-type CommonProps = {
-  customerEmail?: string;
-  returnUrl?: string;
-};
-
 type Props =
-  | (CommonProps & { kind: "price"; priceId: string; userId?: string })
-  | (CommonProps & { kind: "donation"; amountInCents: number });
+  | { kind: "price"; priceId: string; returnUrl?: string }
+  | { kind: "donation"; amountInCents: number; customerEmail: string; returnUrl?: string };
 
 /** Renders the payment form inline — never a redirect to an external page. */
 export function StripeCheckoutForm(props: Props) {
@@ -25,7 +20,7 @@ export function StripeCheckoutForm(props: Props) {
             ? await createDonationCheckout({
                 data: {
                   amountInCents: props.amountInCents,
-                  ...(props.customerEmail && { customerEmail: props.customerEmail }),
+                  customerEmail: props.customerEmail,
                   returnUrl,
                   environment,
                 },
@@ -34,8 +29,6 @@ export function StripeCheckoutForm(props: Props) {
                 data: {
                   priceId: props.priceId,
                   quantity: 1,
-                  ...(props.customerEmail && { customerEmail: props.customerEmail }),
-                  ...(props.userId && { userId: props.userId }),
                   returnUrl,
                   environment,
                 },

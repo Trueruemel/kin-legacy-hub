@@ -36,4 +36,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "event-invite": eventInviteTemplate,
   "storage-receipt": storageReceiptTemplate,
   "payment-receipt": paymentReceiptTemplate,
+  "payment-failed": paymentFailedTemplate,
 };
