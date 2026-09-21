@@ -35,9 +35,11 @@ export const Route = createFileRoute("/support")({
 
 function SupportPage() {
   const [amount, setAmount] = useState("10");
+  const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
   const cents = Math.round(Number(amount.replace(",", ".")) * 100);
-  const valid = Number.isInteger(cents) && cents >= 100 && cents <= 500000;
+  const validAmount = Number.isInteger(cents) && cents >= 100 && cents <= 500000;
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 
   return (
     <main className="mx-auto max-w-xl px-6 py-16">
@@ -57,6 +59,7 @@ function SupportPage() {
           <StripeCheckoutForm
             kind="donation"
             amountInCents={cents}
+            customerEmail={email.trim()}
             returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
           />
         ) : (
@@ -86,8 +89,26 @@ function SupportPage() {
                 Between $1 and $5,000.
               </p>
             </div>
-            <Button className="mt-5" disabled={!valid} onClick={() => setOpen(true)}>
-              <Heart className="mr-2 size-4" /> Give ${valid ? (cents / 100).toFixed(2) : "—"}
+            <div className="mt-4 grid gap-2">
+              <Label htmlFor="support-email">Your email address</Label>
+              <Input
+                id="support-email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-describedby="support-email-hint"
+              />
+              <p id="support-email-hint" className="text-xs text-muted-foreground">
+                We send your receipt here. Nothing else.
+              </p>
+            </div>
+            <Button
+              className="mt-5"
+              disabled={!validAmount || !validEmail}
+              onClick={() => setOpen(true)}
+            >
+              <Heart className="mr-2 size-4" /> Give ${validAmount ? (cents / 100).toFixed(2) : "—"}
             </Button>
           </>
         )}
