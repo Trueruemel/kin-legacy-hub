@@ -77,6 +77,7 @@ export const listVault = createServerFn({ method: "GET" })
       content: row.content,
       transcript: row.transcript,
       createdBy: row.created_by,
+      accessExpiresAt: row.access_expires_at ?? null,
     }));
   });
 
