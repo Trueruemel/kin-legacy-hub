@@ -1245,6 +1245,7 @@ export type Database = {
         Returns: {
           cancel_at_period_end: boolean
           is_paid: boolean
+          last_payment_at: string
           next_payment_at: string
         }[]
       }
