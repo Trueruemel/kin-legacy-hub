@@ -216,9 +216,15 @@ export type BillingSubscription = {
 
 export type BillingInvoice = {
   id: string;
+  number: string | null;
   status: string | null;
   amount: string;
+  amountCents: number;
+  currency: string;
   paidOn: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  description: string | null;
   pdfUrl: string | null;
   hostedUrl: string | null;
 };
