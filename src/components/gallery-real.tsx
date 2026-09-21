@@ -310,6 +310,7 @@ export function RealGallery({
                   ))}
                 </div>
               )}
+              {canEdit && <PhotoInsight item={item} familyId={familyId} />}
             </div>
           </Card>
         ))}
