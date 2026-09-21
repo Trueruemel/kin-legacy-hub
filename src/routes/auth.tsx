@@ -165,6 +165,17 @@ export function AuthPage() {
       toast.error(result.error.message);
       return;
     }
+    // Supabase hides whether an address is already registered: it returns a
+    // user with an empty `identities` array and sends no email. Without this
+    // branch people wait forever for a mail that will never arrive.
+    if (result.data?.user && (result.data.user.identities?.length ?? 0) === 0) {
+      setNeedsConfirmation(false);
+      setAwaitingConfirmation(null);
+      toast.error(
+        "This email address already has an account. Please sign in, or use “Forgot your password?”.",
+      );
+      return;
+    }
     // With email confirmation switched on, sign-up returns no session. Sending
     // the person to a protected page would bounce them straight back here, so
     // we show a "check your inbox" screen instead.
