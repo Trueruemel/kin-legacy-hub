@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+import { describeHistoricPhoto } from "./photo-insight";
 import { throwSafe } from "./safe-error";
 
 export type GalleryAlbum = {
