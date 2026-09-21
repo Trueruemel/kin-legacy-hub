@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { HardDrive } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle, ExternalLink, HardDrive } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { useServerFn } from "@tanstack/react-start";
 
@@ -14,18 +15,14 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { useActiveFamily } from "@/hooks/use-active-family";
-import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
+import { EXTRA_STORAGE, formatGb } from "@/lib/products";
 import { getFamilyStorage } from "@/lib/storage-quota.functions";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
-
-function formatGb(bytes: number): string {
-  const gb = bytes / (1024 * 1024 * 1024);
-  if (gb < 0.1) return `${Math.max(1, Math.round(bytes / (1024 * 1024)))} MB`;
-  return `${gb.toFixed(1)} GB`;
-}
-
-const STORAGE_PRICE_ID = "extra_storage_30gb_monthly";
+import {
+  cancelMySubscription,
+  getMyBilling,
+  resumeMySubscription,
+} from "@/utils/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/upgrade")({
   head: () => ({
@@ -48,36 +45,86 @@ export const Route = createFileRoute("/_authenticated/upgrade")({
   component: UpgradePage,
 });
 
-function UpgradePage() {
-  const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+function formatDate(value: string | null): string | null {
+  if (!value) return null;
+  return new Date(value).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 
-  const { data: active } = useQuery({
-    queryKey: ["storage-subscription", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("subscriptions")
-        .select("status,current_period_end,cancel_at_period_end")
-        .eq("user_id", user!.id)
-        .eq("environment", getStripeEnvironment())
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
+function UpgradePage() {
+  const [open, setOpen] = useState(false);
+  const configured = paymentsConfigured();
+  const queryClient = useQueryClient();
+
+  const fetchBilling = useServerFn(getMyBilling);
+  const cancelFn = useServerFn(cancelMySubscription);
+  const resumeFn = useServerFn(resumeMySubscription);
+
+  const { data: billing, isLoading: billingLoading } = useQuery({
+    queryKey: ["my-billing"],
+    enabled: configured,
+    queryFn: () => fetchBilling({ data: { environment: getStripeEnvironment() } }),
   });
 
-  const isActive =
-    !!active && ["active", "trialing", "past_due"].includes(active.status as string);
+  const billingError = billing && "error" in billing ? billing.error : null;
+  const storageSubs =
+    billing && !("error" in billing)
+      ? billing.subscriptions.filter((s) => s.priceId === EXTRA_STORAGE.priceId)
+      : [];
+  const invoices = billing && !("error" in billing) ? billing.invoices : [];
+  const needsCardUpdate = billing && !("error" in billing) ? billing.needsCardUpdate : false;
+  // "Paid up" covers a cancelled plan whose month has not run out yet — the
+  // same rule the storage limit itself uses.
+  const payingSubs = storageSubs.filter(
+    (s) =>
+      ["active", "trialing", "past_due"].includes(s.status) ||
+      (["canceled", "unpaid"].includes(s.status) &&
+        !!s.currentPeriodEnd &&
+        new Date(s.currentPeriodEnd) > new Date()),
+  );
 
   const { family } = useActiveFamily();
   const fetchStorage = useServerFn(getFamilyStorage);
   const { data: storage } = useQuery({
-    queryKey: ["family-storage", family?.id, active?.status],
+    queryKey: ["family-storage", family?.id],
     enabled: !!family,
     queryFn: () =>
       fetchStorage({ data: { familyId: family!.id, environment: getStripeEnvironment() } }),
+  });
+
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ["my-billing"] });
+    void queryClient.invalidateQueries({ queryKey: ["family-storage"] });
+    void queryClient.invalidateQueries({ queryKey: ["family-plans"] });
+  };
+
+  const cancel = useMutation({
+    mutationFn: async (subscriptionId: string) => {
+      const result = await cancelFn({ data: { subscriptionId, environment: getStripeEnvironment() } });
+      if ("error" in result) throw new Error(result.error);
+      return result;
+    },
+    onSuccess: () => {
+      toast.success("Your extra storage stops at the end of the month you already paid for.");
+      refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const resume = useMutation({
+    mutationFn: async (subscriptionId: string) => {
+      const result = await resumeFn({ data: { subscriptionId, environment: getStripeEnvironment() } });
+      if ("error" in result) throw new Error(result.error);
+      return result;
+    },
+    onSuccess: () => {
+      toast.success("Your extra storage will keep renewing.");
+      refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
   });
 
   const usedPercent = storage
@@ -92,12 +139,24 @@ function UpgradePage() {
         description="More room for the photos, recordings and documents your family keeps."
       />
 
+      {needsCardUpdate ? (
+        <Card className="mb-6 max-w-xl border-destructive/40 bg-destructive/5 p-5" role="alert">
+          <p className="flex items-start gap-2 text-sm">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+            <span>
+              A payment for your extra storage did not go through. Your files are safe. Add 30 GB
+              again below with a working card, or let the plan lapse — nothing is deleted.
+            </span>
+          </p>
+        </Card>
+      ) : null}
+
       {storage ? (
         <Card className="mb-6 max-w-xl p-6">
           <h2 className="font-display text-lg font-semibold">Your family's room</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {formatGb(storage.usedBytes)} of {formatGb(storage.limitBytes)} used
-            {storage.extraActive ? " — includes your extra 30 GB" : ""}
+            {storage.extraActive ? " — includes extra storage your family pays for" : ""}
           </p>
           <Progress
             value={usedPercent}
@@ -107,48 +166,143 @@ function UpgradePage() {
         </Card>
       ) : null}
 
-
       <Card className="max-w-xl p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-display text-xl font-semibold">30 GB extra storage</h2>
+            <h2 className="font-display text-xl font-semibold">{EXTRA_STORAGE.name}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Private storage for your family archive. Cancel any time — your files stay yours.
             </p>
           </div>
-          <p className="whitespace-nowrap font-display text-2xl font-semibold">$3.99</p>
+          <p className="whitespace-nowrap font-display text-2xl font-semibold">
+            {EXTRA_STORAGE.priceLabel}
+          </p>
         </div>
-        <p className="mt-1 text-right text-xs text-muted-foreground">per month</p>
+        <p className="mt-1 text-right text-xs text-muted-foreground">
+          {EXTRA_STORAGE.intervalLabel}
+        </p>
 
         <Separator className="my-5" />
 
-        {isActive ? (
-          <div className="flex items-center gap-2 text-sm">
-            <Badge>
-              <HardDrive className="mr-1 size-3" /> Active
-            </Badge>
-            <span className="text-muted-foreground">
-              {active?.current_period_end
-                ? `Renews ${new Date(active.current_period_end as string).toLocaleDateString()}`
-                : "Your extra storage is active."}
-            </span>
-          </div>
-        ) : !paymentsConfigured() ? (
+        {!configured ? (
           <p className="text-sm text-muted-foreground">
             Payments are not switched on for this site yet.
           </p>
-        ) : open ? (
-          <StripeCheckoutForm
-            kind="price"
-            priceId={STORAGE_PRICE_ID}
-            {...(user?.email ? { customerEmail: user.email } : {})}
-            {...(user?.id ? { userId: user.id } : {})}
-            returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
-          />
         ) : (
-          <Button onClick={() => setOpen(true)}>Add 30 GB</Button>
+          <>
+            {billingLoading ? (
+              <p className="text-sm text-muted-foreground">Loading your purchases…</p>
+            ) : billingError ? (
+              <p className="text-sm text-destructive">{billingError}</p>
+            ) : payingSubs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                You have no extra storage yet. Your family starts with 5 GB.
+              </p>
+            ) : (
+              <ul className="space-y-4">
+                {payingSubs.map((sub) => {
+                  const endsOn = formatDate(sub.currentPeriodEnd);
+                  return (
+                    <li key={sub.id} className="rounded-lg border p-4">
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <Badge variant={sub.cancelAtPeriodEnd ? "secondary" : "default"}>
+                          <HardDrive className="mr-1 size-3" aria-hidden="true" />
+                          {sub.cancelAtPeriodEnd ? "Ending" : "Active"}
+                        </Badge>
+                        <span className="text-muted-foreground">
+                          {sub.quantity > 1
+                            ? `${sub.quantity} × ${EXTRA_STORAGE.gigabytes} GB`
+                            : `${EXTRA_STORAGE.gigabytes} GB`}
+                          {sub.amount ? ` · ${sub.amount} ${EXTRA_STORAGE.intervalLabel}` : ""}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {sub.cancelAtPeriodEnd
+                          ? endsOn
+                            ? `Your extra room stays until ${endsOn}, then the plan ends. Your files stay.`
+                            : "This plan ends at the end of the month you paid for."
+                          : endsOn
+                            ? `Next payment on ${endsOn}.`
+                            : "Renews monthly."}
+                      </p>
+                      <div className="mt-3">
+                        {sub.cancelAtPeriodEnd ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={resume.isPending}
+                            onClick={() => resume.mutate(sub.id)}
+                          >
+                            Keep it running
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={cancel.isPending}
+                            onClick={() => cancel.mutate(sub.id)}
+                          >
+                            Cancel at end of month
+                          </Button>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            <div className="mt-5">
+              {open ? (
+                <StripeCheckoutForm
+                  kind="price"
+                  priceId={EXTRA_STORAGE.priceId}
+                  returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+                />
+              ) : (
+                <Button onClick={() => setOpen(true)}>
+                  {payingSubs.length > 0
+                    ? `Add another ${EXTRA_STORAGE.gigabytes} GB`
+                    : `Add ${EXTRA_STORAGE.gigabytes} GB`}
+                </Button>
+              )}
+              {payingSubs.length > 0 && !open ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  You already have extra storage. Adding another block gives your family
+                  {` ${EXTRA_STORAGE.gigabytes} GB`} more and is charged separately.
+                </p>
+              ) : null}
+            </div>
+          </>
         )}
       </Card>
+
+      {configured && invoices.length > 0 ? (
+        <Card className="mt-6 max-w-xl p-6">
+          <h2 className="font-display text-lg font-semibold">Your payments</h2>
+          <ul className="mt-4 space-y-3 text-sm">
+            {invoices.map((invoice) => (
+              <li key={invoice.id} className="flex flex-wrap items-center justify-between gap-2">
+                <span>
+                  {formatDate(invoice.paidOn) ?? "—"} · {invoice.amount}
+                  {invoice.status && invoice.status !== "paid" ? ` · ${invoice.status}` : ""}
+                </span>
+                {invoice.pdfUrl || invoice.hostedUrl ? (
+                  <a
+                    className="inline-flex items-center gap-1 underline"
+                    href={(invoice.pdfUrl ?? invoice.hostedUrl) as string}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Receipt
+                    <ExternalLink className="size-3" aria-hidden="true" />
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
     </AppLayout>
   );
 }
