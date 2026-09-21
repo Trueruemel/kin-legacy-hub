@@ -239,6 +239,9 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     case "checkout.session.async_payment_succeeded":
       await sendCheckoutReceipt(event.data.object, env);
       break;
+    case "invoice.paid":
+      await sendInvoiceReceipt(event.data.object, env);
+      break;
     case "invoice.payment_failed":
       await handlePaymentFailed(event.data.object, env);
       break;

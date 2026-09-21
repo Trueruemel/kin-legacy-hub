@@ -286,11 +286,16 @@ function PaidFamilies() {
               >
                 {plan.familyName}
               </Link>
-              <span className="text-xs text-muted-foreground">
+              <span className="block text-xs text-muted-foreground">
+                {plan.lastPaymentAt
+                  ? `Last payment ${new Date(plan.lastPaymentAt).toLocaleDateString()}`
+                  : "No payment recorded yet"}
+              </span>
+              <span className="block text-xs text-muted-foreground">
                 {plan.nextPaymentAt
                   ? plan.stopsAtPeriodEnd
-                    ? `Ends ${new Date(plan.nextPaymentAt).toLocaleDateString()}`
-                    : `Next payment ${new Date(plan.nextPaymentAt).toLocaleDateString()}`
+                    ? `Plan ends ${new Date(plan.nextPaymentAt).toLocaleDateString()} — files stay, extra space goes`
+                    : `Next payment due ${new Date(plan.nextPaymentAt).toLocaleDateString()}`
                   : "Next payment date not available yet"}
               </span>
             </span>
