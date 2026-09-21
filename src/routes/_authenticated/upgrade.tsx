@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  CreditCard,
   Download,
   ExternalLink,
   FileSpreadsheet,
   HardDrive,
+  RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -127,7 +129,22 @@ function UpgradePage() {
     void queryClient.invalidateQueries({ queryKey: ["my-billing"] });
     void queryClient.invalidateQueries({ queryKey: ["family-storage"] });
     void queryClient.invalidateQueries({ queryKey: ["family-plans"] });
+    void queryClient.invalidateQueries({ queryKey: ["purchase-sync"] });
   };
+
+  const openPortal = useMutation({
+    mutationFn: async () => {
+      const result = await portalFn({
+        data: { returnUrl: window.location.href, environment: getStripeEnvironment() },
+      });
+      if ("error" in result) throw new Error(result.error);
+      return result.url;
+    },
+    onSuccess: (url) => {
+      window.open(url, "_blank", "noopener,noreferrer");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const cancel = useMutation({
     mutationFn: async (subscriptionId: string) => {
@@ -167,15 +184,41 @@ function UpgradePage() {
         description="More room for the photos, recordings and documents your family keeps."
       />
 
+      {configured ? (
+        <div className="mb-6 flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={openPortal.isPending}
+            onClick={() => openPortal.mutate()}
+          >
+            <CreditCard className="size-4" aria-hidden="true" />
+            {openPortal.isPending ? "Opening…" : "Payment details & invoices"}
+          </Button>
+          <Button variant="ghost" size="sm" disabled={syncing} onClick={refresh}>
+            <RefreshCw className="size-4" aria-hidden="true" />
+            {syncing ? "Checking…" : "Refresh my purchases"}
+          </Button>
+        </div>
+      ) : null}
+
       {needsCardUpdate ? (
         <Card className="mb-6 max-w-xl border-destructive/40 bg-destructive/5 p-5" role="alert">
           <p className="flex items-start gap-2 text-sm">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
             <span>
-              A payment for your extra storage did not go through. Your files are safe. Add 30 GB
-              again below with a working card, or let the plan lapse — nothing is deleted.
+              A payment for your extra storage did not go through. Your files are safe. Change your
+              card under “Payment details & invoices” above — nothing is deleted meanwhile.
             </span>
           </p>
+          <Button
+            className="mt-3"
+            size="sm"
+            disabled={openPortal.isPending}
+            onClick={() => openPortal.mutate()}
+          >
+            <CreditCard className="size-4" aria-hidden="true" /> Change my card
+          </Button>
         </Card>
       ) : null}
 
