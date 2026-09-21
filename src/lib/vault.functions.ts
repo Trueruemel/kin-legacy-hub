@@ -94,6 +94,12 @@ export const sealVaultEntry = createServerFn({ method: "POST" })
         releaseOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
         recipients: z.array(z.string().trim().min(1).max(80)).max(10),
         sealedByName: z.string().trim().min(1).max(80),
+        /** Optional day after which the opened item closes again. */
+        accessExpiresOn: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .nullable()
+          .optional(),
         media: z
           .object({
             path: z.string().min(3),
