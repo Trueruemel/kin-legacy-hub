@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ExternalLink, HardDrive } from "lucide-react";
+import {
+  AlertTriangle,
+  Download,
+  ExternalLink,
+  FileSpreadsheet,
+  HardDrive,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
