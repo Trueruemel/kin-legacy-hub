@@ -165,6 +165,7 @@ export const releaseVaultEntry = createServerFn({ method: "POST" })
       .update({ released: true })
       .eq("id", data.entryId);
     if (error) throwSafe(error, "releaseVaultEntry");
+    await logVaultAccess(context, data.entryId, "released");
     return { id: data.entryId, released: true };
   });
 
@@ -177,7 +178,7 @@ export const vaultMediaUrl = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: entry, error } = await supabase
       .from("vault_entries")
-      .select("media_path, release_rule, release_on, released")
+      .select("media_path, release_rule, release_on, released, access_expires_at")
       .eq("id", data.entryId)
       .maybeSingle();
     if (error) throwSafe(error, "vaultMediaUrl");
@@ -188,6 +189,7 @@ export const vaultMediaUrl = createServerFn({ method: "POST" })
       .from("memories")
       .createSignedUrl(entry.media_path, 300);
     if (signError) throwSafe(signError, "vaultMediaUrl");
+    await logVaultAccess(context, data.entryId, "downloaded");
     return { url: signed?.signedUrl ?? null };
   });
 
