@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
-import { verifyWebhook, type StripeEnv } from "@/lib/stripe.server";
+import { createStripeClient, verifyWebhook, type StripeEnv } from "@/lib/stripe.server";
 
 let _supabase: any = null;
 function getSupabase(): any {
@@ -18,10 +18,30 @@ function priceKey(item: any): string | undefined {
   return item?.price?.lookup_key || item?.price?.metadata?.lovable_external_id || item?.price?.id;
 }
 
+/**
+ * The buyer's account id normally rides along on the subscription. If it is
+ * missing (older records, plan changes made outside checkout) we fall back to
+ * the customer record, so a payment is never left unattached.
+ */
+async function resolveUserId(subscription: any, env: StripeEnv): Promise<string | undefined> {
+  if (subscription.metadata?.userId) return subscription.metadata.userId;
+  const customerId =
+    typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
+  if (!customerId) return undefined;
+  try {
+    const stripe = createStripeClient(env);
+    const customer = await stripe.customers.retrieve(customerId);
+    if (!("deleted" in customer)) return customer.metadata?.["userId"] ?? undefined;
+  } catch (error) {
+    console.error("Could not resolve the buyer for a subscription:", error);
+  }
+  return undefined;
+}
+
 async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
-  const userId = subscription.metadata?.userId;
+  const userId = await resolveUserId(subscription, env);
   if (!userId) {
-    console.error("No userId in subscription metadata");
+    console.error("No userId for subscription", subscription.id);
     return;
   }
   const item = subscription.items?.data?.[0];
@@ -40,6 +60,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
         status: subscription.status,
         current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
         current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+        cancel_at_period_end: subscription.cancel_at_period_end || false,
         environment: env,
         updated_at: new Date().toISOString(),
       },
