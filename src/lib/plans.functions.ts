@@ -9,6 +9,7 @@ export type FamilyPlan = {
   isPaid: boolean;
   nextPaymentAt: string | null;
   stopsAtPeriodEnd: boolean;
+  lastPaymentAt: string | null;
 };
 
 /** Which of my families are on a paid plan, and when their next payment is due. */
