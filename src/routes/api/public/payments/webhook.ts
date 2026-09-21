@@ -69,6 +69,14 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
 }
 
 const STORAGE_PRICE_ID = "extra_storage_30gb_monthly";
+const SITE_URL = process.env["PUBLIC_SITE_URL"] ?? "https://eternalmemorys.enterprises";
+
+/** Looks up the buyer's email address from their account. */
+async function emailForUser(userId: string | undefined): Promise<string | undefined> {
+  if (!userId) return undefined;
+  const { data } = await getSupabase().auth.admin.getUserById(userId);
+  return data?.user?.email ?? undefined;
+}
 
 /** Thanks the buyer for extra storage. Never lets an email failure fail the webhook. */
 async function sendStorageReceipt(subscription: any, env: StripeEnv) {
