@@ -2,12 +2,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Download,
+  Eye,
   FileText,
+  History,
   LockKeyhole,
   Mic,
   Paperclip,
   Plus,
   Sparkles,
+  Timer,
   Unlock,
   Video,
   X,
@@ -34,9 +37,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/lib/file-upload";
 import { countdown, formatDate, formatLongDate } from "@/lib/format";
 import {
+  confirmVaultAccess,
   listVault,
+  listVaultAccess,
   releaseVaultEntry,
   sealVaultEntry,
+  setVaultAccessExpiry,
   vaultMediaUrl,
   vaultStory,
   type RealVaultItem,
@@ -159,6 +165,121 @@ function VaultStory({ item }: { item: RealVaultItem }) {
   );
 }
 
+const accessLabel: Record<string, string> = {
+  opened: "opened it",
+  downloaded: "downloaded the file",
+  released: "released it early",
+  expiry_changed: "changed the access period",
+};
+
+/** Who looked inside, and when. Every family member can read this list; nobody can edit it. */
+function AccessLog({ item }: { item: RealVaultItem }) {
+  const load = useServerFn(listVaultAccess);
+  const log = useQuery({
+    queryKey: ["vault-access", item.id],
+    queryFn: () => load({ data: { entryId: item.id } }),
+  });
+  const events = log.data ?? [];
+
+  return (
+    <div className="rounded-xl border p-4 text-sm">
+      <p className="flex items-center gap-2 font-medium">
+        <History className="size-4 text-gold" aria-hidden="true" /> Who opened this
+      </p>
+      {log.isLoading ? (
+        <p className="mt-2 text-muted-foreground">Loading the log…</p>
+      ) : events.length === 0 ? (
+        <p className="mt-2 text-muted-foreground">Nobody has opened this yet.</p>
+      ) : (
+        <ul className="mt-2 space-y-1 text-muted-foreground">
+          {events.map((event) => (
+            <li key={event.id}>
+              {event.actorName} {accessLabel[event.action] ?? event.action} ·{" "}
+              {formatLongDate(event.at)}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** Optional end date for access, set by the author or a family admin. */
+function ExpiryControl({
+  item,
+  familyId,
+  canManage,
+}: {
+  item: RealVaultItem;
+  familyId: string;
+  canManage: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const save = useServerFn(setVaultAccessExpiry);
+  const [value, setValue] = useState(item.accessExpiresAt ? item.accessExpiresAt.slice(0, 10) : "");
+
+  const mutation = useMutation({
+    mutationFn: (expiresOn: string | null) => save({ data: { entryId: item.id, expiresOn } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["vault", familyId] });
+      void queryClient.invalidateQueries({ queryKey: ["vault-access", item.id] });
+      toast.success("Access period updated.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  if (!canManage) {
+    if (!item.accessExpiresAt) return null;
+    return (
+      <p className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Timer className="size-4 text-gold" aria-hidden="true" /> Open until{" "}
+        {formatLongDate(item.accessExpiresAt)}.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={`rv-expiry-${item.id}`} className="flex items-center gap-2">
+        <Timer className="size-4 text-gold" aria-hidden="true" /> Open until (optional)
+      </Label>
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          id={`rv-expiry-${item.id}`}
+          type="date"
+          className="max-w-44"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={mutation.isPending}
+          onClick={() => mutation.mutate(value || null)}
+        >
+          Save
+        </Button>
+        {item.accessExpiresAt ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={mutation.isPending}
+            onClick={() => {
+              setValue("");
+              mutation.mutate(null);
+            }}
+          >
+            Remove end date
+          </Button>
+        ) : null}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        After this day the item closes again. The file itself is never deleted.
+      </p>
+    </div>
+  );
+}
+
 export function RealVault({
   familyId,
   sealedByName,
@@ -207,7 +328,22 @@ export function RealVault({
 
   const [open, setOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", content: "", releaseOn: "2035-01-01" });
+  const [revealedId, setRevealedId] = useState<string | null>(null);
+  const confirmAccess = useServerFn(confirmVaultAccess);
+  const revealMutation = useMutation({
+    mutationFn: (entryId: string) => confirmAccess({ data: { entryId } }),
+    onSuccess: (_result, entryId) => {
+      setRevealedId(entryId);
+      void queryClient.invalidateQueries({ queryKey: ["vault-access", entryId] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const [form, setForm] = useState({
+    title: "",
+    content: "",
+    releaseOn: "2035-01-01",
+    accessExpiresOn: "",
+  });
   const [recipients, setRecipients] = useState("The family");
   const [file, setFile] = useState<File | null>(null);
   const [sealing, setSealing] = useState(false);
@@ -241,6 +377,7 @@ export function RealVault({
           title: form.title.trim(),
           content: form.content.trim(),
           releaseOn: form.releaseOn,
+          accessExpiresOn: form.accessExpiresOn || null,
           recipients: recipients
             .split(",")
             .map((r) => r.trim())
@@ -253,7 +390,7 @@ export function RealVault({
     },
     onSuccess: () => {
       setOpen(false);
-      setForm({ title: "", content: "", releaseOn: "2035-01-01" });
+      setForm({ title: "", content: "", releaseOn: "2035-01-01", accessExpiresOn: "" });
       setFile(null);
       setRecipients("The family");
       if (fileRef.current) fileRef.current.value = "";
@@ -400,7 +537,26 @@ export function RealVault({
                   Sealed by {detail.sealedByName} on {formatLongDate(detail.sealedAt)}.
                 </DialogDescription>
               </DialogHeader>
-              {detail.isOpen ? (
+              {detail.isOpen && revealedId !== detail.id ? (
+                <div className="rounded-xl border border-gold/40 bg-gold/5 p-6 text-center">
+                  <Eye className="mx-auto size-8 text-gold" aria-hidden="true" />
+                  <p className="mt-3 font-display text-lg">Open this sealed item?</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Opening is recorded in the family log with your name and the time.
+                    {detail.accessExpiresAt
+                      ? ` Access ends on ${formatLongDate(detail.accessExpiresAt)}.`
+                      : ""}
+                  </p>
+                  <Button
+                    className="mt-4 bg-gold text-gold-foreground hover:bg-gold/90"
+                    disabled={revealMutation.isPending}
+                    onClick={() => revealMutation.mutate(detail.id)}
+                  >
+                    <Eye className="size-4" aria-hidden="true" />
+                    {revealMutation.isPending ? "Opening…" : "Yes, show it to me"}
+                  </Button>
+                </div>
+              ) : detail.isOpen ? (
                 <>
                   <div className="index-card whitespace-pre-line py-4 pl-12 pr-5 text-[15px] leading-7">
                     {detail.content ?? detail.preview}
@@ -450,7 +606,17 @@ export function RealVault({
                 </div>
               )}
 
-              <AttachmentView item={detail} />
+              {revealedId === detail.id ? <AttachmentView item={detail} /> : null}
+
+              <ExpiryControl
+                item={detail}
+                familyId={familyId}
+                canManage={
+                  canAdmin === true || (!!currentUserId && detail.createdBy === currentUserId)
+                }
+              />
+
+              <AccessLog item={detail} />
 
               <div className="text-sm">
                 <p className="font-medium">Recipients</p>
@@ -533,6 +699,18 @@ export function RealVault({
                 value={form.releaseOn}
                 onChange={(e) => setForm((f) => ({ ...f, releaseOn: e.target.value }))}
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="rv-expires">Open until (optional)</Label>
+              <Input
+                id="rv-expires"
+                type="date"
+                value={form.accessExpiresOn}
+                onChange={(e) => setForm((f) => ({ ...f, accessExpiresOn: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave empty to keep it open forever. After this day it closes again — the file stays.
+              </p>
             </div>
           </div>
           <DialogFooter>
