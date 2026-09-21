@@ -28,6 +28,7 @@ import {
   cancelMySubscription,
   getMyBilling,
   resumeMySubscription,
+  type BillingInvoice,
 } from "@/utils/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/upgrade")({
