@@ -12,6 +12,8 @@ export type VaultReleaseFields = Readonly<{
   release_rule?: string | null;
   release_on?: string | null;
   released?: boolean | null;
+  /** Optional moment after which an open entry closes again. */
+  access_expires_at?: string | null;
 }>;
 
 /**
