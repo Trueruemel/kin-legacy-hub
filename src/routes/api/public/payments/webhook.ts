@@ -177,6 +177,51 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
     .eq("environment", env);
 }
 
+/**
+ * A renewal was declined. Stripe keeps retrying, so the plan is only marked as
+ * behind on payment and the family is told to update their card. Nothing is
+ * removed and no file is touched.
+ */
+async function handlePaymentFailed(invoice: any, env: StripeEnv) {
+  const subscriptionId =
+    typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id;
+  if (!subscriptionId) return;
+
+  await getSupabase()
+    .from("subscriptions")
+    .update({ status: "past_due", updated_at: new Date().toISOString() })
+    .eq("stripe_subscription_id", subscriptionId)
+    .eq("environment", env);
+
+  try {
+    const { data: row } = await getSupabase()
+      .from("subscriptions")
+      .select("user_id,price_id")
+      .eq("stripe_subscription_id", subscriptionId)
+      .eq("environment", env)
+      .maybeSingle();
+
+    const email = await emailForUser(row?.user_id);
+    if (!email) return;
+
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("payment-failed", email, {
+      idempotencyKey: `payment-failed:${env}:${invoice.id}`,
+      templateData: {
+        amount: formatMoney(invoice.amount_due, invoice.currency),
+        paidOn: undefined,
+        attemptedOn: formatDate(invoice.created) ?? formatDate(Date.now() / 1000)!,
+        ...(invoice.next_payment_attempt
+          ? { retriesUntil: formatDate(invoice.next_payment_attempt) }
+          : {}),
+        billingUrl: `${SITE_URL}/upgrade`,
+      },
+    });
+  } catch (error) {
+    console.error("Payment failed email could not be sent:", error);
+  }
+}
+
 async function handleWebhook(req: Request, env: StripeEnv) {
   const event = await verifyWebhook(req, env);
 
@@ -192,7 +237,11 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       await handleSubscriptionDeleted(event.data.object, env);
       break;
     case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded":
       await sendCheckoutReceipt(event.data.object, env);
+      break;
+    case "invoice.payment_failed":
+      await handlePaymentFailed(event.data.object, env);
       break;
     default:
       console.log("Unhandled payment event:", event.type);
