@@ -151,3 +151,61 @@ export const addMediaItem = createServerFn({ method: "POST" })
     if (error) throwSafe(error, "addMediaItem");
     return { id };
   });
+
+export type PhotoInsightResponse =
+  | { description: string; questions: string[] }
+  | { error: string };
+
+/**
+ * Asks the AI gateway for a plain description of an uploaded photo plus a few memory
+ * questions, then stores the answer with the photo so the family keeps it.
+ * Only the picture is sent — no caption, no names (see photo-insight.ts).
+ */
+export const describePhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ mediaId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<PhotoInsightResponse> => {
+    const { supabase } = context;
+    const apiKey = process.env["LOVABLE_API_KEY"];
+    if (!apiKey) return { error: "The AI helper is not switched on for this site yet." };
+
+    const { data: item, error } = await supabase
+      .from("media_items")
+      .select("id, storage_path, external_url, media_mime")
+      .eq("id", data.mediaId)
+      .maybeSingle();
+    if (error) throwSafe(error, "describePhoto");
+    if (!item) return { error: "That photo is not available to you." };
+    if (!item.media_mime?.startsWith("image/")) {
+      return { error: "Only photos can be described." };
+    }
+
+    let imageUrl = item.external_url ?? null;
+    if (item.storage_path) {
+      const { data: signed, error: signError } = await supabase.storage
+        .from("memories")
+        .createSignedUrl(item.storage_path, 600);
+      if (signError) throwSafe(signError, "describePhoto");
+      imageUrl = signed?.signedUrl ?? null;
+    }
+    if (!imageUrl) return { error: "That photo could not be opened." };
+
+    const result = await describeHistoricPhoto({ imageUrl }, { apiKey, fetchImpl: fetch });
+    if ("failure" in result) {
+      const message =
+        result.failure === "rate_limited"
+          ? "The AI helper is busy right now — please try again in a moment."
+          : result.failure === "no_credits"
+            ? "The AI helper has run out of credit for this site."
+            : "The AI helper could not describe this photo right now.";
+      return { error: message };
+    }
+
+    const { error: saveError } = await supabase
+      .from("media_items")
+      .update({ ai_description: result.description, ai_questions: result.questions })
+      .eq("id", data.mediaId);
+    if (saveError) throwSafe(saveError, "describePhoto");
+
+    return { description: result.description, questions: result.questions };
+  });
