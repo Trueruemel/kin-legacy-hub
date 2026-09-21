@@ -22,6 +22,11 @@ export type VaultReleaseFields = Readonly<{
  * else — unknown rules, missing or unparseable dates — stays sealed.
  */
 export function isReleased(entry: VaultReleaseFields, now: number = Date.now()): boolean {
+  // An expiry, once past, closes the entry again whatever the release rule says.
+  if (entry.access_expires_at) {
+    const expiresAt = new Date(entry.access_expires_at).getTime();
+    if (!Number.isFinite(expiresAt) || expiresAt <= now) return false;
+  }
   if (entry.release_rule === "immediate") return true;
   if (entry.released === true) return true;
   if (entry.release_rule !== "on_date" || !entry.release_on) return false;

@@ -38,6 +38,16 @@ export type RealVaultItem = {
   content: string | null;
   transcript: string | null;
   createdBy: string | null;
+  /** Optional moment after which the entry closes again. */
+  accessExpiresAt: string | null;
+};
+
+export type VaultAccessEvent = {
+  id: string;
+  action: "opened" | "downloaded" | "released" | "expiry_changed";
+  actorName: string;
+  at: string;
+  entryId: string;
 };
 
 /** All vault entries of a family — content/media only after release. */
