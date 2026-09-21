@@ -149,6 +149,35 @@ async function sendCheckoutReceipt(session: any, env: StripeEnv) {
   }
 }
 
+/**
+ * Receipt for a renewal month. The very first invoice of a subscription is skipped —
+ * that one is already covered by the storage receipt.
+ */
+async function sendInvoiceReceipt(invoice: any, env: StripeEnv) {
+  try {
+    if (invoice.billing_reason === "subscription_create") return;
+    if ((invoice.amount_paid ?? 0) <= 0) return;
+
+    const email =
+      invoice.customer_email ||
+      (await emailForUser(invoice.subscription_details?.metadata?.userId));
+    if (!email) return;
+
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("payment-receipt", email, {
+      idempotencyKey: `payment-receipt:${env}:${invoice.id}`,
+      templateData: {
+        description: invoice.lines?.data?.[0]?.description ?? "Extra storage",
+        amount: formatMoney(invoice.amount_paid, invoice.currency),
+        paidOn: formatDate(invoice.status_transitions?.paid_at ?? invoice.created)!,
+        reference: invoice.number ?? invoice.id,
+      },
+    });
+  } catch (error) {
+    console.error("Invoice receipt email failed:", error);
+  }
+}
+
 async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
   const item = subscription.items?.data?.[0];
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
