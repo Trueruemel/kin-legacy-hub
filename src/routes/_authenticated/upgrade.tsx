@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ExternalLink, HardDrive } from "lucide-react";
+import {
+  AlertTriangle,
+  Download,
+  ExternalLink,
+  FileSpreadsheet,
+  HardDrive,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,6 +28,7 @@ import {
   cancelMySubscription,
   getMyBilling,
   resumeMySubscription,
+  type BillingInvoice,
 } from "@/utils/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/upgrade")({
@@ -277,32 +284,149 @@ function UpgradePage() {
         )}
       </Card>
 
-      {configured && invoices.length > 0 ? (
-        <Card className="mt-6 max-w-xl p-6">
-          <h2 className="font-display text-lg font-semibold">Your payments</h2>
-          <ul className="mt-4 space-y-3 text-sm">
-            {invoices.map((invoice) => (
-              <li key={invoice.id} className="flex flex-wrap items-center justify-between gap-2">
-                <span>
-                  {formatDate(invoice.paidOn) ?? "—"} · {invoice.amount}
-                  {invoice.status && invoice.status !== "paid" ? ` · ${invoice.status}` : ""}
-                </span>
-                {invoice.pdfUrl || invoice.hostedUrl ? (
-                  <a
-                    className="inline-flex items-center gap-1 underline"
-                    href={(invoice.pdfUrl ?? invoice.hostedUrl) as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Receipt
-                    <ExternalLink className="size-3" aria-hidden="true" />
-                  </a>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : null}
+      {configured && invoices.length > 0 ? <PaymentHistory invoices={invoices} /> : null}
     </AppLayout>
+  );
+}
+
+type PeriodGroup = {
+  key: string;
+  label: string;
+  invoices: BillingInvoice[];
+  totalCents: number;
+  currency: string;
+};
+
+/** Groups receipts into the billing period (calendar month) they were charged in. */
+function groupByPeriod(invoices: BillingInvoice[]): PeriodGroup[] {
+  const groups = new Map<string, PeriodGroup>();
+  for (const invoice of invoices) {
+    const stamp = invoice.periodStart ?? invoice.paidOn;
+    const date = stamp ? new Date(stamp) : null;
+    const key = date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+      : "unknown";
+    const label = date
+      ? date.toLocaleDateString(undefined, { year: "numeric", month: "long" })
+      : "Date unknown";
+    const group =
+      groups.get(key) ??
+      ({ key, label, invoices: [], totalCents: 0, currency: invoice.currency } as PeriodGroup);
+    group.invoices.push(invoice);
+    group.totalCents += invoice.amountCents;
+    groups.set(key, group);
+  }
+  return [...groups.values()].sort((a, b) => b.key.localeCompare(a.key));
+}
+
+function csvCell(value: string | number | null): string {
+  const text = value === null ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function downloadCsv(filename: string, rows: (string | number | null)[][]) {
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function invoiceRows(invoices: BillingInvoice[]): (string | number | null)[][] {
+  return [
+    ["Receipt", "Date", "Period start", "Period end", "Description", "Amount", "Currency", "Status"],
+    ...invoices.map((invoice) => [
+      invoice.number ?? invoice.id,
+      formatDate(invoice.paidOn) ?? "",
+      formatDate(invoice.periodStart) ?? "",
+      formatDate(invoice.periodEnd) ?? "",
+      invoice.description ?? "",
+      (invoice.amountCents / 100).toFixed(2),
+      invoice.currency,
+      invoice.status ?? "",
+    ]),
+  ];
+}
+
+/** Single receipts to download plus one summary per billing period. */
+function PaymentHistory({ invoices }: { invoices: BillingInvoice[] }) {
+  const periods = groupByPeriod(invoices);
+
+  return (
+    <Card className="mt-6 max-w-xl p-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-display text-lg font-semibold">Your payments</h2>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => downloadCsv("eternal-memories-receipts.csv", invoiceRows(invoices))}
+        >
+          <FileSpreadsheet className="size-4" aria-hidden="true" /> Download all
+        </Button>
+      </div>
+
+      <div className="mt-5 space-y-6">
+        {periods.map((period) => (
+          <section key={period.key}>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+              <div>
+                <h3 className="text-sm font-semibold">{period.label}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {period.invoices.length} receipt{period.invoices.length === 1 ? "" : "s"} ·{" "}
+                  {(period.totalCents / 100).toFixed(2)} {period.currency} in total
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  downloadCsv(
+                    `eternal-memories-receipts-${period.key}.csv`,
+                    invoiceRows(period.invoices),
+                  )
+                }
+              >
+                <FileSpreadsheet className="size-4" aria-hidden="true" /> Period summary
+              </Button>
+            </div>
+            <ul className="mt-3 space-y-3 text-sm">
+              {period.invoices.map((invoice) => (
+                <li key={invoice.id} className="flex flex-wrap items-center justify-between gap-2">
+                  <span>
+                    {formatDate(invoice.paidOn) ?? "—"} · {invoice.amount}
+                    {invoice.number ? ` · ${invoice.number}` : ""}
+                    {invoice.status && invoice.status !== "paid" ? ` · ${invoice.status}` : ""}
+                  </span>
+                  <span className="flex items-center gap-3">
+                    {invoice.pdfUrl ? (
+                      <a
+                        className="inline-flex items-center gap-1 underline"
+                        href={invoice.pdfUrl}
+                        download
+                      >
+                        <Download className="size-3" aria-hidden="true" /> Download receipt
+                      </a>
+                    ) : null}
+                    {invoice.hostedUrl ? (
+                      <a
+                        className="inline-flex items-center gap-1 underline"
+                        href={invoice.hostedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View
+                        <ExternalLink className="size-3" aria-hidden="true" />
+                      </a>
+                    ) : null}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </Card>
   );
 }

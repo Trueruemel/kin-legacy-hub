@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { FolderPlus, Mic, Upload } from "lucide-react";
+import { FolderPlus, Mic, Sparkles, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -21,9 +21,72 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/lib/file-upload";
 import { formatDate } from "@/lib/format";
-import { addMediaItem, createAlbum, listGallery } from "@/lib/gallery.functions";
+import {
+  addMediaItem,
+  createAlbum,
+  describePhoto,
+  listGallery,
+  type GalleryItem,
+} from "@/lib/gallery.functions";
 
 const MAX_MEDIA_BYTES = 25 * 1024 * 1024;
+
+/**
+ * Asks the AI helper for a readable description of a historic photo and questions the
+ * family can put to an older relative. The answer is stored with the photo.
+ */
+function PhotoInsight({ item, familyId }: { item: GalleryItem; familyId: string }) {
+  const queryClient = useQueryClient();
+  const describe = useServerFn(describePhoto);
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const result = await describe({ data: { mediaId: item.id } });
+      if ("error" in result) throw new Error(result.error);
+      return result;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["gallery", familyId] });
+      toast.success("Description and memory questions added.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (!item.mime?.startsWith("image/")) return null;
+
+  return (
+    <div className="mt-3 space-y-2">
+      {item.aiDescription ? (
+        <div className="rounded-xl border border-gold/40 bg-gold/5 p-3 text-xs leading-relaxed">
+          <p className="mb-1 font-display text-sm text-gold">What we can see</p>
+          <p>{item.aiDescription}</p>
+          {item.aiQuestions.length > 0 && (
+            <>
+              <p className="mb-1 mt-3 font-display text-sm text-gold">Questions to ask</p>
+              <ul className="list-disc space-y-1 pl-4">
+                {item.aiQuestions.map((question) => (
+                  <li key={question}>{question}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      ) : null}
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={mutation.isPending}
+        onClick={() => mutation.mutate()}
+      >
+        <Sparkles className="size-4" />
+        {mutation.isPending
+          ? "Looking at the photo…"
+          : item.aiDescription
+            ? "Describe again"
+            : "Describe & ask questions"}
+      </Button>
+    </div>
+  );
+}
 
 export function RealGallery({
   familyId,
@@ -247,6 +310,7 @@ export function RealGallery({
                   ))}
                 </div>
               )}
+              {canEdit && <PhotoInsight item={item} familyId={familyId} />}
             </div>
           </Card>
         ))}

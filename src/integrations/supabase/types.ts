@@ -500,6 +500,8 @@ export type Database = {
       media_items: {
         Row: {
           ai_caption: string | null
+          ai_description: string | null
+          ai_questions: string[]
           ai_story: string | null
           ai_tags: string[]
           album_id: string | null
@@ -519,6 +521,8 @@ export type Database = {
         }
         Insert: {
           ai_caption?: string | null
+          ai_description?: string | null
+          ai_questions?: string[]
           ai_story?: string | null
           ai_tags?: string[]
           album_id?: string | null
@@ -538,6 +542,8 @@ export type Database = {
         }
         Update: {
           ai_caption?: string | null
+          ai_description?: string | null
+          ai_questions?: string[]
           ai_story?: string | null
           ai_tags?: string[]
           album_id?: string | null
@@ -1129,8 +1135,54 @@ export type Database = {
         }
         Relationships: []
       }
+      vault_access_log: {
+        Row: {
+          action: string
+          actor_name: string | null
+          created_at: string
+          entry_id: string
+          family_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor_name?: string | null
+          created_at?: string
+          entry_id: string
+          family_id: string
+          id?: string
+          user_id?: string
+        }
+        Update: {
+          action?: string
+          actor_name?: string | null
+          created_at?: string
+          entry_id?: string
+          family_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vault_access_log_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "vault_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vault_access_log_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vault_entries: {
         Row: {
+          access_expires_at: string | null
           content: string | null
           created_at: string
           created_by: string | null
@@ -1155,6 +1207,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_expires_at?: string | null
           content?: string | null
           created_at?: string
           created_by?: string | null
@@ -1179,6 +1232,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_expires_at?: string | null
           content?: string | null
           created_at?: string
           created_by?: string | null
@@ -1284,6 +1338,16 @@ export type Database = {
       shares_family_with: { Args: { _user_id: string }; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      vault_is_open: {
+        Args: {
+          _access_expires_at: string
+          _release_on: string
+          _released: boolean
+          _rule: Database["public"]["Enums"]["vault_release"]
+          _unlock_age: number
+        }
+        Returns: boolean
+      }
       vault_is_released: {
         Args: {
           _release_on: string
@@ -1296,6 +1360,7 @@ export type Database = {
       vault_list: {
         Args: { _family_id: string }
         Returns: {
+          access_expires_at: string
           content: string
           created_by: string
           id: string
