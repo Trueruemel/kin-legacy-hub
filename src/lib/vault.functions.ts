@@ -146,6 +146,9 @@ export const sealVaultEntry = createServerFn({ method: "POST" })
         ? `Sealed attachment · ${media.name}`
         : `Sealed message, ${data.content.split(/\s+/).filter(Boolean).length} words`,
       created_by: userId,
+      ...(data.accessExpiresOn
+        ? { access_expires_at: new Date(`${data.accessExpiresOn}T23:59:59Z`).toISOString() }
+        : {}),
       ...(media ? { media_path: media.path, media_mime: media.mime, media_name: media.name } : {}),
     });
     if (error) throwSafe(error, "sealVaultEntry");
