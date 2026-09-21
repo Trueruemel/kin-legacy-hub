@@ -24,6 +24,8 @@ export type GalleryItem = {
   uploadedByName: string | null;
   aiTags: string[];
   transcript: string | null;
+  aiDescription: string | null;
+  aiQuestions: string[];
 };
 
 /** Albums and media of a family, with short-lived signed URLs for private files. */
@@ -41,7 +43,7 @@ export const listGallery = createServerFn({ method: "GET" })
       supabase
         .from("media_items")
         .select(
-          "id, album_id, caption, storage_path, external_url, media_mime, taken_at, uploaded_by_name, ai_tags, transcript",
+          "id, album_id, caption, storage_path, external_url, media_mime, taken_at, uploaded_by_name, ai_tags, transcript, ai_description, ai_questions",
         )
         .eq("family_id", data.familyId)
         .order("taken_at", { ascending: false })
@@ -69,6 +71,8 @@ export const listGallery = createServerFn({ method: "GET" })
       uploadedByName: m.uploaded_by_name,
       aiTags: m.ai_tags ?? [],
       transcript: m.transcript,
+      aiDescription: m.ai_description ?? null,
+      aiQuestions: m.ai_questions ?? [],
     }));
 
     return {
