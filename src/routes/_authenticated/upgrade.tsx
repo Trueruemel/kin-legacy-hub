@@ -26,8 +26,10 @@ import { getFamilyStorage } from "@/lib/storage-quota.functions";
 import { getStripeEnvironment, paymentsConfigured } from "@/lib/stripe";
 import {
   cancelMySubscription,
+  createPortalSession,
   getMyBilling,
   resumeMySubscription,
+  syncMyPurchases,
   type BillingInvoice,
 } from "@/utils/payments.functions";
 
@@ -69,6 +71,25 @@ function UpgradePage() {
   const fetchBilling = useServerFn(getMyBilling);
   const cancelFn = useServerFn(cancelMySubscription);
   const resumeFn = useServerFn(resumeMySubscription);
+  const syncFn = useServerFn(syncMyPurchases);
+  const portalFn = useServerFn(createPortalSession);
+
+  // Repairs our own record from the payment provider before anything is shown,
+  // so a missed notification cannot leave a paying family on the small allowance.
+  const { isFetching: syncing } = useQuery({
+    queryKey: ["purchase-sync"],
+    enabled: configured,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const result = await syncFn({ data: { environment: getStripeEnvironment() } });
+      if (!("error" in result) && result.synced > 0) {
+        void queryClient.invalidateQueries({ queryKey: ["family-storage"] });
+        void queryClient.invalidateQueries({ queryKey: ["family-plans"] });
+      }
+      return result;
+    },
+  });
 
   const { data: billing, isLoading: billingLoading } = useQuery({
     queryKey: ["my-billing"],
