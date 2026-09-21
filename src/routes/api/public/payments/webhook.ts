@@ -209,7 +209,6 @@ async function handlePaymentFailed(invoice: any, env: StripeEnv) {
       idempotencyKey: `payment-failed:${env}:${invoice.id}`,
       templateData: {
         amount: formatMoney(invoice.amount_due, invoice.currency),
-        paidOn: undefined,
         attemptedOn: formatDate(invoice.created) ?? formatDate(Date.now() / 1000)!,
         ...(invoice.next_payment_attempt
           ? { retriesUntil: formatDate(invoice.next_payment_attempt) }
