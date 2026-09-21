@@ -4,6 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { AccountSecurity } from "@/components/account-security";
 import { PageHeader } from "@/components/app-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -274,6 +275,8 @@ export function RealSettings() {
           </div>
         </Card>
       )}
+
+      <AccountSecurity />
     </>
   );
 }

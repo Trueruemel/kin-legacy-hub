@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
-import { verifyWebhook, type StripeEnv } from "@/lib/stripe.server";
+import { createStripeClient, verifyWebhook, type StripeEnv } from "@/lib/stripe.server";
 
 let _supabase: any = null;
 function getSupabase(): any {
@@ -18,10 +18,30 @@ function priceKey(item: any): string | undefined {
   return item?.price?.lookup_key || item?.price?.metadata?.lovable_external_id || item?.price?.id;
 }
 
+/**
+ * The buyer's account id normally rides along on the subscription. If it is
+ * missing (older records, plan changes made outside checkout) we fall back to
+ * the customer record, so a payment is never left unattached.
+ */
+async function resolveUserId(subscription: any, env: StripeEnv): Promise<string | undefined> {
+  if (subscription.metadata?.userId) return subscription.metadata.userId;
+  const customerId =
+    typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
+  if (!customerId) return undefined;
+  try {
+    const stripe = createStripeClient(env);
+    const customer = await stripe.customers.retrieve(customerId);
+    if (!("deleted" in customer)) return customer.metadata?.["userId"] ?? undefined;
+  } catch (error) {
+    console.error("Could not resolve the buyer for a subscription:", error);
+  }
+  return undefined;
+}
+
 async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
-  const userId = subscription.metadata?.userId;
+  const userId = await resolveUserId(subscription, env);
   if (!userId) {
-    console.error("No userId in subscription metadata");
+    console.error("No userId for subscription", subscription.id);
     return;
   }
   const item = subscription.items?.data?.[0];
@@ -40,6 +60,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
         status: subscription.status,
         current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
         current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+        cancel_at_period_end: subscription.cancel_at_period_end || false,
         environment: env,
         updated_at: new Date().toISOString(),
       },
@@ -48,6 +69,14 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
 }
 
 const STORAGE_PRICE_ID = "extra_storage_30gb_monthly";
+const SITE_URL = process.env["PUBLIC_SITE_URL"] ?? "https://eternalmemorys.enterprises";
+
+/** Looks up the buyer's email address from their account. */
+async function emailForUser(userId: string | undefined): Promise<string | undefined> {
+  if (!userId) return undefined;
+  const { data } = await getSupabase().auth.admin.getUserById(userId);
+  return data?.user?.email ?? undefined;
+}
 
 /** Thanks the buyer for extra storage. Never lets an email failure fail the webhook. */
 async function sendStorageReceipt(subscription: any, env: StripeEnv) {
@@ -55,16 +84,13 @@ async function sendStorageReceipt(subscription: any, env: StripeEnv) {
     const item = subscription.items?.data?.[0];
     if (priceKey(item) !== STORAGE_PRICE_ID) return;
 
-    const userId = subscription.metadata?.userId;
-    if (!userId) return;
-
-    const { data: userData } = await getSupabase().auth.admin.getUserById(userId);
-    const email = userData?.user?.email;
+    const userId = await resolveUserId(subscription, env);
+    const email = await emailForUser(userId);
     if (!email) return;
 
     const periodEnd = item?.current_period_end ?? subscription.current_period_end;
     const paidAt = subscription.start_date ?? subscription.created;
-    const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "https://eternalmemorys.enterprises";
+    const siteUrl = SITE_URL;
 
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
     await sendTemplateEmail("storage-receipt", email, {
@@ -151,6 +177,50 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
     .eq("environment", env);
 }
 
+/**
+ * A renewal was declined. Stripe keeps retrying, so the plan is only marked as
+ * behind on payment and the family is told to update their card. Nothing is
+ * removed and no file is touched.
+ */
+async function handlePaymentFailed(invoice: any, env: StripeEnv) {
+  const subscriptionId =
+    typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id;
+  if (!subscriptionId) return;
+
+  await getSupabase()
+    .from("subscriptions")
+    .update({ status: "past_due", updated_at: new Date().toISOString() })
+    .eq("stripe_subscription_id", subscriptionId)
+    .eq("environment", env);
+
+  try {
+    const { data: row } = await getSupabase()
+      .from("subscriptions")
+      .select("user_id,price_id")
+      .eq("stripe_subscription_id", subscriptionId)
+      .eq("environment", env)
+      .maybeSingle();
+
+    const email = await emailForUser(row?.user_id);
+    if (!email) return;
+
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("payment-failed", email, {
+      idempotencyKey: `payment-failed:${env}:${invoice.id}`,
+      templateData: {
+        amount: formatMoney(invoice.amount_due, invoice.currency),
+        attemptedOn: formatDate(invoice.created) ?? formatDate(Date.now() / 1000)!,
+        ...(invoice.next_payment_attempt
+          ? { retriesUntil: formatDate(invoice.next_payment_attempt) }
+          : {}),
+        billingUrl: `${SITE_URL}/upgrade`,
+      },
+    });
+  } catch (error) {
+    console.error("Payment failed email could not be sent:", error);
+  }
+}
+
 async function handleWebhook(req: Request, env: StripeEnv) {
   const event = await verifyWebhook(req, env);
 
@@ -166,7 +236,11 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       await handleSubscriptionDeleted(event.data.object, env);
       break;
     case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded":
       await sendCheckoutReceipt(event.data.object, env);
+      break;
+    case "invoice.payment_failed":
+      await handlePaymentFailed(event.data.object, env);
       break;
     default:
       console.log("Unhandled payment event:", event.type);

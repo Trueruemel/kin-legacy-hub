@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 
 import { template as eventInviteTemplate } from "./event-invite";
 import { template as familyWelcomeTemplate } from "./family-welcome";
+import { template as paymentFailedTemplate } from "./payment-failed";
 import { template as paymentReceiptTemplate } from "./payment-receipt";
 import { template as storageReceiptTemplate } from "./storage-receipt";
 
@@ -35,4 +36,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "event-invite": eventInviteTemplate,
   "storage-receipt": storageReceiptTemplate,
   "payment-receipt": paymentReceiptTemplate,
+  "payment-failed": paymentFailedTemplate,
 };
