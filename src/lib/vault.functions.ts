@@ -270,3 +270,111 @@ async function loadFamilyNames(familyId: string): Promise<string[] | null> {
     return null;
   }
 }
+
+/** Display name of the signed-in member, for the access log. */
+async function actorName(
+  supabase: { from: (table: string) => any },
+  userId: string,
+): Promise<string> {
+  try {
+    const { data } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .maybeSingle();
+    return (data?.display_name as string | undefined) ?? "A family member";
+  } catch {
+    return "A family member";
+  }
+}
+
+/**
+ * Writes one line into the family's vault access log. Append-only by policy:
+ * nobody — author or admin — can edit or remove a recorded access.
+ */
+async function logVaultAccess(
+  context: { supabase: any; userId: string },
+  entryId: string,
+  action: VaultAccessEvent["action"],
+): Promise<void> {
+  const { data: entry } = await context.supabase
+    .from("vault_entries")
+    .select("family_id")
+    .eq("id", entryId)
+    .maybeSingle();
+  if (!entry?.family_id) return;
+  await context.supabase.from("vault_access_log").insert({
+    entry_id: entryId,
+    family_id: entry.family_id,
+    user_id: context.userId,
+    actor_name: await actorName(context.supabase, context.userId),
+    action,
+  });
+}
+
+/**
+ * Confirms that the member really wants to look inside an opened item, and records it.
+ * The UI asks for this confirmation before it shows any content.
+ */
+export const confirmVaultAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ entryId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ recorded: boolean }> => {
+    const { data: entry, error } = await context.supabase
+      .from("vault_entries")
+      .select("release_rule, release_on, released, access_expires_at")
+      .eq("id", data.entryId)
+      .maybeSingle();
+    if (error) throwSafe(error, "confirmVaultAccess");
+    if (!entry || !isReleased(entry)) return { recorded: false };
+    await logVaultAccess(context, data.entryId, "opened");
+    return { recorded: true };
+  });
+
+/** Sets or clears the moment an opened item closes again. Author or family admin only (RLS). */
+export const setVaultAccessExpiry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        entryId: z.string().uuid(),
+        expiresOn: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const value = data.expiresOn
+      ? new Date(`${data.expiresOn}T23:59:59Z`).toISOString()
+      : null;
+    const { error } = await context.supabase
+      .from("vault_entries")
+      .update({ access_expires_at: value })
+      .eq("id", data.entryId);
+    if (error) throwSafe(error, "setVaultAccessExpiry");
+    await logVaultAccess(context, data.entryId, "expiry_changed");
+    return { entryId: data.entryId, accessExpiresAt: value };
+  });
+
+/** The access log of one entry, newest first. Readable by every family member. */
+export const listVaultAccess = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ entryId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<VaultAccessEvent[]> => {
+    const { data: rows, error } = await context.supabase
+      .from("vault_access_log")
+      .select("id, entry_id, action, actor_name, created_at")
+      .eq("entry_id", data.entryId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throwSafe(error, "listVaultAccess");
+    return (rows ?? []).map((row: any) => ({
+      id: row.id,
+      entryId: row.entry_id,
+      action: row.action,
+      actorName: row.actor_name ?? "A family member",
+      at: row.created_at,
+    }));
+  });
