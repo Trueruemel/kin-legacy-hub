@@ -84,16 +84,13 @@ async function sendStorageReceipt(subscription: any, env: StripeEnv) {
     const item = subscription.items?.data?.[0];
     if (priceKey(item) !== STORAGE_PRICE_ID) return;
 
-    const userId = subscription.metadata?.userId;
-    if (!userId) return;
-
-    const { data: userData } = await getSupabase().auth.admin.getUserById(userId);
-    const email = userData?.user?.email;
+    const userId = await resolveUserId(subscription, env);
+    const email = await emailForUser(userId);
     if (!email) return;
 
     const periodEnd = item?.current_period_end ?? subscription.current_period_end;
     const paidAt = subscription.start_date ?? subscription.created;
-    const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "https://eternalmemorys.enterprises";
+    const siteUrl = SITE_URL;
 
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
     await sendTemplateEmail("storage-receipt", email, {
