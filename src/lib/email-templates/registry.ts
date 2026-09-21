@@ -5,6 +5,7 @@ import { template as familyWelcomeTemplate } from "./family-welcome";
 import { template as paymentFailedTemplate } from "./payment-failed";
 import { template as paymentReceiptTemplate } from "./payment-receipt";
 import { template as storageReceiptTemplate } from "./storage-receipt";
+import { template as subscriptionCancelledTemplate } from "./subscription-cancelled";
 
 /** Untyped template model — each template validates its own props at render time. */
 export type TemplateData = Record<string, unknown>;
@@ -37,4 +38,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "storage-receipt": storageReceiptTemplate,
   "payment-receipt": paymentReceiptTemplate,
   "payment-failed": paymentFailedTemplate,
+  "subscription-cancelled": subscriptionCancelledTemplate,
 };
