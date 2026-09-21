@@ -61,6 +61,7 @@ function DashboardPage() {
             <Link to="/setup">Start the family setup</Link>
           </Button>
         </Card>
+        <PaidFamilies />
       </AppLayout>
     );
   }
