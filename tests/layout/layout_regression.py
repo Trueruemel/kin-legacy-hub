@@ -187,7 +187,20 @@ async def check_page(page, name: str, path: str, label: str, width: int) -> list
     )
 
     await page.goto(f"{BASE_URL}{path}", wait_until="domcontentloaded")
-    await page.wait_for_timeout(1200)
+    try:
+        await page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:  # noqa: BLE001 - a busy page still gets measured below
+        pass
+    # Freeze animations, reveal effects and blinking cursors so screenshots are stable.
+    await page.add_style_tag(
+        content=(
+            "*,*::before,*::after{animation:none!important;transition:none!important;"
+            "caret-color:transparent!important}"
+            "[data-inview]{opacity:1!important;transform:none!important}"
+        )
+    )
+    await page.wait_for_timeout(1500)
+
 
     result = await page.evaluate(MEASURE_JS, IGNORE_SELECTOR)
     key = f"{name}-{label}"
