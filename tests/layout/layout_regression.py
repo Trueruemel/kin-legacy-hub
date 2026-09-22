@@ -178,7 +178,9 @@ async def sign_in(context, page) -> bool:
 
 
 
-async def check_page(page, name: str, path: str, label: str, width: int) -> list[str]:
+async def check_page(
+    page, name: str, path: str, label: str, width: int, mask_media: bool = False
+) -> list[str]:
     failures: list[str] = []
     console_errors: list[str] = []
     page.on(
@@ -232,7 +234,12 @@ async def check_page(page, name: str, path: str, label: str, width: int) -> list
         failures.append(f"{key}: console error — {console_errors[0][:160]}")
 
     CURRENT_DIR.mkdir(parents=True, exist_ok=True)
-    await page.screenshot(path=str(CURRENT_DIR / f"{key}.png"))
+    # Family content is real data and differs between runs — mask the media so the
+    # comparison tracks layout and styling, not which photo happens to be newest.
+    mask = [page.locator("img, video")] if mask_media else []
+    await page.screenshot(
+        path=str(CURRENT_DIR / f"{key}.png"), mask=mask, mask_color="#cccccc"
+    )
     status, detail = compare_screenshot(key)
     print(f"  {'✗' if status == 'drift' else '·'} {key}: {status} ({detail})")
     if status == "drift":
@@ -254,7 +261,9 @@ async def main() -> int:
                 if needs_auth and not signed_in:
                     failures.append(f"{name}-{label}: skipped, sign-in unavailable")
                     continue
-                failures.extend(await check_page(page, name, path, label, width))
+                failures.extend(
+                    await check_page(page, name, path, label, width, mask_media=needs_auth)
+                )
             await context.close()
         await browser.close()
 
