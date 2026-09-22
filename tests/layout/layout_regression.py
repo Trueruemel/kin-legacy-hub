@@ -64,6 +64,15 @@ IGNORE_SELECTOR = (
     "[data-radix-popper-content-wrapper], [data-sonner-toaster]"
 )
 
+# Development-only React/HMR noise that says nothing about the layout.
+IGNORED_CONSOLE = (
+    "Can't perform a React state update",
+    "Warning: ReactDOM.render",
+    "Download the React DevTools",
+    "[vite] hot updated",
+    "was preloaded using link preload",
+)
+
 MEASURE_JS = """
 (ignoreSelector) => {
   const vw = window.innerWidth;
@@ -185,7 +194,9 @@ async def check_page(
     console_errors: list[str] = []
     page.on(
         "console",
-        lambda msg: console_errors.append(msg.text) if msg.type == "error" else None,
+        lambda msg: console_errors.append(msg.text)
+        if msg.type == "error" and not any(i in msg.text for i in IGNORED_CONSOLE)
+        else None,
     )
 
     await page.goto(f"{BASE_URL}{path}", wait_until="domcontentloaded")
