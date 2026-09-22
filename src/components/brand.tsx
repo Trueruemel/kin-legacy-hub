@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import wordmarkDark from "@/assets/wordmark.png";
-import wordmarkLight from "@/assets/wordmark-light.png";
+import wordmarkDark from "@/assets/wordmark-dark.png";
+import wordmarkCream from "@/assets/wordmark-cream.png";
 
 export function TreeMark({ className }: { className?: string }) {
   return (
@@ -21,6 +21,11 @@ export function TreeMark({ className }: { className?: string }) {
   );
 }
 
+/**
+ * Wordmark. `dark` is the cream mark for dark surfaces, `light` the ink mark
+ * for linen surfaces. Sized generously so the brand reads as the anchor of
+ * the header.
+ */
 export function Wordmark({
   className,
   variant = "auto",
@@ -28,15 +33,15 @@ export function Wordmark({
   className?: string;
   variant?: "auto" | "dark" | "light";
 }) {
-  const base = "h-8 w-auto object-contain";
+  const base = "h-10 w-auto object-contain sm:h-11";
   if (variant === "dark") {
     return (
       <img
-        src={wordmarkLight}
-        alt="Eternal — Memories"
+        src={wordmarkCream}
+        alt="Eternal Memories"
         className={cn(base, className)}
-        width={1920}
-        height={512}
+        width={765}
+        height={247}
       />
     );
   }
@@ -44,10 +49,10 @@ export function Wordmark({
     return (
       <img
         src={wordmarkDark}
-        alt="Eternal — Memories"
+        alt="Eternal Memories"
         className={cn(base, className)}
-        width={1920}
-        height={512}
+        width={829}
+        height={279}
       />
     );
   }
@@ -55,17 +60,17 @@ export function Wordmark({
     <>
       <img
         src={wordmarkDark}
-        alt="Eternal — Memories"
+        alt="Eternal Memories"
         className={cn(base, "dark:hidden", className)}
-        width={1920}
-        height={512}
+        width={829}
+        height={279}
       />
       <img
-        src={wordmarkLight}
-        alt="Eternal — Memories"
+        src={wordmarkCream}
+        alt="Eternal Memories"
         className={cn(base, "hidden dark:block", className)}
-        width={1920}
-        height={512}
+        width={765}
+        height={247}
       />
     </>
   );
