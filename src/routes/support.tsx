@@ -108,7 +108,7 @@ function SupportPage() {
               disabled={!validAmount || !validEmail}
               onClick={() => setOpen(true)}
             >
-              <Heart className="mr-2 size-4" /> Give ${validAmount ? (cents / 100).toFixed(2) : "—"}
+              <Heart className="mr-2 size-4" /> Give ${validAmount ? dollars : "—"}
             </Button>
           </>
         )}
