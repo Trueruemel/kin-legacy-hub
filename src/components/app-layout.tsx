@@ -274,7 +274,6 @@ function InviteDialog() {
             Cancel
           </Button>
           <Button
-            className=""
             onClick={() => {
               setOpen(false);
               toast.success("Invitation sent");
