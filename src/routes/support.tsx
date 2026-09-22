@@ -37,8 +37,8 @@ function SupportPage() {
   const [amount, setAmount] = useState("10");
   const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
-  const cents = Math.round(Number(amount.replace(",", ".")) * 100);
-  const validAmount = Number.isInteger(cents) && cents >= 100 && cents <= 500000;
+  const dollars = Math.floor(Number(amount.replace(",", ".")));
+  const validAmount = Number.isFinite(dollars) && dollars >= 1 && dollars <= 5000;
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 
   return (
@@ -58,7 +58,7 @@ function SupportPage() {
         ) : open ? (
           <StripeCheckoutForm
             kind="donation"
-            amountInCents={cents}
+            amountDollars={dollars}
             customerEmail={email.trim()}
             returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
           />
@@ -86,7 +86,7 @@ function SupportPage() {
                 aria-describedby="amount-hint"
               />
               <p id="amount-hint" className="text-xs text-muted-foreground">
-                Between $1 and $5,000.
+                Between $1 and $5,000, in whole dollars.
               </p>
             </div>
             <div className="mt-4 grid gap-2">
@@ -108,7 +108,7 @@ function SupportPage() {
               disabled={!validAmount || !validEmail}
               onClick={() => setOpen(true)}
             >
-              <Heart className="mr-2 size-4" /> Give ${validAmount ? (cents / 100).toFixed(2) : "—"}
+              <Heart className="mr-2 size-4" /> Give ${validAmount ? dollars : "—"}
             </Button>
           </>
         )}

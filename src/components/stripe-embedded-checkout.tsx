@@ -6,7 +6,7 @@ import { createCheckoutSession, createDonationCheckout } from "@/utils/payments.
 
 type Props =
   | { kind: "price"; priceId: string; returnUrl?: string }
-  | { kind: "donation"; amountInCents: number; customerEmail: string; returnUrl?: string };
+  | { kind: "donation"; amountDollars: number; customerEmail: string; returnUrl?: string };
 
 /** Renders the payment form inline — never a redirect to an external page. */
 export function StripeCheckoutForm(props: Props) {
@@ -19,7 +19,7 @@ export function StripeCheckoutForm(props: Props) {
           props.kind === "donation"
             ? await createDonationCheckout({
                 data: {
-                  amountInCents: props.amountInCents,
+                  amountDollars: props.amountDollars,
                   customerEmail: props.customerEmail,
                   returnUrl,
                   environment,
@@ -28,7 +28,6 @@ export function StripeCheckoutForm(props: Props) {
             : await createCheckoutSession({
                 data: {
                   priceId: props.priceId,
-                  quantity: 1,
                   returnUrl,
                   environment,
                 },

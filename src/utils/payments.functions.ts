@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type Stripe from "stripe";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { DONATION } from "@/lib/products";
+import { DONATION, donationAmountCents } from "@/lib/products";
 import {
   createStripeClient,
   getStripeErrorMessage,
@@ -58,20 +58,10 @@ async function resolveOrCreateCustomer(
  */
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (data: {
-      priceId: string;
-      quantity?: number;
-      returnUrl: string;
-      environment: StripeEnv;
-    }) => {
-      if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid priceId");
-      if (data.quantity !== undefined && (!Number.isInteger(data.quantity) || data.quantity < 1)) {
-        throw new Error("Invalid quantity");
-      }
-      return data;
-    },
-  )
+  .inputValidator((data: { priceId: string; returnUrl: string; environment: StripeEnv }) => {
+    if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid priceId");
+    return data;
+  })
   .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
     try {
       const stripe = createStripeClient(data.environment);
@@ -100,7 +90,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       }
 
       const session = await stripe.checkout.sessions.create({
-        line_items: [{ price: stripePrice.id, quantity: data.quantity || 1 }],
+        // One plan per checkout — the quantity is fixed by the server.
+        line_items: [{ price: stripePrice.id, quantity: 1 }],
         mode: isRecurring ? "subscription" : "payment",
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
@@ -124,20 +115,23 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 export const createDonationCheckout = createServerFn({ method: "POST" })
   .inputValidator(
     (data: {
-      amountInCents: number;
+      amountDollars: number;
       customerEmail: string;
       returnUrl: string;
       environment: StripeEnv;
     }) => {
-      if (!Number.isInteger(data.amountInCents) || data.amountInCents < DONATION.minCents) {
-        throw new Error("Please choose at least $1.00");
-      }
-      if (data.amountInCents > DONATION.maxCents) throw new Error("Please choose $5,000 or less");
       const email = (data.customerEmail ?? "").trim().toLowerCase();
       if (!EMAIL_PATTERN.test(email)) {
         throw new Error("Please enter an email address so we can send your receipt.");
       }
-      return { ...data, customerEmail: email };
+      // Keep only the whole-dollar choice; the charged amount is derived on the
+      // server below, never taken from the request.
+      return {
+        amountDollars: Math.floor(Number(data.amountDollars)),
+        customerEmail: email,
+        returnUrl: data.returnUrl,
+        environment: data.environment,
+      };
     },
   )
   .handler(async ({ data }): Promise<CheckoutSessionResult> => {
@@ -149,7 +143,7 @@ export const createDonationCheckout = createServerFn({ method: "POST" })
             price_data: {
               currency: "usd",
               product_data: { name: DONATION.label },
-              unit_amount: data.amountInCents,
+              unit_amount: donationAmountCents(data.amountDollars),
             },
             quantity: 1,
           },
