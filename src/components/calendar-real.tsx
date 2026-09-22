@@ -247,7 +247,7 @@ export function RealCalendar({ familyId, canEdit }: { familyId: string; canEdit:
             </Card>
           )}
           {events.map((event) => (
-            <Card key={event.id} className="p-5">
+            <Card key={event.id} className="card-lift p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary" className="capitalize">
                   {event.category}

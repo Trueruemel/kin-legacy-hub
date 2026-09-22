@@ -133,7 +133,7 @@ export function RealRecipes({ familyId }: { familyId: string }) {
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((recipe) => (
-          <Card key={recipe.id} className="overflow-hidden p-0">
+          <Card key={recipe.id} className="card-lift overflow-hidden p-0">
             {recipe.photoUrl ? (
               <img
                 src={recipe.photoUrl}
