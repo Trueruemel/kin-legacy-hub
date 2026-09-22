@@ -7,3 +7,5 @@ package-lock.json
 bun.lock
 routeTree.gen.ts
 .lovable
+tests/layout/current
+tests/layout/last-run.json
