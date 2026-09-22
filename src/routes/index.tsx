@@ -380,6 +380,7 @@ export function LandingPage() {
                 src={handsPhoto}
                 alt="Weathered hands holding a small black-and-white family photograph on a linen tablecloth"
                 loading="lazy"
+                decoding="async"
                 width={1408}
                 height={1008}
                 className="aspect-4/3 w-full rounded-2xl object-cover shadow-lg"
@@ -611,6 +612,7 @@ export function LandingPage() {
                 src={albumFlatlay}
                 alt="An open linen-bound family album with vintage prints, a pen and pressed leaves"
                 loading="lazy"
+                decoding="async"
                 width={1408}
                 height={1008}
                 className="h-56 w-full object-cover md:h-full"
@@ -706,8 +708,9 @@ export function LandingPage() {
           src={tableGathering}
           alt="A long family table set in a garden at golden hour, several generations gathered"
           loading="lazy"
+          decoding="async"
           width={1600}
-          height={900}
+          height={912}
           className="size-full object-cover"
         />
         <div
