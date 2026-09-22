@@ -86,7 +86,7 @@ function SupportPage() {
                 aria-describedby="amount-hint"
               />
               <p id="amount-hint" className="text-xs text-muted-foreground">
-                Between $1 and $5,000.
+                Between $1 and $5,000, in whole dollars.
               </p>
             </div>
             <div className="mt-4 grid gap-2">
