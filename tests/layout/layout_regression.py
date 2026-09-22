@@ -56,6 +56,16 @@ PAGES = [
     ("gallery", "/gallery", True),
     ("tree", "/tree", True),
     ("vault", "/vault", True),
+    ("recipes", "/recipes", True),
+    ("calendar", "/calendar", True),
+    ("forums", "/forums", True),
+    ("messages", "/messages", True),
+    ("members", "/members", True),
+    ("settings", "/settings", True),
+    ("upgrade", "/upgrade", True),
+    ("onboarding", "/onboarding", True),
+    ("setup", "/setup", True),
+    ("support", "/support", False),
 ]
 
 # Elements that legitimately extend past the viewport edge or clip their text.
@@ -131,6 +141,71 @@ MEASURE_JS = """
   };
 }
 """
+
+# Checks the shared app shell (header, family switcher, invite button, mobile
+# navigation) on every signed-in view.
+SHELL_JS = """
+() => {
+  const vw = window.innerWidth;
+  const problems = [];
+  const fits = (el, what) => {
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.left < -2 || r.right > vw + 2) {
+      problems.push(
+        what + " spans " + Math.round(r.left) + "-" + Math.round(r.right) +
+        "px (viewport " + vw + "px)"
+      );
+    }
+  };
+
+  const header = document.querySelector("header");
+  if (!header) {
+    problems.push("header missing");
+  } else {
+    fits(header, "header");
+    const row = header.firstElementChild;
+    if (row && row.scrollWidth > row.clientWidth + 2) {
+      problems.push("header row overflows (" + row.scrollWidth + "px in " + row.clientWidth + "px)");
+    }
+  }
+
+  const mobileNav = document.querySelector("nav[aria-label='Mobile']");
+  if (vw < 1024) {
+    if (!mobileNav || getComputedStyle(mobileNav).display === "none") {
+      problems.push("mobile navigation not visible");
+    } else {
+      fits(mobileNav, "mobile navigation");
+      for (const a of mobileNav.querySelectorAll("a")) {
+        const r = a.getBoundingClientRect();
+        if (r.height < 44) {
+          problems.push("mobile nav item too short (" + Math.round(r.height) + "px)");
+        }
+        if (a.scrollWidth > a.clientWidth + 2) {
+          problems.push("mobile nav label clipped: " + (a.textContent || "").trim());
+        }
+      }
+    }
+  } else {
+    const switcher = document.querySelector("button[aria-label='Switch family']");
+    if (!switcher) problems.push("family switcher missing on desktop");
+    else fits(switcher, "family switcher");
+    const invite = Array.from(document.querySelectorAll("aside button")).find((b) =>
+      (b.textContent || "").includes("Invite Family Member")
+    );
+    if (invite) {
+      fits(invite, "invite button");
+      if (invite.scrollWidth > invite.clientWidth + 2) problems.push("invite button label clipped");
+      if (invite.getBoundingClientRect().height < 32) problems.push("invite button too short");
+    }
+  }
+
+  return problems;
+}
+"""
+
+
+
 
 
 def compare_screenshot(name: str) -> tuple[str, str]:
@@ -240,6 +315,13 @@ async def check_page(
         )
     for item in result["smallTargets"]:
         print(f"  · note {key}: small tap target {item['selector']} ({item['height']}px)")
+
+    # Standalone flows (onboarding, setup) intentionally render without the app shell.
+    if mask_media and not key.startswith(("onboarding-", "setup-")):
+        for problem in await page.evaluate(SHELL_JS):
+            failures.append(f"{key}: app shell — {problem}")
+
+
 
     if console_errors:
         failures.append(f"{key}: console error — {console_errors[0][:160]}")

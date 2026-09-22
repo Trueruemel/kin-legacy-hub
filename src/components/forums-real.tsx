@@ -128,7 +128,7 @@ export function RealForums({ familyId }: { familyId: string }) {
 
       <div className="space-y-3">
         {rows.map((thread) => (
-          <Card key={thread.id} className="p-0 transition-colors hover:border-gold/50">
+          <Card key={thread.id} className="card-lift p-0 hover:border-gold/50">
             <Link
               to="/forums/$threadId"
               params={{ threadId: thread.id }}
