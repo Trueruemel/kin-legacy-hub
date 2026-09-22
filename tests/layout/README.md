@@ -42,3 +42,11 @@ neuen Bilder in `baseline/` mit einchecken.
 Voraussetzung: Python 3 mit `playwright` und `pillow`. Der Test liest nur Seiten,
 er verändert keine Daten. Ergebnisse landen in `current/` und `last-run.json`
 (beide nicht eingecheckt).
+
+## Stabilität
+
+Damit die Vergleiche nicht durch echte Familieninhalte oder Netzwerk-Timing
+schwanken, werden vor jedem Screenshot Animationen angehalten, alle Bilder
+fertig geladen und in den angemeldeten Bereichen Fotos/Videos grau maskiert –
+verglichen werden also Layout, Abstände und Farben, nicht der Bildinhalt.
+Reine Entwicklungs-Warnungen der Browser-Konsole werden ignoriert.
