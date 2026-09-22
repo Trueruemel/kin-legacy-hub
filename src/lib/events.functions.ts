@@ -269,8 +269,8 @@ export const sendEventEmail = createServerFn({ method: "POST" })
     });
 
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-    const result = await sendTemplateEmail("event-invite", data.email, {
-      idempotencyKey: `event-${data.kind}:${event.id}:${data.email}:${event.starts_at}`,
+    const result = await sendTemplateEmail("event-invite", recipient, {
+      idempotencyKey: `event-${data.kind}:${event.id}:${recipient}:${event.starts_at}`,
       templateData: {
         kind: data.kind,
         familyName: family?.name ?? "your family",
