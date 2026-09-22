@@ -115,20 +115,23 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 export const createDonationCheckout = createServerFn({ method: "POST" })
   .inputValidator(
     (data: {
-      amountInCents: number;
+      amountDollars: number;
       customerEmail: string;
       returnUrl: string;
       environment: StripeEnv;
     }) => {
-      if (!Number.isInteger(data.amountInCents) || data.amountInCents < DONATION.minCents) {
-        throw new Error("Please choose at least $1.00");
-      }
-      if (data.amountInCents > DONATION.maxCents) throw new Error("Please choose $5,000 or less");
       const email = (data.customerEmail ?? "").trim().toLowerCase();
       if (!EMAIL_PATTERN.test(email)) {
         throw new Error("Please enter an email address so we can send your receipt.");
       }
-      return { ...data, customerEmail: email };
+      // Keep only the whole-dollar choice; the charged amount is derived on the
+      // server below, never taken from the request.
+      return {
+        amountDollars: Math.floor(Number(data.amountDollars)),
+        customerEmail: email,
+        returnUrl: data.returnUrl,
+        environment: data.environment,
+      };
     },
   )
   .handler(async ({ data }): Promise<CheckoutSessionResult> => {
