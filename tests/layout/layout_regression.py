@@ -226,7 +226,7 @@ async def main() -> int:
         for label, width, height in VIEWPORTS:
             context = await browser.new_context(viewport={"width": width, "height": height})
             page = await context.new_page()
-            signed_in = await sign_in(page)
+            signed_in = await sign_in(context, page)
             print(f"\n{label} ({width}px) — signed in: {signed_in}")
             for name, path, needs_auth in PAGES:
                 if needs_auth and not signed_in:

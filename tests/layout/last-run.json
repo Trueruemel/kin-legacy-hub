@@ -1,12 +1,3 @@
 {
-  "failures": [
-    "feed-desktop: skipped, sign-in unavailable",
-    "gallery-desktop: skipped, sign-in unavailable",
-    "tree-desktop: skipped, sign-in unavailable",
-    "vault-desktop: skipped, sign-in unavailable",
-    "feed-mobile: skipped, sign-in unavailable",
-    "gallery-mobile: skipped, sign-in unavailable",
-    "tree-mobile: skipped, sign-in unavailable",
-    "vault-mobile: skipped, sign-in unavailable"
-  ]
+  "failures": []
 }
