@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:layout": "python3 tests/layout/layout_regression.py",
     "coverage": "vitest run --coverage",
     "format": "prettier --write ."
   },
