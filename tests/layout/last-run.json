@@ -1,3 +1,8 @@
 {
-  "failures": []
+  "failures": [
+    "feed-desktop: visual drift \u2014 1.06% of pixels changed (limit 1.00%)",
+    "gallery-desktop: visual drift \u2014 1.06% of pixels changed (limit 1.00%)",
+    "tree-desktop: visual drift \u2014 1.06% of pixels changed (limit 1.00%)",
+    "tree-mobile: visual drift \u2014 1.88% of pixels changed (limit 1.00%)"
+  ]
 }
