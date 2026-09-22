@@ -228,6 +228,28 @@ export const sendEventEmail = createServerFn({ method: "POST" })
     if (error) throwSafe(error, "sendEventEmail");
     if (!event) throw new Error("That event is not available to you.");
 
+    // The app must never become a way to mail strangers: the recipient has to
+    // be somebody already connected to this family (invited relative) or the
+    // caller's own address.
+    const recipient = data.email.trim().toLowerCase();
+    const callerEmail =
+      typeof context.claims["email"] === "string"
+        ? (context.claims["email"] as string).trim().toLowerCase()
+        : null;
+    if (recipient !== callerEmail) {
+      const { data: known } = await supabase
+        .from("family_invitations")
+        .select("id")
+        .eq("family_id", event.family_id)
+        .ilike("email", recipient)
+        .limit(1);
+      if (!known || known.length === 0) {
+        throw new Error(
+          "You can only email relatives who have been invited to this family. Invite them first.",
+        );
+      }
+    }
+
     const [{ data: family }, { data: profile }] = await Promise.all([
       supabase.from("families").select("name").eq("id", event.family_id).maybeSingle(),
       supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
