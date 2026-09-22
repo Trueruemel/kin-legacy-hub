@@ -236,12 +236,27 @@
  */
 @layer utilities {
   @media (prefers-reduced-motion: no-preference) {
-    .reveal-wipe[data-inview] {
-      transition: clip-path 650ms ease-out;
-      transition-delay: var(--reveal-delay, 0ms);
+    /* The wipe animates an inner element: Chromium factors an element's own
+       clip-path into IntersectionObserver geometry, so a fully clipped
+       observed element would never report "in view". */
+    .reveal-wipe > .reveal-wipe-clip {
+      display: block;
     }
-    .reveal-wipe[data-inview="false"] {
-      clip-path: inset(0 100% 0 0);
+    .reveal-wipe[data-inview="true"] > .reveal-wipe-clip {
+      animation: reveal-wipe-in 650ms ease-out both;
+      animation-delay: var(--reveal-delay, 0ms);
+    }
+    .reveal-wipe[data-inview="false"] > .reveal-wipe-clip {
+      opacity: 0;
+    }
+
+    @keyframes reveal-wipe-in {
+      from {
+        clip-path: inset(0 100% 0 0);
+      }
+      to {
+        clip-path: inset(0 0 0 0);
+      }
     }
 
     .reveal-zoom[data-inview] {
@@ -274,6 +289,9 @@
   @media (prefers-reduced-motion: reduce) {
     :is(.reveal-wipe, .reveal-zoom, .reveal-fade)[data-inview] {
       transition: opacity 200ms ease-out;
+    }
+    .reveal-wipe > .reveal-wipe-clip {
+      animation: none;
     }
     .reveal-zoom[data-inview="true"] {
       opacity: var(--reveal-opacity, 1);

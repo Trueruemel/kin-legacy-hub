@@ -41,6 +41,12 @@ export function Reveal({
   const { ref, inView } = useInView<HTMLElement>();
   const mergedStyle: CSSProperties | undefined =
     delay !== undefined ? ({ ...style, "--reveal-delay": `${delay}ms` } as CSSProperties) : style;
+  // The wipe must clip an inner element, not the observed one: Chromium
+  // factors the element's own clip-path into IntersectionObserver geometry,
+  // so a fully clipped target would report "not intersecting" forever and
+  // the reveal could never trigger.
+  const content =
+    effect === "wipe" ? <span className="reveal-wipe-clip">{children}</span> : children;
   return createElement(
     as,
     {
@@ -50,6 +56,6 @@ export function Reveal({
       "data-inview": inView ? "true" : "false",
       ...(mergedStyle ? { style: mergedStyle } : {}),
     },
-    children,
+    content,
   );
 }
