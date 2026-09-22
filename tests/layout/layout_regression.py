@@ -199,7 +199,16 @@ async def check_page(page, name: str, path: str, label: str, width: int) -> list
             "[data-inview]{opacity:1!important;transform:none!important}"
         )
     )
-    await page.wait_for_timeout(1500)
+    # Wait until every already-requested image finished decoding, so screenshots
+    # do not depend on network timing.
+    try:
+        await page.wait_for_function(
+            "Array.from(document.images).every((i) => i.complete)", timeout=15000
+        )
+    except Exception:  # noqa: BLE001
+        pass
+    await page.wait_for_timeout(2000)
+
 
 
     result = await page.evaluate(MEASURE_JS, IGNORE_SELECTOR)
