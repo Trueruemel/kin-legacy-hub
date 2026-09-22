@@ -90,7 +90,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       }
 
       const session = await stripe.checkout.sessions.create({
-        line_items: [{ price: stripePrice.id, quantity: data.quantity || 1 }],
+        // One plan per checkout — the quantity is fixed by the server.
+        line_items: [{ price: stripePrice.id, quantity: 1 }],
         mode: isRecurring ? "subscription" : "payment",
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
