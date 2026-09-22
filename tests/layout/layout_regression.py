@@ -145,7 +145,26 @@ def compare_screenshot(name: str) -> tuple[str, str]:
     return "ok", f"{share * 100:.2f}% pixel difference"
 
 
-async def sign_in(page) -> bool:
+async def sign_in(context, page) -> bool:
+    """Restore an injected session if one exists, otherwise use the login form."""
+    cookies_json = os.environ.get("LOVABLE_BROWSER_SUPABASE_COOKIES_JSON")
+    storage_key = os.environ.get("LOVABLE_BROWSER_SUPABASE_STORAGE_KEY")
+    session_json = os.environ.get("LOVABLE_BROWSER_SUPABASE_SESSION_JSON")
+    if cookies_json or (storage_key and session_json):
+        if cookies_json:
+            await context.add_cookies(
+                [{**c, "url": BASE_URL} for c in json.loads(cookies_json)]
+            )
+        await page.goto(BASE_URL, wait_until="domcontentloaded")
+        if storage_key and session_json:
+            await page.evaluate(
+                f"localStorage.setItem({json.dumps(storage_key)}, {json.dumps(session_json)})"
+            )
+        await page.goto(f"{BASE_URL}/feed", wait_until="domcontentloaded")
+        await page.wait_for_timeout(1500)
+        if "/auth" not in page.url:
+            return True
+
     await page.goto(f"{BASE_URL}/auth", wait_until="domcontentloaded")
     try:
         await page.fill("#email", EMAIL)
@@ -156,6 +175,7 @@ async def sign_in(page) -> bool:
     except Exception as err:  # noqa: BLE001 - reported, not raised
         print(f"  ! sign-in failed: {err}")
         return False
+
 
 
 async def check_page(page, name: str, path: str, label: str, width: int) -> list[str]:
