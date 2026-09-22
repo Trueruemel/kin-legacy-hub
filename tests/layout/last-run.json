@@ -1,7 +1,5 @@
 {
   "failures": [
-    "feed-mobile: visual drift \u2014 2.28% of pixels changed (limit 1.00%)",
-    "gallery-mobile: visual drift \u2014 13.33% of pixels changed (limit 1.00%)",
-    "tree-mobile: visual drift \u2014 1.47% of pixels changed (limit 1.00%)"
+    "gallery-mobile: visual drift \u2014 13.33% of pixels changed (limit 1.00%)"
   ]
 }
