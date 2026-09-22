@@ -30,7 +30,10 @@ import {
   MEMORY_PROMPTS,
   TRUST_POINTS,
 } from "@/lib/eternal-copy";
-import { photo, photoPool } from "@/lib/mock-data";
+import albumFlatlay from "@/assets/album-flatlay.jpg";
+import handsPhoto from "@/assets/hands-photo.jpg";
+import heroFamily from "@/assets/hero-family.jpg";
+import tableGathering from "@/assets/table-gathering.jpg";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -50,6 +53,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Start with one question. Build a living family archive at your own pace.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LandingPage,
@@ -99,19 +104,19 @@ export function LandingPage() {
       {/* ---------------------------------------------------------------- */}
       {/* Header                                                            */}
       {/* ---------------------------------------------------------------- */}
-      <header className="absolute inset-x-0 top-0 z-20 text-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 px-5 py-5 sm:px-8 lg:px-10">
+      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 px-5 py-4 sm:px-8 lg:px-10">
           <Link
             to="/"
             aria-label="Eternal Memories home"
             className="inline-flex min-h-11 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >
-            <Wordmark variant="dark" />
+            <Wordmark />
           </Link>
 
           <button
             type="button"
-            className="ml-auto inline-flex size-11 items-center justify-center rounded-md border border-white/25 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:hidden"
+            className="ml-auto inline-flex size-11 items-center justify-center rounded-md border border-border text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:hidden"
             aria-expanded={menuOpen}
             aria-controls={navId}
             onClick={() => setMenuOpen((open) => !open)}
@@ -132,13 +137,13 @@ export function LandingPage() {
               menuOpen ? "block" : "hidden",
             )}
           >
-            <ul className="flex flex-col gap-1 rounded-xl border border-white/15 bg-navy-deep/95 p-2 text-sm font-medium lg:flex-row lg:items-center lg:gap-7 lg:border-0 lg:bg-transparent lg:p-0">
+            <ul className="flex flex-col gap-1 rounded-xl border border-border bg-card p-2 text-sm font-medium lg:flex-row lg:items-center lg:gap-7 lg:border-0 lg:bg-transparent lg:p-0">
               {NAV.map((item) => (
                 <li key={item.href}>
                   <a
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className="inline-flex min-h-11 items-center rounded-md px-3 text-white/85 transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:px-0"
+                    className="inline-flex min-h-11 items-center rounded-md px-3 text-foreground/75 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:px-0"
                   >
                     {item.label}
                   </a>
@@ -148,7 +153,7 @@ export function LandingPage() {
                 <Link
                   to="/demo"
                   onClick={() => setMenuOpen(false)}
-                  className="inline-flex min-h-11 items-center rounded-md px-3 text-white/85 transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:px-0"
+                  className="inline-flex min-h-11 items-center rounded-md px-3 text-foreground/75 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:px-0"
                 >
                   Explore demo
                 </Link>
@@ -157,7 +162,7 @@ export function LandingPage() {
                 <Link
                   to="/auth"
                   onClick={() => setMenuOpen(false)}
-                  className="inline-flex min-h-11 items-center rounded-md px-3 text-white/85 transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="inline-flex min-h-11 items-center rounded-md px-3 text-foreground/75 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
                   Sign in
                 </Link>
@@ -166,7 +171,7 @@ export function LandingPage() {
           </nav>
 
           <Button
-            className="hidden min-h-11 bg-gold text-gold-foreground shadow-lg shadow-gold/20 hover:bg-gold/90 focus-visible:ring-2 focus-visible:ring-white lg:inline-flex"
+            className="hidden min-h-11 focus-visible:ring-2 focus-visible:ring-gold lg:inline-flex"
             onClick={startWithQuestion}
           >
             {BRAND.primaryCta} <ArrowRight aria-hidden="true" />
@@ -176,45 +181,69 @@ export function LandingPage() {
 
       <main id="main-content" tabIndex={-1}>
         {/* -------------------------------------------------------------- */}
-        {/* Hero                                                            */}
+        {/* Hero — linen half, photograph half                             */}
         {/* -------------------------------------------------------------- */}
         <section
-          className="grid bg-navy-deep text-white lg:min-h-[720px] lg:grid-cols-[48%_52%]"
+          className="relative overflow-hidden bg-navy-deep text-on-dark lg:min-h-[640px]"
           aria-labelledby="hero-title"
         >
-          <div className="relative z-10 flex items-center px-5 pb-16 pt-28 sm:px-8 sm:pt-32 lg:ml-auto lg:max-w-2xl lg:pr-14">
-            <Reveal effect="fade">
-              <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-gold">
-                <span className="h-px w-10 bg-gold" aria-hidden="true" />A living archive for the
+          {/* Full-bleed photograph behind the copy, anchored under a deep-green
+              wash so the text stays legible in both themes. */}
+          <div className="absolute inset-0">
+            {/* Extra height prevents the gentle desktop parallax from exposing an edge.
+                The mobile crop keeps the family visible without competing with the copy. */}
+            <img
+              ref={heroImage.ref}
+              data-inview={heroImage.inView ? "true" : "false"}
+              src={heroFamily}
+              alt="A grandmother showing an old photo album to her granddaughter on a sunlit porch, parents looking on"
+              className="reveal-zoom absolute inset-x-0 -top-[10%] h-[110%] w-full object-cover object-[62%_center] sm:-top-[15%] sm:h-[115%] sm:object-[58%_center] lg:-top-[20%] lg:h-[120%] lg:object-center"
+              width={1600}
+              height={1200}
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-b from-navy-deep/85 via-navy-deep/75 to-navy-deep/95 lg:hidden"
+              aria-hidden="true"
+            />
+            <div
+              className="absolute inset-0 hidden bg-gradient-to-r from-navy-deep via-navy-deep/80 to-navy-deep/35 lg:block"
+              aria-hidden="true"
+            />
+          </div>
+
+          <div className="relative flex items-center px-4 py-12 min-[360px]:px-5 min-[360px]:py-14 sm:px-8 sm:py-20 lg:min-h-[640px] lg:px-10 lg:py-28">
+            <Reveal effect="fade" className="w-full max-w-3xl">
+              <p className="flex max-w-xs items-center gap-2 text-[0.7rem] font-bold uppercase leading-5 text-gold min-[360px]:gap-3 min-[360px]:text-xs sm:max-w-none">
+                <span className="h-px w-7 shrink-0 bg-gold min-[360px]:w-10" aria-hidden="true" />A living archive for the
                 people you love
               </p>
               <h1
                 id="hero-title"
-                className="mt-6 max-w-2xl font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
+                className="mt-4 max-w-2xl font-display text-3xl font-semibold leading-[1.1] text-on-dark min-[360px]:mt-5 min-[360px]:text-4xl sm:mt-6 sm:text-5xl lg:text-6xl"
               >
                 Capture a story while you can still{" "}
                 <em className="font-normal text-gold">ask it.</em>
               </h1>
-              <p className="mt-7 max-w-xl text-lg leading-8 text-white/80">
+              <p className="mt-5 max-w-xl text-base leading-7 text-on-dark min-[360px]:mt-6 min-[360px]:text-lg min-[360px]:leading-8 sm:mt-7">
                 A calm, private place for your family&apos;s voices, photographs, names, and the
                 details that make them matter.
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+              <div className="mt-7 grid items-center gap-3 min-[360px]:mt-8 sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-4">
                 <Button
                   size="lg"
-                  className="min-h-12 bg-gold px-5 text-base text-gold-foreground shadow-xl shadow-gold/20 hover:bg-gold/90 focus-visible:ring-2 focus-visible:ring-white"
+                  className="min-h-12 w-full px-4 text-base focus-visible:ring-2 focus-visible:ring-on-dark sm:w-auto sm:px-5"
                   onClick={startWithQuestion}
                 >
                   {BRAND.primaryCta} <ArrowRight aria-hidden="true" />
                 </Button>
                 <Link
                   to="/demo"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-semibold text-white transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="inline-flex min-h-11 w-fit items-center gap-2 rounded-md text-sm font-semibold text-on-dark transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark"
                 >
                   {BRAND.secondaryCta} <ChevronRight className="size-4" aria-hidden="true" />
                 </Link>
               </div>
-              <ul className="mt-14 flex flex-wrap gap-5 text-xs text-white/75">
+              <ul className="mt-7 grid grid-cols-1 gap-3 text-xs font-semibold text-on-dark min-[360px]:mt-9 min-[360px]:grid-cols-2 min-[360px]:gap-4 sm:mt-12 sm:flex sm:flex-wrap sm:gap-5">
                 <li className="inline-flex items-center gap-2">
                   <LockKeyhole className="size-4 text-gold" aria-hidden="true" /> Private by default
                 </li>
@@ -225,30 +254,10 @@ export function LandingPage() {
             </Reveal>
           </div>
 
-          <div className="relative min-h-[320px] overflow-hidden sm:min-h-[430px] lg:min-h-[720px]">
-            {/* 120% tall and shifted up so the parallax never exposes the container edge. */}
-            <img
-              ref={heroImage.ref}
-              data-inview={heroImage.inView ? "true" : "false"}
-              src={photo(photoPool[0]!, 1600)}
-              alt="Four generations of a family gathered around a long table at a reunion"
-              className="reveal-zoom absolute inset-x-0 -top-[20%] h-[120%] w-full object-cover [--reveal-opacity:0.85]"
-              width={1600}
-              height={1067}
-            />
-            <div
-              className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/30 to-transparent"
-              aria-hidden="true"
-            />
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-navy-deep/60 via-transparent to-transparent"
-              aria-hidden="true"
-            />
-            <p className="absolute bottom-8 right-6 hidden items-center gap-3 font-display text-base italic text-white/90 sm:flex lg:bottom-12 lg:right-8">
-              <span className="h-px w-10 bg-gold" aria-hidden="true" />
-              Every family has a story worth hearing.
-            </p>
-          </div>
+          <p className="absolute bottom-6 right-6 z-10 hidden items-center gap-3 rounded-full bg-navy-deep/60 px-5 py-2 font-display text-sm italic text-on-dark shadow-sm backdrop-blur sm:flex lg:bottom-10 lg:right-10">
+            <span className="h-px w-8 bg-gold" aria-hidden="true" />
+            Every family has a story worth hearing.
+          </p>
         </section>
 
         {/* -------------------------------------------------------------- */}
@@ -261,7 +270,7 @@ export function LandingPage() {
         >
           <div className="mx-auto max-w-6xl">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-warm-accent">
                 A simple beginning
               </p>
               <Reveal
@@ -358,18 +367,25 @@ export function LandingPage() {
                 ask.
               </Reveal>
               <a
-                className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gold hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 href="#privacy"
               >
                 Read our approach to privacy <ArrowRight className="size-4" aria-hidden="true" />
               </a>
             </div>
-            <div className="hidden self-center text-center lg:block" aria-hidden="true">
-              <span className="font-display text-9xl text-white/10">EM</span>
-              <span className="block text-xs uppercase tracking-[0.16em] text-gold">
+            <figure className="hidden self-center lg:block">
+              <img
+                src={handsPhoto}
+                alt="Weathered hands holding a small black-and-white family photograph on a linen tablecloth"
+                loading="lazy"
+                width={1408}
+                height={1008}
+                className="aspect-4/3 w-full rounded-2xl object-cover shadow-lg"
+              />
+              <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-gold">
                 made for passing on
-              </span>
-            </div>
+              </figcaption>
+            </figure>
           </div>
         </section>
 
@@ -382,7 +398,7 @@ export function LandingPage() {
           aria-labelledby="start-title"
         >
           <div className="mx-auto max-w-6xl">
-            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
+            <p className="mb-5 text-sm font-bold uppercase tracking-[0.18em] text-warm-accent">
               Your first memory
             </p>
             <div className="grid items-start gap-12 lg:grid-cols-[.85fr_1.15fr] lg:gap-24">
@@ -518,7 +534,7 @@ export function LandingPage() {
           <div className="mx-auto max-w-6xl">
             <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:items-end">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
+                <p className="text-sm font-bold uppercase tracking-[0.18em] text-warm-accent">
                   The family journey
                 </p>
                 <Reveal
@@ -587,21 +603,29 @@ export function LandingPage() {
             </Reveal>
             <Reveal
               effect="fade"
-              className="mt-10 flex flex-col items-start justify-between gap-5 rounded-2xl bg-secondary p-7 sm:flex-row sm:items-center"
+              className="mt-10 grid overflow-hidden rounded-2xl bg-secondary md:grid-cols-2"
             >
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-gold">
+              <img
+                src={albumFlatlay}
+                alt="An open linen-bound family album with vintage prints, a pen and pressed leaves"
+                loading="lazy"
+                width={1408}
+                height={1008}
+                className="h-56 w-full object-cover md:h-full"
+              />
+              <div className="flex flex-col items-start justify-center gap-5 p-7 sm:p-10">
+                <p className="text-sm font-bold uppercase tracking-[0.16em] text-warm-accent">
                   Explore the demo family
                 </p>
-                <h3 className="mt-2 font-display text-2xl">
+                <h3 className="font-display text-2xl leading-snug sm:text-3xl">
                   See how one memory becomes part of a bigger story.
                 </h3>
+                <Button asChild className="min-h-11">
+                  <Link to="/demo">
+                    Open demo archive <ArrowRight aria-hidden="true" />
+                  </Link>
+                </Button>
               </div>
-              <Button asChild className="min-h-11">
-                <Link to="/demo">
-                  Open demo archive <ArrowRight aria-hidden="true" />
-                </Link>
-              </Button>
             </Reveal>
           </div>
         </section>
@@ -622,7 +646,7 @@ export function LandingPage() {
               >
                 <ShieldCheck className="size-6" />
               </span>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-gold">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-warm-accent">
                 Built around your family&apos;s control
               </p>
               <Reveal
@@ -674,20 +698,39 @@ export function LandingPage() {
         </section>
       </main>
 
+      {/* Closing image band */}
+      <div className="relative h-56 overflow-hidden sm:h-72 lg:h-80">
+        <img
+          src={tableGathering}
+          alt="A long family table set in a garden at golden hour, several generations gathered"
+          loading="lazy"
+          width={1600}
+          height={900}
+          className="size-full object-cover"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/55 to-navy-deep/10"
+          aria-hidden="true"
+        />
+        <p className="absolute inset-x-0 bottom-6 z-10 px-5 text-center font-display text-xl font-semibold italic text-on-dark sm:text-2xl">
+          The table gets longer. The stories stay.
+        </p>
+      </div>
+
       {/* ---------------------------------------------------------------- */}
       {/* Footer                                                            */}
       {/* ---------------------------------------------------------------- */}
-      <footer className="bg-navy-deep px-5 py-14 text-white sm:px-8 lg:px-10">
+      <footer className="bg-navy-deep px-5 py-14 text-on-dark sm:px-8 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 md:grid-cols-3 md:items-center">
             <Wordmark variant="dark" />
-            <p className="max-w-xs text-sm text-white/75">
+            <p className="max-w-xs text-sm font-medium text-on-dark">
               A calm place for the stories that make a family.
             </p>
             <div className="flex flex-wrap items-center gap-4 md:justify-end">
               <span className="font-display text-lg italic text-gold">{BRAND.tagline}</span>
               <Button
-                className="min-h-11 bg-gold text-gold-foreground hover:bg-gold/90 focus-visible:ring-2 focus-visible:ring-white"
+                className="min-h-11 focus-visible:ring-2 focus-visible:ring-on-dark"
                 onClick={startWithQuestion}
               >
                 {BRAND.primaryCta} <ArrowRight aria-hidden="true" />
@@ -696,7 +739,7 @@ export function LandingPage() {
           </div>
           <nav
             aria-label="Footer"
-            className="mt-12 flex flex-col gap-4 border-t border-white/15 pt-5 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between"
+            className="mt-12 flex flex-col gap-4 border-t border-on-dark/25 pt-5 text-xs text-on-dark/85 sm:flex-row sm:items-center sm:justify-between"
           >
             <span>© 2026 Eternal Memories</span>
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
