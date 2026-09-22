@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type Stripe from "stripe";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { DONATION } from "@/lib/products";
+import { DONATION, donationAmountCents } from "@/lib/products";
 import {
   createStripeClient,
   getStripeErrorMessage,
@@ -143,7 +143,7 @@ export const createDonationCheckout = createServerFn({ method: "POST" })
             price_data: {
               currency: "usd",
               product_data: { name: DONATION.label },
-              unit_amount: data.amountInCents,
+              unit_amount: donationAmountCents(data.amountDollars),
             },
             quantity: 1,
           },

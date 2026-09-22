@@ -37,8 +37,8 @@ function SupportPage() {
   const [amount, setAmount] = useState("10");
   const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
-  const cents = Math.round(Number(amount.replace(",", ".")) * 100);
-  const validAmount = Number.isInteger(cents) && cents >= 100 && cents <= 500000;
+  const dollars = Math.floor(Number(amount.replace(",", ".")));
+  const validAmount = Number.isFinite(dollars) && dollars >= 1 && dollars <= 5000;
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 
   return (
@@ -58,7 +58,7 @@ function SupportPage() {
         ) : open ? (
           <StripeCheckoutForm
             kind="donation"
-            amountInCents={cents}
+            amountDollars={dollars}
             customerEmail={email.trim()}
             returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
           />
