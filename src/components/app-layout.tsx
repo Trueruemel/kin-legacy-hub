@@ -245,7 +245,7 @@ function InviteDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <Button
         onClick={() => setOpen(true)}
-        className="w-full bg-gold text-gold-foreground hover:bg-gold/90"
+        className="w-full"
         size="sm"
       >
         <UserPlus className="mr-2 size-4" />
@@ -274,7 +274,7 @@ function InviteDialog() {
             Cancel
           </Button>
           <Button
-            className="bg-gold text-gold-foreground hover:bg-gold/90"
+            className=""
             onClick={() => {
               setOpen(false);
               toast.success("Invitation sent");
