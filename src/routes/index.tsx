@@ -200,6 +200,8 @@ export function LandingPage() {
               className="reveal-zoom absolute inset-x-0 -top-[10%] h-[110%] w-full object-cover object-[62%_center] sm:-top-[15%] sm:h-[115%] sm:object-[58%_center] lg:-top-[20%] lg:h-[120%] lg:object-center"
               width={1600}
               height={1200}
+              decoding="async"
+              fetchPriority="high"
             />
             <div
               className="absolute inset-0 bg-gradient-to-b from-navy-deep/85 via-navy-deep/75 to-navy-deep/95 lg:hidden"
@@ -378,6 +380,7 @@ export function LandingPage() {
                 src={handsPhoto}
                 alt="Weathered hands holding a small black-and-white family photograph on a linen tablecloth"
                 loading="lazy"
+                decoding="async"
                 width={1408}
                 height={1008}
                 className="aspect-4/3 w-full rounded-2xl object-cover shadow-lg"
@@ -609,6 +612,7 @@ export function LandingPage() {
                 src={albumFlatlay}
                 alt="An open linen-bound family album with vintage prints, a pen and pressed leaves"
                 loading="lazy"
+                decoding="async"
                 width={1408}
                 height={1008}
                 className="h-56 w-full object-cover md:h-full"
@@ -704,8 +708,9 @@ export function LandingPage() {
           src={tableGathering}
           alt="A long family table set in a garden at golden hour, several generations gathered"
           loading="lazy"
+          decoding="async"
           width={1600}
-          height={900}
+          height={912}
           className="size-full object-cover"
         />
         <div
