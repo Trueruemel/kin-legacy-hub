@@ -58,20 +58,10 @@ async function resolveOrCreateCustomer(
  */
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (data: {
-      priceId: string;
-      quantity?: number;
-      returnUrl: string;
-      environment: StripeEnv;
-    }) => {
-      if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid priceId");
-      if (data.quantity !== undefined && (!Number.isInteger(data.quantity) || data.quantity < 1)) {
-        throw new Error("Invalid quantity");
-      }
-      return data;
-    },
-  )
+  .inputValidator((data: { priceId: string; returnUrl: string; environment: StripeEnv }) => {
+    if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid priceId");
+    return data;
+  })
   .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
     try {
       const stripe = createStripeClient(data.environment);
