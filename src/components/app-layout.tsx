@@ -6,6 +6,7 @@ import {
   ChefHat,
   Home,
   Images,
+  FileText,
   LayoutDashboard,
   LockKeyhole,
   LogOut,
