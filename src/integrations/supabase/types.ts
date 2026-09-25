@@ -329,6 +329,59 @@ export type Database = {
         }
         Relationships: []
       }
+      family_documents: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          mime: string
+          search: unknown
+          status: string
+          storage_path: string
+          summary: string | null
+          title: string
+          transcription: string | null
+          uploaded_by: string
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          mime: string
+          search?: unknown
+          status?: string
+          storage_path: string
+          summary?: string | null
+          title: string
+          transcription?: string | null
+          uploaded_by?: string
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          mime?: string
+          search?: unknown
+          status?: string
+          storage_path?: string
+          summary?: string | null
+          title?: string
+          transcription?: string | null
+          uploaded_by?: string
+          uploaded_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_documents_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_invitations: {
         Row: {
           accepted: boolean
