@@ -140,7 +140,7 @@ function DocumentArchive({
           familyId,
           title: title.trim() || file.name,
           storagePath: path,
-          mime: file.type as (typeof ACCEPTED)[number] as "application/pdf",
+          mime: file.type as "application/pdf",
           uploadedByName: uploaderName,
         },
       });

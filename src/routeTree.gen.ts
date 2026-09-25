@@ -21,6 +21,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedCreateMemoryRouteImport } from './routes/_authenticated/create-memory'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedGalleryRouteImport } from './routes/_authenticated/gallery'
 import { Route as AuthenticatedMembersRouteImport } from './routes/_authenticated/members'
@@ -104,6 +105,11 @@ const AuthenticatedCreateMemoryRoute =
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof AuthenticatedCalendarRoute
   '/create-memory': typeof AuthenticatedCreateMemoryRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/gallery': typeof AuthenticatedGalleryRoute
   '/members': typeof AuthenticatedMembersRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof AuthenticatedCalendarRoute
   '/create-memory': typeof AuthenticatedCreateMemoryRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/gallery': typeof AuthenticatedGalleryRoute
   '/members': typeof AuthenticatedMembersRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/create-memory': typeof AuthenticatedCreateMemoryRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/gallery': typeof AuthenticatedGalleryRoute
   '/_authenticated/members': typeof AuthenticatedMembersRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/create-memory'
     | '/dashboard'
+    | '/documents'
     | '/feed'
     | '/gallery'
     | '/members'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/create-memory'
     | '/dashboard'
+    | '/documents'
     | '/feed'
     | '/gallery'
     | '/members'
@@ -427,6 +438,7 @@ export interface FileRouteTypes {
     | '/_authenticated/calendar'
     | '/_authenticated/create-memory'
     | '/_authenticated/dashboard'
+    | '/_authenticated/documents'
     | '/_authenticated/feed'
     | '/_authenticated/gallery'
     | '/_authenticated/members'
@@ -554,6 +566,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/documents': {
+      id: '/_authenticated/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/feed': {
@@ -724,6 +743,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedCreateMemoryRoute: typeof AuthenticatedCreateMemoryRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedGalleryRoute: typeof AuthenticatedGalleryRoute
   AuthenticatedMembersRoute: typeof AuthenticatedMembersRoute
@@ -747,6 +767,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedCreateMemoryRoute: AuthenticatedCreateMemoryRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedGalleryRoute: AuthenticatedGalleryRoute,
   AuthenticatedMembersRoute: AuthenticatedMembersRoute,

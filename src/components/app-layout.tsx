@@ -72,6 +72,7 @@ const navItems = [
   { to: "/tree", label: "Family Tree", icon: Users2 },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/gallery", label: "Media Gallery", icon: Images },
+  { to: "/documents", label: "Documents", icon: FileText },
   { to: "/vault", label: "Legacy Vault", icon: LockKeyhole },
   { to: "/recipes", label: "Family Recipes", icon: ChefHat },
   { to: "/forums", label: "Forums", icon: BookOpen },
