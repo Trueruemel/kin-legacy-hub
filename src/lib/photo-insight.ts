@@ -43,7 +43,7 @@ const RESPONSE_SCHEMA = {
 } as const;
 
 /** Reads the gateway's SSE stream and joins the answer text. */
-async function readOutputText(response: Response): Promise<string> {
+export async function readOutputText(response: Response): Promise<string> {
   const body = response.body;
   if (!body) return "";
   const reader = body.getReader();

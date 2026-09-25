@@ -21,7 +21,13 @@ export default defineConfig({
   },
   vite: {
     plugins: [mcpPlugin()],
+    // Pre-bundle React once so the browser never mixes two copies of React
+    // (the cause of "Cannot read properties of null (reading 'use')").
+    optimizeDeps: {
+      include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"],
+    },
     resolve: {
+      dedupe: ["react", "react-dom"],
       alias: {
         "entities/lib/decode.js": path.resolve(
           process.cwd(),
